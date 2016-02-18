@@ -9,6 +9,7 @@ class Core_Controller extends Core_Controller_Abstract
 {
     static public function route()
     {
+        Login_Controller::redirect('/login');
         $code_dir = opendir(DIR_CODE);
         while ($file = readdir($code_dir))
         {

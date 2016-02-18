@@ -21,4 +21,12 @@ class Core_Controller_Abstract
     {
         return Core_Model_Response::instance();
     }
+
+    /**
+     * Return session singleton
+     */
+    static public function getSession()
+    {
+        return Core_Model_Session::instance();
+    }
 }

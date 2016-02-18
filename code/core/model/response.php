@@ -9,9 +9,11 @@ class Core_Model_Response
     protected static $instance = null;
 
     public $format = 'html';
+
     public $title = 'Money.cpi';
     public $body = '';
     public $body_template = '';
+    public $body_data = array();
 
     protected $header = '200 OK';
 
@@ -62,6 +64,7 @@ class Core_Model_Response
                 'title' => $this->title,
                 'body' => $this->body,
                 'body_template' => $this->body_template,
+                'body_data' => $this->body_data,
             ));
             header("HTTP/1.0 " . $this->header);
             echo $view->render();
