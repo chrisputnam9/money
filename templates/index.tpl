@@ -2,10 +2,7 @@
 <p>Add a transaction:</p>
 <ul>
     <li>
-        <a href="/transaction/image">Camera</a>
-    </li>
-    <li>
-        <a href="/transaction/image">Upload</a>
+        <a href="/transaction/image">Image</a>
     </li>
     <li>
         <a href="/transaction/form">Manual</a>

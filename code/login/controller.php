@@ -6,31 +6,63 @@ namespace MCPI;
  */
 class Login_Controller extends Core_Controller_Abstract
 {
+
     /**
-     * Check if logged in
-     * redirect to path if not
+     * Route login paths
      */
-    public function redirect($path, $privilege="*")
+    static public function route()
     {
-        if (!self::check($privilege))
+        $request = self::getRequest();
+        if ($request->index(0,'login'))
         {
-            self::getResponse()->redirect($path);
+            $response = self::getResponse();
+            $response->body_template = 'login';
+
+            if ($request->is('post'))
+            {
+                $data = self::loginPost();
+                $response->body_data = $data;
+            }
+
+            $response->finalize();
         }
     }
 
     /**
-     * Check if session user has privilege level
-     *  * - any privilege, just checks logged_in
+     * Process login request
      */
-    public function check($privilege="*")
+    protected static function loginPost()
     {
-        $session = self::getSession();
+        $request = self::getRequest();
+        if (
+            empty($request->post('username'))
+            or empty($request->post('password'))
+        ){
+            return ['error' => 'Please specify both username and password'];
+        }
 
-        if (!$session->logged_in)
-            return false;
+        if (Login_Helper::login($request->post('username'), $request->post('password')))
+        {
+            self::getResponse()->redirect('/');
+        }
 
-        if ($privilege == "*")
-            return true;
+        return ['error' => 'Incorrect username or password'];
     }
-}
 
+    /**
+     * Check if logged in
+     * redirect to path if not
+     */
+    public static function redirect($path, $privilege="*")
+    {
+        self::route();
+        if (!Login_Helper::check($privilege))
+        {
+            self::getResponse()->redirect($path, array(
+                'redirect' => self::getRequest()->url
+            ));
+        }
+    }
+
+}
+Login_Controller::route();

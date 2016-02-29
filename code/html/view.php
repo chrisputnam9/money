@@ -58,14 +58,20 @@ class Html_View
                 return 'Empty';
         }
 
+        $data = $this->_fresh
+            ? $this
+            : $this->body_data
+        ;
+
         $this->_fresh = false;
-        $m = new Mustache_Engine(array(
+        $m = new Mustache_Engine([
             'template_class_prefix' => '__MCPI_' . $template . '_',
             'cache' => DIR_TMP,
             'loader' => new Mustache_Loader_FilesystemLoader(DIR_TEMPLATES, array('extension' => 'tpl')),
             'partials_loader' => new Mustache_Loader_FilesystemLoader(DIR_TEMPLATES . $template, array('extension' => 'tpl')),
-        ));
-        return $m->render($template, $this);
+        ]);
+
+        return $m->render($template, $data);
     }
 
 }

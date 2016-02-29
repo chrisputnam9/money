@@ -9,7 +9,7 @@ class Index_Controller extends Core_Controller_Abstract
     static public function route()
     {
         $request = self::getRequest();
-        if (empty($request->uri_segments[0]))
+        if (empty($request->index()))
         {
             $response = self::getResponse();
             $response->body_template = 'index';

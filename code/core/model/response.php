@@ -4,7 +4,7 @@ namespace MCPI;
 /**
  * Response Singleton
  */
-class Core_Model_Response
+class Core_Model_Response extends Core_Model_Abstract
 {
     protected static $instance = null;
 
@@ -15,10 +15,12 @@ class Core_Model_Response
     public $body_template = '';
     public $body_data = array();
 
-    protected $header = '200 OK';
+    protected $status = '200 OK';
 
     protected $codes_allowed = array(
         '200' => '200 OK',
+        '301' => 'Moved Permanently',
+        '302' => 'Found',
         '404' => '404 Not Found',
     );
 
@@ -48,8 +50,34 @@ class Core_Model_Response
     {
         if (!empty($this->codes_allowed[$code]))
         {
-            $this->header = $this->codes_allowed[$code];
+            $this->status = $this->codes_allowed[$code];
         }
+        return $this;
+    }
+
+    /**
+     * Redirect
+     */
+    public function redirect($url, $data=[], $code='301')
+    {
+        if (!is_array($data))
+        {
+            $code = $data;
+            $data = array();
+        }
+
+        $url_parts = parse_url($url);
+        $url_path = empty($url_parts['path']) ? '/' : $url_parts['path'];
+        $url_data = [];
+        if (!empty($url_parts['query']))
+            parse_str($url_parts['query'], $url_data);
+        $url_data = array_merge($url_data, $data);
+        $query_string = http_build_query($url_data);
+        $url = $url_path . (empty($query_string) ? '' : '?' . $query_string);
+        $this->setCode($code);
+        header("HTTP/1.0 " . $this->status);
+        header("Location: " . $url);
+        exit;
     }
 
     /**
@@ -66,7 +94,7 @@ class Core_Model_Response
                 'body_template' => $this->body_template,
                 'body_data' => $this->body_data,
             ));
-            header("HTTP/1.0 " . $this->header);
+            header("HTTP/1.0 " . $this->status);
             echo $view->render();
         }
         else

@@ -6,5 +6,5 @@ define( 'DS', DIRECTORY_SEPARATOR );
 define( 'DIR_ROOT', __DIR__ . DS . '..' . DS );
 define( 'DIR_CONFIG', DIR_ROOT . 'config' . DS );
 define( 'DIR_CODE', DIR_ROOT . 'code' . DS );
-define( 'DIR_TEMPLATES', DIR_ROOT . 'public' . DS . 'templates' . DS );
+define( 'DIR_TEMPLATES', DIR_ROOT . 'templates' . DS );
 define( 'DIR_TMP', DIR_ROOT . 'tmp' . DS );
