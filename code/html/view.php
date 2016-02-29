@@ -63,13 +63,17 @@ class Html_View
             : $this->body_data
         ;
 
+
         $this->_fresh = false;
-        $m = new Mustache_Engine([
+        $args = [
             'template_class_prefix' => '__MCPI_' . $template . '_',
             'cache' => DIR_TMP,
             'loader' => new Mustache_Loader_FilesystemLoader(DIR_TEMPLATES, array('extension' => 'tpl')),
-            'partials_loader' => new Mustache_Loader_FilesystemLoader(DIR_TEMPLATES . $template, array('extension' => 'tpl')),
-        ]);
+        ];
+        $partials = DIR_TEMPLATES . $template;
+        if(is_dir($partials))
+            $args['partials_loader'] = new Mustache_Loader_FilesystemLoader($partials, array('extension' => 'tpl'));
+        $m = new Mustache_Engine($args);
 
         return $m->render($template, $data);
     }
