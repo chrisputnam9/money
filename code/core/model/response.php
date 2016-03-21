@@ -58,7 +58,7 @@ class Core_Model_Response extends Core_Model_Abstract
     /**
      * Redirect
      */
-    public function redirect($url, $data=[], $code='301')
+    public function redirect($url, $data=[], $code='302')
     {
         if (!is_array($data))
         {

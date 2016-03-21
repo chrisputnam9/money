@@ -5,3 +5,15 @@ p.alert {
     padding: 10px;
     font-weight: bold;
 }
+
+.window {
+    overflow: auto;
+}
+    .window.window--thumbnail {
+        width: 100%;
+        height: 200px;
+    }
+
+.img-stretch {
+    width: 100%;
+}

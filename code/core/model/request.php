@@ -36,24 +36,52 @@ class Core_Model_Request extends Core_Model_Abstract
     }
 
     /**
+     * Get FILES value
+     */
+    public function file($key=false)
+    {
+        if ($key === false)
+            return (!empty($_FILES));
+
+        return empty($_FILES[$key])
+            ? false
+            : $_FILES[$key]
+        ;
+    }
+
+    /**
      * Get GET value
      */
-    public function get($key)
+    public function get($key=false, $sanitize='string')
     {
+        $sanitize = 'FILTER_SANITIZE_' . strtoupper($sanitize);
+        if (!defined($sanitize))
+            die('invalid sanitze option: ' . $sanitize);
+
+        if ($key === false)
+            return (!empty($_GET));
+
         return empty($_GET[$key])
             ? false
-            : $_GET[$key]
+            : filter_var($_GET[$key], constant($sanitize))
         ;
     }
 
     /**
      * Get POST value
      */
-    public function post($key)
+    public function post($key=false, $sanitize='string')
     {
+        $sanitize = 'FILTER_SANITIZE_' . strtoupper($sanitize);
+        if (!defined($sanitize))
+            die('invalid sanitze option: ' . $sanitize);
+
+        if ($key === false)
+            return (!empty($_POST));
+
         return empty($_POST[$key])
             ? false
-            : $_POST[$key]
+            : filter_var($_POST[$key], constant($sanitize))
         ;
     }
 
