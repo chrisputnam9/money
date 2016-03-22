@@ -15,16 +15,25 @@
         </div>
         {{/image}}
         <div class="form-group">
+            <label for="classification">Classification</label>
+            <select class="form-control" name="classification" id="classification">
+                <option>Payment</option>
+                <option>Credit</option>
+                <option>Income</option>
+                <option>Transfer</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label for="account_from">Payer - Account/Party From</label>
             <select class="form-control" name="account_from" id="account_from">
-                <option value="nnnn">Amazon Credit (nnnn)</option>
-                <option value="nnnn">Lowe's Credit (nnnn)</option>
-                <option value="nnnn">PNC - Checking (nnnn)</option>
-                <option value="nnnn" selected="selected">PNC - Credit (nnnn)</option>
-                <option value="nnnn">PNC - Debit (nnnn)</option>
-                <option value="nnnn">PNC - Reserve (nnnn)</option>
-                <option value="nnnn">PNC - Savings (nnnn)</option>
-                <option value="nnnn">USAA Credit (nnnn)</option>
+                <option>Amazon Credit (8396)</option>
+                <option>Lowe's Credit (0011)</option>
+                <option>PNC - Checking (8485)</option>
+                <option selected="selected">PNC - Credit (3385)</option>
+                <option>PNC - Debit (9538)</option>
+                <option>PNC - Reserve (8493)</option>
+                <option>PNC - Savings (8506)</option>
+                <option>USAA Credit (1087)</option>
             </select>
         </div>
         <div class="form-group">

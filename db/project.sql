@@ -62,6 +62,7 @@ CREATE TABLE transaction (
 
     amount DECIMAL(10,4) NOT NULL,
     date_occurred DATETIME NOT NULL,
+    image TEXT NOT NULL,
 
     status int(11) NOT NULL,
     classification int(11) NOT NULL,

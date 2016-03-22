@@ -65,5 +65,11 @@ class Transaction_Controller extends Core_Controller_Abstract
 
         $response->redirect('/transaction/form', ['image'=>$filename]);
     }
+
+    // Process main form submission
+    static public function processForm($request, $response)
+    {
+        echo("<pre>".print_r($_POST,true)."</pre>");
+    }
 }
 Transaction_Controller::route();
