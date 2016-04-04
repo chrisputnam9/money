@@ -1,80 +1,47 @@
 <?php
 namespace MCPI;
+use \PDO,\Exception;
 
 /**
  * Core Model Database Object
  */
-class Core_Model_Dbo extends Core_Model_Abstract
+class Core_Model_Dbo extends PDO
 {
-    // Expect all objects to have these fields at minimum
-    protected static $core_fields = [
-        'id',
-        'date_created',
-        'date_updated',
-    ];
-
-    // Other fields
-    public static $fields = [];
-
-    // References
-    // Key=>Value
-    // To Create on demand, include table and main field
-    public static $references = [];
-
-    // Data for this instance
-    protected $data = [];
-
-    // Constructor
-    // $data could be:
-    // data - set each field accordingly
-    public function __construct($data=[], $value='')
+    // Consructor, reads config for credentials
+    function __construct()
     {
-        if (is_array($data) and !empty($data))
-            $this->set($data);
-    }
-
-    // Load
-    // pass one of:
-    // - int - load by id
-    // - field, value - load where field = value
-    // - array of conditions
-    public function load($data, $value='')
-    {
-    }
-    
-    // Getter
-    public function get($field)
-    {
-    }
-
-    // Setter
-    // key, value
-    // or array of key=>value
-    public function set($data=[], $value='')
-    {
-        if (is_string($data))
-            $data = [$data => $value];
-
-        if (!is_array($data))
-            die('Bad variable type for field/data');
-
-        foreach ($data as $field => $value)
-        {
-            if ($this->has_field($field))
-            {
-                $this->data[$field] = $value;
-            }
-        }
-    }
-
-    // Check if field is valid
-    protected function has_field($field)
-    {
-        return (
-            in_array($field, static::core_fields)
-            or in_array($field, static::fields)
-            or isset(static::references[$field])
+        require_once DIR_CONFIG . 'db.php';
+        parent::__construct(
+            'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8mb4',
+            DB_USER,
+            DB_PASS,
+            array(
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            )
         );
     }
 
+    // Get Data
+    function get($sql, $data=[], $type=PDO::FETCH_ASSOC)
+    {
+        try {
+
+            $stmt = $this->prepare($sql);
+            $stmt->execute($data);
+            return $stmt->fetchAll($type);
+
+        } catch (Exception $e) {
+            echo "Database Error: ";
+            die($e->getMessage());
+        }
+    }
+
+    // Get everything from a table
+    public function getAll($table="")
+    {
+        if (empty($table))
+            $table = $this->table;
+        return $this->get('SELECT * FROM ' . $table);
+    }
 }

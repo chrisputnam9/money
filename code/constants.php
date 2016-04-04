@@ -2,8 +2,9 @@
 namespace MCPI;
 
 define( 'DS', DIRECTORY_SEPARATOR );
+define( 'EOL', PHP_EOL );
 
-define( 'DIR_ROOT', __DIR__ . DS . '..' . DS );
+define( 'DIR_ROOT', realpath(__DIR__ . DS . '..') . DS );
 
 define( 'DIR_CONFIG', DIR_ROOT . 'config' . DS );
 define( 'DIR_CODE', DIR_ROOT . 'code' . DS );

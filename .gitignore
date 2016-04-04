@@ -2,3 +2,4 @@
 .vagrant
 composer.lock
 composer.phar
+db/data.sql

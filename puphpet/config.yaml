@@ -88,6 +88,8 @@ server:
     packages:
         - vim
         - htop
+        - screen
+        - tesseract-ocr
 users_groups:
     install: '1'
     groups: {  }
@@ -339,7 +341,7 @@ mysql:
     databases:
         mysqlnd_m4ox14gx40lh:
             name: project
-            sql: /var/www/db/project.sql
+            sql: /var/www/db/schema.sql
     grants: {  }
 postgresql:
     install: '0'

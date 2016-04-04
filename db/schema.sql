@@ -1,25 +1,20 @@
+DROP TABLE IF EXISTS attribute;
 DROP TABLE IF EXISTS transaction;
 DROP TABLE IF EXISTS transaction_status;
 DROP TABLE IF EXISTS transaction_category;
 DROP TABLE IF EXISTS transaction_classification;
-
-DROP TABLE IF EXISTS attribute;
 
 DROP TABLE IF EXISTS account;
 DROP TABLE IF EXISTS account_classification;
 
 CREATE TABLE account_classification (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    date_created DATETIME NOT NULL,
-    date_updated DATETIME NOT NULL,
 
     title varchar(1023) NOT NULL
 );
 
 CREATE TABLE account (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    date_created DATETIME NOT NULL,
-    date_updated DATETIME NOT NULL,
 
     title varchar(1023) NOT NULL,
     account_number varchar(255) NOT NULL,
@@ -32,24 +27,18 @@ CREATE TABLE account (
 
 CREATE TABLE transaction_category (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    date_created DATETIME NOT NULL,
-    date_updated DATETIME NOT NULL,
 
     title varchar(1023) NOT NULL
 );
 
 CREATE TABLE transaction_status (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    date_created DATETIME NOT NULL,
-    date_updated DATETIME NOT NULL,
 
     title varchar(1023) NOT NULL
 );
 
 CREATE TABLE transaction_classification (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    date_created DATETIME NOT NULL,
-    date_updated DATETIME NOT NULL,
 
     title varchar(1023) NOT NULL
 );
@@ -57,8 +46,6 @@ CREATE TABLE transaction_classification (
 
 CREATE TABLE transaction (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    date_created DATETIME NOT NULL,
-    date_updated DATETIME NOT NULL,
 
     amount DECIMAL(10,4) NOT NULL,
     date_occurred DATETIME NOT NULL,

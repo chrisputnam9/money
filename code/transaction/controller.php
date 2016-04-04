@@ -6,6 +6,11 @@ namespace MCPI;
  */
 class Transaction_Controller extends Core_Controller_Abstract
 {
+
+    static protected $transaction;
+
+    const DIR_UPLOAD = DIR_UPLOAD . 'transaction' . DS;
+
     static public function route()
     {
         $request = self::getRequest();
@@ -17,27 +22,48 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'image'))
             {
                 if ($request->file('image'))
+                {
                     self::processImage($request->file('image'), $response);
-                else
-                    $response->body_template = 'transaction_image';
+                }
+
+                $response->body_template = 'transaction_image';
             }
 
             // Standard Form?
             if ($request->index(1,'form'))
             {
-                if ($request->post())
-                    self::processForm($request, $response);
-                else
-                {
-                    $response->body_data = [
-                        // Will change if editing
-                        'form_title' => 'New Transaction',
-                        'date' => date('Y-m-d'),
-                        'image' => $request->get('image'),
-                    ];
 
-                    $response->body_template = 'transaction_form';
+                self::$transaction = new Transaction_Model();
+
+                if ($request->post())
+                {
+                    self::processForm($request, $response);
                 }
+
+                $image = $request->get('image');
+                $amount = "";
+                if ($image)
+                {
+                    $dir = self::DIR_UPLOAD;
+                    $ocr = new OCR_Model($dir . $image);
+                    $dollars = $ocr->getDollars();
+                    if (!empty($dollars))
+                        $amount = max($dollars);
+                }
+
+                $body_data = [
+                    // Will change if editing
+                    'form_title' => 'New Transaction',
+                    'date' => date('Y-m-d'),
+                    'image' => $image,
+                    'amount' => $amount,
+                ];
+
+                $body_data = array_merge($body_data, self::$transaction->getOptions());
+
+                $response->body_data = $body_data;
+                $response->body_template = 'transaction_form';
+
             }
 
             $response->finalize();
@@ -55,11 +81,11 @@ class Transaction_Controller extends Core_Controller_Abstract
         $filename = preg_replace('/[^\w-_.]+/', '-', $filename);
         $filename = date('Ymd-His_') . $filename;
 
-        $dir = DIR_UPLOAD . 'transaction';
+        $dir = self::DIR_UPLOAD;
         if (!is_dir($dir))
             mkdir($dir);
 
-        $path = $dir . DS . $filename;
+        $path = $dir . $filename;
 
         move_uploaded_file( $image['tmp_name'], $path );
 
