@@ -9,3 +9,7 @@ this probably isn't your best choice.
 
 This project is going to be a testing ground for programming techniques and
 will also be tailored to my specific needs.
+
+Attributions
+------------
+*Favicon* Credit Card by mungang kim from the Noun Project

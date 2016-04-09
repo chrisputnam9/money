@@ -2,4 +2,5 @@
 .vagrant
 composer.lock
 composer.phar
-db/data.sql
+/db/data.sql
+/source
