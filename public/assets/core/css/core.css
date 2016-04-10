@@ -1,4 +1,11 @@
 /**
+ * Global
+ */
+body {
+    background: #f7f7f7;
+}
+
+/**
  * Interface elements
  */
 p.alert {

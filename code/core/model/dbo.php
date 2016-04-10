@@ -52,7 +52,7 @@ class Core_Model_Dbo extends Core_Model_Abstract
     }
 
     // Get Data
-    static function get($sql, $data=[], $key_column='id', $type=PDO::FETCH_ASSOC)
+    static function get($sql, $data=[], $key_column='id')
     {
         try {
 
@@ -60,7 +60,7 @@ class Core_Model_Dbo extends Core_Model_Abstract
             self::$statement = $stmt;
             $stmt->execute($data);
             $results = [];
-            while($row = $stmt->fetch($type))
+            while($row = $stmt->fetch(PDO::FETCH_ASSOC))
             {
                 $key = $row[$key_column];
                 $results[$key] = $row;
@@ -77,16 +77,43 @@ class Core_Model_Dbo extends Core_Model_Abstract
         return self::get('SELECT * FROM ' . $table);
     }
 
+    // Get by field
+    static function getBy($data, $table="")
+    {
+        $table = self::cleanTable($table);
+        $data = new Core_Model_Dbo_Data($data);
+
+        $fields = $data->fields();
+        $placeholders = $data->placeholders();
+        $conditions = [];
+        foreach ($fields as $i => $field)
+        {
+            $conditions[]= $field . ' = ' . $placeholders[$i];
+        }
+
+        $sql = 'SELECT * FROM ' . $table
+             . ' WHERE '
+             . join(' AND ', $conditions)
+        ;
+        return self::get($sql, $data->hash());
+    }
+
+    // Get by ID
+    static function getById($id, $table="")
+    {
+        return self::getBy(['id'=>$id], $table);
+    }
+
     // Save data into table
     static function save($data, $table="", $method='REPLACE')
     {
         $table = self::cleanTable($table);
         $data = new Core_Model_Dbo_Data($data);
 
-        $sql = $method . " INTO " . $table
-             . " (".join(",", $data->fields()).")"
-             . " VALUES"
-             . " (".join(",", $data->placeholders()).")"
+        $sql = $method . ' INTO ' . $table
+             . ' ('.join(',', $data->fields()).')'
+             . ' VALUES'
+             . ' ('.join(',', $data->placeholders()).')'
         ;
 
         return self::execute($sql, $data->hash());
@@ -95,7 +122,7 @@ class Core_Model_Dbo extends Core_Model_Abstract
     // Create entry in table
     static function create($data, $table="")
     {
-        self::save($data, $table, 'INSERT');
+        return self::save($data, $table, 'INSERT');
     }
 
     // Get clean table name

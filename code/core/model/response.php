@@ -58,7 +58,7 @@ class Core_Model_Response extends Core_Model_Abstract
     /**
      * Redirect
      */
-    public function redirect($url, $data=[], $code='302')
+    public function redirect($url='/', $data=[], $code='302')
     {
         if (!is_array($data))
         {
@@ -67,7 +67,7 @@ class Core_Model_Response extends Core_Model_Abstract
         }
 
         $url_parts = parse_url($url);
-        $url_path = empty($url_parts['path']) ? '/' : $url_parts['path'];
+        $url_path = empty($url_parts['path']) ? '' : $url_parts['path'];
         $url_data = [];
         if (!empty($url_parts['query']))
             parse_str($url_parts['query'], $url_data);

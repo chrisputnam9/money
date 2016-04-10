@@ -1,5 +1,7 @@
 <form action="" method="post" enctype="multipart/form-data">
 
+    <input type='hidden' name='id' value='{{id}}'/>
+
     <div class='col-sm-12'>  
         <h1>{{form_title}}</h1>
         {{#error}}
@@ -98,13 +100,19 @@
     </div>
 {{/image}}
     <div class='col-sm-4'>  
-        <button type="submit" class="btn btn-primary btn-lg btn-block" name="submit" value="apply">Apply</button>
+        <p>
+            <button type="submit" class="btn btn-primary btn-lg btn-block" name="submit" value="apply">Apply</button>
+        </p>
     </div>
     <div class='col-sm-4'>  
-        <button type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="save_new">Save &amp; New</button>
+        <p>
+            <button type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="save_new">Save &amp; New</button>
+        </p>
     </div>
     <div class='col-sm-4'>  
-        <button type="submit" class="btn btn-warning btn-lg btn-block" name="submit" value="save_close">Save &amp; Close</button>
+        <p>
+            <button type="submit" class="btn btn-warning btn-lg btn-block" name="submit" value="save_close">Save &amp; Close</button>
+        </p>
     </div>
 
 </form>

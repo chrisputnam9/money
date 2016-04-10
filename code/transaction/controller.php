@@ -7,8 +7,6 @@ namespace MCPI;
 class Transaction_Controller extends Core_Controller_Abstract
 {
 
-    static protected $transaction;
-
     const DIR_UPLOAD = DIR_UPLOAD . 'transaction' . DS;
 
     static public function route()
@@ -33,13 +31,43 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
-                self::$transaction = new Transaction_Model();
-
+                // posted data? try to save
                 if ($request->post())
                 {
                     self::processForm($request, $response);
                 }
 
+                // Start with defaults
+                $body_data = [
+                    // Will change if editing
+                    'form_title' => 'New Transaction',
+                ];
+
+                // Load from DB if applicable
+                $id = $request->get('id');
+                if ($id)
+                {
+                    $db_data = Transaction_Model::getById($id);
+                    if (!empty($db_data[$id]))
+                    {
+
+                        $body_data = array_merge($body_data, $db_data[$id]);
+                    }
+                }
+
+                // Merge in get data
+                if ($request->get())
+                {
+                    $body_data = array_merge($body_data, $_GET);
+                }
+
+                // Merge in post data
+                if ($request->post())
+                {
+                    $body_data = array_merge($body_data, $_POST);
+                }
+
+                // OCR if applicable
                 $image = $request->get('image');
                 $amount = $request->post('amount');
                 if ($image and empty($amount))
@@ -48,32 +76,23 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $ocr = new OCR_Model($dir . $image);
                     $dollars = $ocr->getDollars();
                     if (!empty($dollars))
-                        $amount = max($dollars);
+                        $body_data['amount'] = max($dollars);
                 }
 
-                $date = $request->post('date_occurred');
-                if (empty($date))
-                    $date = date('Y-m-d');
-
-                $body_data = [
-                    // Will change if editing
-                    'form_title' => 'New Transaction',
-
-                    'amount' => $amount,
-                    'category' => $request->post('category'),
-                    'account_from' => $request->post('account_from'),
-                    'account_from_other' => $request->post('account_from_other'),
-                    'account_to' => $request->post('account_to'),
-                    'account_to_other' => $request->post('account_to_other'),
-                    'date_occurred' => $date,
-                    'classification' => $request->post('classification'),
-                    'notes' => $request->post('notes'),
-                    'image' => $image,
-                ];
-
-                $options = Transaction_Model::getOptions();
+                // Options always needed for template
+                $options = Transaction_Model::getOptions($body_data);
 
                 $body_data = array_merge($body_data, $options);
+
+                // Prep the date for field
+                $date = empty($body_data['date_occurred']) ? time() : strtotime($body_data['date_occurred']);
+                $body_data['date_occurred'] = date('Y-m-d', $date);
+
+                // Prep the amount
+                if (!empty($body_data['amount']))
+                {
+                    $body_data['amount'] = number_format((float) $body_data['amount'], 2);
+                }
 
                 $response->body_data = $body_data;
                 $response->body_template = 'transaction_form';
@@ -109,36 +128,86 @@ class Transaction_Controller extends Core_Controller_Abstract
     // Process main form submission
     static public function processForm($request, $response)
     {
+        //TODO add validation
+        
+        $success = true;
+        
+        // save a new account?
         if (empty($_POST['account_from']) and !empty($_POST['account_from_other']))
         {
-            Account_Model::create([
+            if (Account_Model::create([
                 'title' => $_POST['account_from_other'],
                 'classification' => Account_Model::OTHER
-            ]);
-            $_POST['account_from'] = Account_Model::lastInsertId();
+            ]))
+            {
+                $_POST['account_from'] = Account_Model::lastInsertId();
+                unset($_POST['account_from_other']);
+            }
+            else
+            {
+                $success = false;
+            }
+        }
+        else
+        {
+            unset($_POST['account_from_other']);
         }
 
+        // save a new account?
         if (empty($_POST['account_to']) and !empty($_POST['account_to_other']))
         {
-            Account_Model::create([
+            if (Account_Model::create([
                 'title'=>$_POST['account_to_other'],
                 'classification' => Account_Model::OTHER
-            ]);
-            $_POST['account_to'] = Account_Model::lastInsertId();
+            ]))
+            {
+                $_POST['account_to'] = Account_Model::lastInsertId();
+                unset($_POST['account_to_other']);
+            }
+            else
+            {
+                $success = false;
+            }
+        }
+        else
+        {
+            unset($_POST['account_to_other']);
         }
 
         $submit = $_POST['submit'];
-
-        unset($_POST['account_from_other']);
-        unset($_POST['account_to_other']);
         unset($_POST['submit']);
 
-        Transaction_Model::save($_POST);
-        $id = Transaction_Model::lastInsertId();
+        if (Transaction_Model::save($_POST))
+        {
+            $id = Transaction_Model::lastInsertId();
+        }
+        else
+        {
+            $success = false;
+        }
 
         // Redirect based on selection
-        echo("<pre>".print_r($submit,true)."</pre>");
-        die("<pre>".print_r($_POST,true)."</pre>");
+        if ($success)
+        {
+            switch($submit)
+            {
+                case 'apply':
+                    // Redirect and load from id
+                    $response->redirect('/transaction/form', ['id' => $id]);
+                    break;
+                case 'save_new':
+                    $response->redirect('/transaction/form');
+                    break;
+                case 'save_close':
+                    $response->redirect();
+                    break;
+            }
+        }
+        else
+        {
+            // Redirect so POST doesn't mess with history
+            $response->redirect('transaction/form', array_merge($_GET, $_POST));
+        }
     }
 }
 Transaction_Controller::route();

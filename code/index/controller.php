@@ -13,6 +13,9 @@ class Index_Controller extends Core_Controller_Abstract
         {
             $response = self::getResponse();
             $response->body_template = 'index';
+            $response->body_data = [
+                'transactions' => array_values(Transaction_Model::getAll()),
+            ];
             $response->finalize();
         }
     }
