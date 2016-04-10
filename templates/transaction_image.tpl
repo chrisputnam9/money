@@ -8,6 +8,6 @@
             <label for="image">Use Camera or existing file</label>
             <input type="file" accept="image/*" capture="camera" class="form-control" name="image" id="image" value="">
         </div>
-        <button type="submit" class="btn bt-default">Upload</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
     </form>
 </div>

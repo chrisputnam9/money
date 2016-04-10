@@ -41,8 +41,8 @@ class Transaction_Controller extends Core_Controller_Abstract
                 }
 
                 $image = $request->get('image');
-                $amount = "";
-                if ($image)
+                $amount = $request->post('amount');
+                if ($image and empty($amount))
                 {
                     $dir = self::DIR_UPLOAD;
                     $ocr = new OCR_Model($dir . $image);
@@ -51,15 +51,29 @@ class Transaction_Controller extends Core_Controller_Abstract
                         $amount = max($dollars);
                 }
 
+                $date = $request->post('date_occurred');
+                if (empty($date))
+                    $date = date('Y-m-d');
+
                 $body_data = [
                     // Will change if editing
                     'form_title' => 'New Transaction',
-                    'date' => date('Y-m-d'),
-                    'image' => $image,
+
                     'amount' => $amount,
+                    'category' => $request->post('category'),
+                    'account_from' => $request->post('account_from'),
+                    'account_from_other' => $request->post('account_from_other'),
+                    'account_to' => $request->post('account_to'),
+                    'account_to_other' => $request->post('account_to_other'),
+                    'date_occurred' => $date,
+                    'classification' => $request->post('classification'),
+                    'notes' => $request->post('notes'),
+                    'image' => $image,
                 ];
 
-                $body_data = array_merge($body_data, self::$transaction->getOptions());
+                $options = Transaction_Model::getOptions();
+
+                $body_data = array_merge($body_data, $options);
 
                 $response->body_data = $body_data;
                 $response->body_template = 'transaction_form';
@@ -95,7 +109,36 @@ class Transaction_Controller extends Core_Controller_Abstract
     // Process main form submission
     static public function processForm($request, $response)
     {
-        echo("<pre>".print_r($_POST,true)."</pre>");
+        if (empty($_POST['account_from']) and !empty($_POST['account_from_other']))
+        {
+            Account_Model::create([
+                'title' => $_POST['account_from_other'],
+                'classification' => Account_Model::OTHER
+            ]);
+            $_POST['account_from'] = Account_Model::lastInsertId();
+        }
+
+        if (empty($_POST['account_to']) and !empty($_POST['account_to_other']))
+        {
+            Account_Model::create([
+                'title'=>$_POST['account_to_other'],
+                'classification' => Account_Model::OTHER
+            ]);
+            $_POST['account_to'] = Account_Model::lastInsertId();
+        }
+
+        $submit = $_POST['submit'];
+
+        unset($_POST['account_from_other']);
+        unset($_POST['account_to_other']);
+        unset($_POST['submit']);
+
+        Transaction_Model::save($_POST);
+        $id = Transaction_Model::lastInsertId();
+
+        // Redirect based on selection
+        echo("<pre>".print_r($submit,true)."</pre>");
+        die("<pre>".print_r($_POST,true)."</pre>");
     }
 }
 Transaction_Controller::route();

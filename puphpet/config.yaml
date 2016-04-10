@@ -27,6 +27,14 @@ vagrantfile:
                                 vflmnfp_34zcf5od0r8e:
                                     host: '9022'
                                     guest: '22'
+                            forwarded_port:
+                                vflmnfp_34zcf5od0r8e:
+                                    host: '9080'
+                                    guest: '80'
+                            forwarded_port:
+                                vflmnfp_34zcf5od0r8e:
+                                    host: '9443'
+                                    guest: '443'
                         hostname: vagrant.lcl
                         memory: '1024'
                         cpus: '1'
@@ -236,6 +244,8 @@ php:
         error_reporting: '-1'
         session.save_path: /var/lib/php/session
         date.timezone: UTC
+        post_max_size: '100M'
+        upload_max_filesize: '100M'
     fpm_ini:
         error_log: /var/log/php-fpm.log
     fpm_pools:

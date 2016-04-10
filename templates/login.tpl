@@ -12,6 +12,6 @@
             <label for="username">Password</label>
             <input type="password" class="form-control" name="password" id="password" value="{{password}}">
         </div>
-        <button type="submit" class="btn bt-default">Log In</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Log In</button>
     </form>
 </div>

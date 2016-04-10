@@ -5,43 +5,105 @@ use \PDO,\Exception;
 /**
  * Core Model Database Object
  */
-class Core_Model_Dbo extends PDO
+class Core_Model_Dbo extends Core_Model_Abstract
 {
+    protected static $db;
+    protected static $statement;
+
+    static function db()
+    {
+        if (is_null(self::$db))
+        {
+            require_once DIR_CONFIG . 'db.php';
+            self::$db = new PDO(
+                'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8mb4',
+                DB_USER,
+                DB_PASS,
+                array(
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                )
+            );
+        }
+
+        return self::$db;
+    }
+
     // Consructor, reads config for credentials
     function __construct()
     {
-        require_once DIR_CONFIG . 'db.php';
-        parent::__construct(
-            'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8mb4',
-            DB_USER,
-            DB_PASS,
-            array(
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            )
-        );
     }
 
-    // Get Data
-    function get($sql, $data=[], $type=PDO::FETCH_ASSOC)
+    static function lastInsertId()
+    {
+        return self::db()->lastInsertId();
+    }
+
+    // Run query
+    static function execute($sql, $data=[])
     {
         try {
 
-            $stmt = $this->prepare($sql);
-            $stmt->execute($data);
-            return $stmt->fetchAll($type);
+            $stmt = self::db()->prepare($sql);
+            self::$statement = $stmt;
+            return $stmt->execute($data);
 
-        } catch (Exception $e) {
-            echo "Database Error: ";
-            die($e->getMessage());
-        }
+        } catch (Exception $e) { self::error($e, 'database'); }
+    }
+
+    // Get Data
+    static function get($sql, $data=[], $key_column='id', $type=PDO::FETCH_ASSOC)
+    {
+        try {
+
+            $stmt = self::db()->prepare($sql);
+            self::$statement = $stmt;
+            $stmt->execute($data);
+            $results = [];
+            while($row = $stmt->fetch($type))
+            {
+                $key = $row[$key_column];
+                $results[$key] = $row;
+            }
+            return $results;
+
+        } catch (Exception $e) { self::error($e, 'database'); }
     }
 
     // Get everything from a table
-    public function getAll($table="")
+    static function getAll($table="")
+    {
+        $table = self::cleanTable($table);
+        return self::get('SELECT * FROM ' . $table);
+    }
+
+    // Save data into table
+    static function save($data, $table="", $method='REPLACE')
+    {
+        $table = self::cleanTable($table);
+        $data = new Core_Model_Dbo_Data($data);
+
+        $sql = $method . " INTO " . $table
+             . " (".join(",", $data->fields()).")"
+             . " VALUES"
+             . " (".join(",", $data->placeholders()).")"
+        ;
+
+        return self::execute($sql, $data->hash());
+    }
+
+    // Create entry in table
+    static function create($data, $table="")
+    {
+        self::save($data, $table, 'INSERT');
+    }
+
+    // Get clean table name
+    static function cleanTable($table=false)
     {
         if (empty($table))
-            $table = $this->table;
-        return $this->get('SELECT * FROM ' . $table);
+            $table = static::$table;
+
+        return Core_Model_Dbo_Data::sanitizeColumnOrTable($table);
     }
 }

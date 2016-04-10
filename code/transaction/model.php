@@ -6,40 +6,33 @@ namespace MCPI;
  */
 class Transaction_Model extends Core_Model_Dbo
 {
-    protected $table = 'transaction';
+    protected static $table = 'transaction';
 
     // Get options for linked tables
-    public function getOptions()
+    static function getOptions()
     {
-        return [
-            'classification_options' => $this->getAll('transaction_classification'),
-            'account_options' => $this->getGroupedAccounts(),
-            'category_options' => $this->getAll('transaction_category'),
-        ];
-    }
+        $request = self::getRequest();
 
-    // Get grouped array of accounts
-    public function getGroupedAccounts()
-    {
-        $grouped_accounts = [];
-        $accounts = $this->get("
-            SELECT a.*, c.title as classification
-            FROM account a
-            LEFT JOIN account_classification c ON (a.classification = c.id)
-        ");
-        foreach ($accounts as $account)
-        {
-            $group = $account['classification'];
-            if (!isset($grouped_accounts[$group]))
-            {
-                $grouped_accounts[$group] = [
-                    'group' => $group,
-                    'options' => [],
-                ];
-            }
-            $grouped_accounts[$group]['options'][]= $account;
-        }
-        return array_values($grouped_accounts);
+        $account_options = Account_Model::getGroupedAccounts();
+
+        return [
+            'classification_options' => self::populateSelectedOptions(
+                self::getAll('transaction_classification'),
+                $request->post('classification')
+            ),
+            'account_from_options' => self::populateSelectedOptions(
+                $account_options,
+                $request->post('account_from')
+            ),
+            'account_to_options' => self::populateSelectedOptions(
+                $account_options,
+                $request->post('account_to')
+            ),
+            'category_options' => self::populateSelectedOptions(
+                self::getAll('transaction_category'),
+                $request->post('category')
+            ),
+        ];
     }
 
 }

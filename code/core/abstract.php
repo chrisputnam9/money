@@ -8,9 +8,26 @@ namespace MCPI;
 class Core_Abstract
 {
     /**
+     * Return message singleton
+     */
+    static function getMessage()
+    {
+        return Core_Model_Message::instance();
+    }
+
+        /* Message Helpers */
+        /*******************/
+
+        // show an error message
+        static function error($message, $type=null)
+        {
+            self::getMessage()->showError($message, $type);
+        }
+
+    /**
      * Return request singleton
      */
-    static public function getRequest()
+    static function getRequest()
     {
         return Core_Model_Request::instance();
     }
@@ -18,7 +35,7 @@ class Core_Abstract
     /**
      * Return response singleton
      */
-    static public function getResponse()
+    static function getResponse()
     {
         return Core_Model_Response::instance();
     }
@@ -26,7 +43,7 @@ class Core_Abstract
     /**
      * Return session singleton
      */
-    static public function getSession($key=null)
+    static function getSession($key=null)
     {
         return Core_Model_Session::instance($key);
     }

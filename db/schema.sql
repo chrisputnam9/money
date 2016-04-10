@@ -16,12 +16,13 @@ CREATE TABLE account_classification (
 CREATE TABLE account (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
-    title varchar(1023) NOT NULL,
+    title varchar(255) NOT NULL,
     account_number varchar(255) NOT NULL,
 
     classification int(11) NOT NULL,
 
-    FOREIGN KEY (classification) REFERENCES account_classification (id)
+    FOREIGN KEY (classification) REFERENCES account_classification (id),
+    UNIQUE (title,account_number,classification)
 );
 
 
@@ -31,13 +32,13 @@ CREATE TABLE transaction_category (
     title varchar(1023) NOT NULL
 );
 
-CREATE TABLE transaction_status (
+CREATE TABLE transaction_classification (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
     title varchar(1023) NOT NULL
 );
 
-CREATE TABLE transaction_classification (
+CREATE TABLE transaction_status (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
     title varchar(1023) NOT NULL
@@ -50,17 +51,19 @@ CREATE TABLE transaction (
     amount DECIMAL(10,4) NOT NULL,
     date_occurred DATETIME NOT NULL,
     image TEXT NOT NULL,
+    notes TEXT NOT NULL,
 
-    status int(11) NOT NULL,
-    classification int(11) NOT NULL,
-    category int(11) NOT NULL,
     account_from int(11) NOT NULL,
     account_to int(11) NOT NULL,
+    category int(11) NOT NULL,
+    classification int(11) NOT NULL,
+    status int(11) NOT NULL DEFAULT 1,
 
-    FOREIGN KEY (classification) REFERENCES transaction_classification (id),
-    FOREIGN KEY (category) REFERENCES transaction_category (id),
     FOREIGN KEY (account_from) REFERENCES account (id),
-    FOREIGN KEY (account_to) REFERENCES account (id)
+    FOREIGN KEY (account_to) REFERENCES account (id),
+    FOREIGN KEY (category) REFERENCES transaction_category (id),
+    FOREIGN KEY (classification) REFERENCES transaction_classification (id),
+    FOREIGN KEY (status) REFERENCES transaction_status (id)
 );
 
 
