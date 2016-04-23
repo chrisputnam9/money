@@ -7,7 +7,7 @@
 
 <div class='row'>
     <div class='col-sm-12'>
-        <label>Add a transaction:</label>
+        <h2>Add a transaction</h2>
     </div>
     <div class='col-sm-6'>
         <p>
@@ -23,44 +23,36 @@
 
 <div class='row'>
     <div class='col-sm-12'>
-        <label>Transactions</label>
+        <h2>Transactions</h2>
     </div>
     <div class='col-sm-12'>
-        <table class='table table-striped'>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Image</th>
-                    <th>Notes</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Category</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tfoot>
-            </tfoot>
-            <tbody>
-            {{#transactions}}
-                <tr>
-                    <td>{{id}}</td>
-                    <td>{{amount}}</td>
-                    <td>{{date_occurred}}</td>
-                    <td>{{image}}</td>
-                    <td>{{notes}}</td>
-                    <td>{{account_from}}</td>
-                    <td>{{acount_to}}</td>
-                    <td>{{category}}</td>
-                    <td>{{classification}}</td>
-                    <td>{{status}}</td>
-                    <td><a href='/transaction/form?id={{id}}' class='btn btn-primary btn-block'>Edit</a></td>
-                </tr>
-            {{/transactions}}
-            </tbody>
-        </table>
+        <div class='table-responsive'>
+            <table class='table table-striped table-hover table-condensed'>
+                <thead>
+                    <tr>
+                        <th class="text-right">Amount</th>
+                        <th class="text-right">Date</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                </tfoot>
+                <tbody>
+                {{#transactions}}
+                    <tr>
+                        <td align="right">{{amount_formatted}}</td>
+                        <td align="right">{{date_occurred_formatted}}</td>
+                        <td>{{account_from_value}}</td>
+                        <td>{{account_to_value}}</td>
+                        <td>{{category_value}}</td>
+                        <td><a href='/transaction/form?id={{id}}' class='btn btn-primary btn-block'>Edit</a></td>
+                    </tr>
+                {{/transactions}}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

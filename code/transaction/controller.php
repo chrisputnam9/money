@@ -122,7 +122,42 @@ class Transaction_Controller extends Core_Controller_Abstract
 
         move_uploaded_file( $image['tmp_name'], $path );
 
-        $response->redirect('/transaction/form', ['image'=>$filename]);
+        $dest_filename = preg_replace('/\.\w+$/', '.png', $path);
+        $destination = $dir . $dest_filename;
+
+        self::shrinkImage($path, $destination);
+
+        unlink($path);
+
+        die('done');
+        $response->redirect('/transaction/form', ['image'=>$dest_filename]);
+    }
+
+    // Shrink an image
+    static function shrinkImage($source, $destination) {
+
+        $info = getimagesize($source);
+
+        if ($info['mime'] == 'image/jpeg')
+            $image = \imagecreatefromjpeg($source);
+        elseif ($info['mime'] == 'image/gif')
+            $image = \imagecreatefromgif($source);
+        elseif ($info['mime'] == 'image/png')
+            $image = \imagecreatefrompng($source);
+
+        // Size to width 500px
+        $width = $info[0];
+        $new_width = 500;
+        if ($width > $new_width)
+        {
+            $height = $info[1];
+            $new_heigth = round($height * ($new_width / $width));
+            $new_image = \imagecreatetruecolor($new_width, $new_height);
+            imagecopyresampled($new_image, $image, 0, 0, 0, 0, $new_width, $new_height, $widh, $height);
+            $image = $new_image;
+        }
+
+        \imagepng($image, $destination, 9);
     }
 
     // Process main form submission
