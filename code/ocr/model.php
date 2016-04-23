@@ -15,7 +15,7 @@ class OCR_Model extends Core_Model_Abstract
     protected $image;
     protected $text;
 
-    const DIR_CACHE = DIR_TMP . 'tesseract' . DS;
+    const DIR_CACHE = DIR_TMP . 'ocr' . DS;
 
     /**
      * Construct with image
@@ -67,6 +67,9 @@ class OCR_Model extends Core_Model_Abstract
     {
         if ($this->cache and $this->image and $this->text)
         {
+            if (!is_dir(self::DIR_CACHE)) {
+                mkdir(self::DIR_CACHE);
+            }
             $cache = implode(EOL, $this->text);
             $cachefile = self::DIR_CACHE . basename($this->image) . ".ocr-cache";
             file_put_contents($cachefile, $cache);
