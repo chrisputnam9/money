@@ -107,10 +107,10 @@ class Transaction_Controller extends Core_Controller_Abstract
     static public function processImage($image, $response)
     {
         // TODO Make extensions configurable
-        if (!preg_match('/\.(png|jpe?g|gif)$/', $image['name']))
+        $filename = strtolower($image['name']);
+        if (!preg_match('/\.(png|jpe?g|gif)$/', $filename))
             die('Image must be png, jpg or gif.  Go back and try again.');
 
-        $filename = strtolower($image['name']);
         $filename = preg_replace('/[^\w-_.]+/', '-', $filename);
         $filename = date('Ymd-His_') . $filename;
 
@@ -122,19 +122,18 @@ class Transaction_Controller extends Core_Controller_Abstract
 
         move_uploaded_file( $image['tmp_name'], $path );
 
-        $dest_filename = preg_replace('/\.\w+$/', '.png', $path);
+        $dest_filename = preg_replace('/\.\w+$/', '.png', $filename);
         $destination = $dir . $dest_filename;
 
         self::shrinkImage($path, $destination);
 
         unlink($path);
 
-        die('done');
         $response->redirect('/transaction/form', ['image'=>$dest_filename]);
     }
 
     // Shrink an image
-    static function shrinkImage($source, $destination) {
+    static function shrinkImage($source, $destination, $unlink_invalid=true) {
 
         $info = getimagesize($source);
 
@@ -144,19 +143,38 @@ class Transaction_Controller extends Core_Controller_Abstract
             $image = \imagecreatefromgif($source);
         elseif ($info['mime'] == 'image/png')
             $image = \imagecreatefrompng($source);
+        else
+        {
+            if ($unlink_invalid)
+            {
+                unlink($source);
+                die('Image must be png, jpg or gif.  Go back and try again.');
+            }
+            else
+                return false;
+        }
 
         // Size to width 500px
         $width = $info[0];
+        $height = $info[1];
+
         $new_width = 500;
-        if ($width > $new_width)
+        $new_height = 500;
+
+        if ($width > $new_width or $height > $new_height)
         {
-            $height = $info[1];
-            $new_heigth = round($height * ($new_width / $width));
+            // Resize whichever is higher to 500
+            if ($height > $width)
+                $new_width = round($width * ($new_height / $height));
+            else
+                $new_height = round($height * ($new_width / $width));
+
             $new_image = \imagecreatetruecolor($new_width, $new_height);
-            imagecopyresampled($new_image, $image, 0, 0, 0, 0, $new_width, $new_height, $widh, $height);
+            imagecopyresampled($new_image, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
             $image = $new_image;
         }
 
+        // Convert to png
         \imagepng($image, $destination, 9);
     }
 
