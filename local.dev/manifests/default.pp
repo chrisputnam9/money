@@ -2,7 +2,7 @@
 #     Initial Update
 ###########################################################
 exec { "apt-get update":
-  command => "/usr/bin/apt-get update"
+  command => "/usr/bin/apt-get update",
 }
 package { "python-software-properties":
   ensure => present,
@@ -16,7 +16,14 @@ package { "python-software-properties":
 file { "/etc/hosts":
   ensure  => file,
   mode    => 644,
-  source  => "/vagrant/local/config/hosts",
+  source  => "/vagrant/local.dev/config/hosts",
+}
+
+file { "/etc/hostname":
+  ensure  => file,
+  mode    => 644,
+  source  => "/vagrant/local.dev/config/hostname",
+  require => File["/etc/hosts"],
 }
 
 
@@ -31,7 +38,7 @@ package {"sendmail":
 file { "/etc/mail/sendmail.conf":
   ensure  => file,
   mode    => 644,
-  source  => "/vagrant/local/config/sendmail.conf",
+  source  => "/vagrant/local.dev/config/sendmail.conf",
   require => Package["sendmail"],
 }
 
@@ -41,19 +48,19 @@ file { "/etc/mail/sendmail.conf":
 file { "/etc/apache2/envvars":
   ensure  => file,
   mode    => 644,
-  source  => "/vagrant/local/config/apache-envvars",
+  source  => "/vagrant/local.dev/config/apache-envvars",
   require => Package["apache2"],
 }
 
 package { "apache2":
   ensure => present,
-  require => Exec["apt-get update"],
+  require => [Exec["apt-get update"],File["/etc/hostname"]],
 }
 
 file { "/etc/apache2/sites-available/000-default.conf":
   ensure  => file,
   mode    => 644,
-  source  => "/vagrant/local/config/apache-default-site",
+  source  => "/vagrant/local.dev/config/apache-default-site",
   require => Package["apache2"],
   notify  => Service["apache2"],
 }
@@ -104,7 +111,8 @@ exec { "add-apt-php":
 }
 
 exec { "apt-get-update-php":
-  command => "/usr/bin/apt-get update"
+  command => "/usr/bin/apt-get update",
+  require => Exec["add-apt-php"],
 }
 
 exec { "purge-php5":
@@ -150,7 +158,7 @@ package { "php7.0-mbstring":
 file { "/etc/php/7.0/apache2/php.ini":
   ensure => file,
   mode   => 644,
-  source => "/vagrant/local/config/php.ini",
+  source => "/vagrant/local.dev/config/php.ini",
   require => [ Package["php7.0"], Package["apache2"] ],
   notify => Service["apache2"],
 }
@@ -166,7 +174,7 @@ package {"mysql-server":
 file { "/etc/mysql/my.cnf":
   ensure  => file,
   mode    => 644,
-  source  => "/vagrant/local/config/mysql-my.cnf",
+  source  => "/vagrant/local.dev/config/mysql-my.cnf",
   require => Package["mysql-server"],
   notify  => Service["mysql"],
 }
@@ -180,45 +188,6 @@ package { "php7.0-mysql":
   ensure => present,
   require => [ Package["php7.0"], Package["mysql-server"] ],
   notify => [ Service["apache2"], Service["mysql"] ],
-}
-
-###########################################################
-#     PHPMyAdmin
-###########################################################
-
-package { "phpmyadmin":
-  ensure => present,
-  require => [ Package["php7.0-mysql"], Package["apache2"]],
-  notify => [ Service["apache2"], Service["mysql"] ],
-}
-
-file { "/etc/phpmyadmin":
-  ensure  => directory,
-  mode    => 755,
-  require => [Package['phpmyadmin'], Package["apache2"]],
-}
-
-file { "/etc/phpmyadmin/apache.conf":
-  ensure  => file,
-  mode    => 644,
-  source  => "/vagrant/local/config/phpmyadmin-apache.conf",
-  require => File['/etc/phpmyadmin'],
-  notify => Service["apache2"],
-}
-
-file { "/etc/apache2/conf-enabled/phpmyadmin.conf":
-  ensure => link,
-  target => "/etc/phpmyadmin/apache.conf",
-  notify => Service["apache2"],
-  require => File['/etc/phpmyadmin/apache.conf'],
-}
-
-file { "/etc/phpmyadmin/config.inc.php":
-  ensure  => file,
-  mode    => 644,
-  source  => "/vagrant/local/config/phpmyadmin-config.inc.php",
-  require => File['/etc/phpmyadmin'],
-  notify => Service["apache2"],
 }
 
 ###########################################################
