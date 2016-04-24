@@ -1,8 +1,7 @@
 .DS_Store
 .vagrant
-/db/data.sql
-/html
-/public/adminer
+/local/database/data.sql
+/local/database/project.sql
 /source
 composer.lock
 composer.phar
