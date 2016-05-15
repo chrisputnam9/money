@@ -1,25 +1,3 @@
-Vagrant::Config.run do |config|
-
-	config.vm.box = "ubuntu/trusty64"
-    # TODO export to custom base
-    # - cmp install, update
-    # 
-	# config.vm.box_url = "http://chrisputnam.info/php7.box"
-
-    config.vm.forward_port 22, 10022
-    config.vm.forward_port 443, 10443
-    config.vm.forward_port 80, 10080
-    config.vm.host_name = "local.dev"
-    config.vm.network :hostonly, "10.0.1.2"
-    config.vm.provision :puppet do |puppet|
-        puppet.manifests_path = "local.dev/manifests"
-        puppet.manifest_file = "default.pp"
-    end
-
-end
-
-
-
 Vagrant.configure("2") do |config|
 
 	def Kernel.is_windows?
@@ -28,12 +6,24 @@ Vagrant.configure("2") do |config|
 	    platform == 'mingw32'
 	end
 
+	config.vm.box = "ubuntu/trusty64"
+    config.vm.box_check_update = false
+    config.vm.hostname = "local.dev"
+    config.vm.network "forwarded_port", guest: 22, host: 10022
+    config.vm.network "forwarded_port", guest: 80, host: 10080
+    config.vm.network "private_network", ip: "10.0.1.2"
+
 	config.vm.provider :virtualbox do |vb|
 		vb.customize ["modifyvm", :id, "--memory", 512]
         vb.memory = 512
         vb.cpus = 1
         vb.customize ["modifyvm", :id, "--cpuexecutioncap", "25"]
 	end
+
+    config.vm.provision :puppet do |puppet|
+        puppet.manifests_path = "local.dev/manifests"
+        puppet.manifest_file = "default.pp"
+    end
 
 	if Kernel.is_windows?
 		config.vm.synced_folder "./app", "/media/app" #, type: "smb"
