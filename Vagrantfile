@@ -9,8 +9,8 @@ Vagrant.configure("2") do |config|
 	config.vm.box = "ubuntu/trusty64"
     config.vm.box_check_update = false
     config.vm.hostname = "local.dev"
-    config.vm.network "forwarded_port", guest: 22, host: 10022
-    config.vm.network "forwarded_port", guest: 80, host: 10080
+    config.vm.network "forwarded_port", guest: 22, host: 10122
+    config.vm.network "forwarded_port", guest: 80, host: 10180
     config.vm.network "private_network", ip: "10.0.1.2"
 
 	config.vm.provider :virtualbox do |vb|

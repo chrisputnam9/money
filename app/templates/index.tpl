@@ -48,7 +48,10 @@
                         <td>{{account_from_value}}</td>
                         <td>{{account_to_value}}</td>
                         <td>{{category_value}}</td>
-                        <td><a href='/transaction/form?id={{id}}' class='btn btn-primary btn-block'>Edit</a></td>
+                        <td>
+                            <a href='/transaction/form?id={{id}}' class='btn btn-primary btn-block'>Edit</a>
+                            <a href='/transaction/delete?id={{id}}' class='btn btn-primary btn-block'>Delete</a>
+                        </td>
                     </tr>
                 {{/transactions}}
                 </tbody>

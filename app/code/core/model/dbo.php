@@ -104,6 +104,31 @@ class Core_Model_Dbo extends Core_Model_Abstract
         return self::getBy(['id'=>$id], $table);
     }
 
+    // Delete by ID(s)
+    static function delete($ids, $table="")
+    {
+        if (!is_array($ids))
+        {
+            $ids = array($ids);
+        }
+
+        $table = self::cleanTable($table);
+        $data = new Core_Model_Dbo_Data($ids);
+
+        $sql = 'DELETE FROM ' . $table
+             . ' WHERE id IN'
+             . ' ('.join(',', $data->placeholders()).')'
+        ;
+
+        echo("<pre>".print_r($sql,true)."</pre>");
+        echo("<pre>".print_r($data->hash(),true)."</pre>");
+        die;
+
+        return self::execute($sql, $data->hash());
+
+    }
+
+
     // Save data into table
     static function save($data, $table="", $method='REPLACE')
     {

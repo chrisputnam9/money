@@ -99,6 +99,20 @@ class Transaction_Controller extends Core_Controller_Abstract
 
             }
 
+            // Delete?
+            if ($request->index(1,'delete'))
+            {
+
+                $id = $request->get('id');
+                if ($id)
+                {
+                    Transaction_Model::delete($id);
+                }
+
+                // Back to index
+                $response->redirect();
+            }
+
             $response->finalize();
         }
     }
