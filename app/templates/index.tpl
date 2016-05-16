@@ -1,17 +1,8 @@
 <div class='row'>
-    <div class='col-sm-12'>
-        <h1>Money.cpi</h1>
-        <hr/>
-    </div>
-</div>
-
-<div class='row'>
-    <div class='col-sm-12'>
-        <h2>Add a transaction</h2>
-    </div>
+    <br/>
     <div class='col-sm-6'>
         <p>
-            <a class="btn btn-primary btn-lg btn-block" href="/transaction/image" class="js-show" data-click="#image">Upload Image</a>
+            <a class="btn btn-success btn-lg btn-block" href="/transaction/image" class="js-show" data-click="#image"><span class='glyphicon glyphicon-camera'></span> New From Image</a>
             <form action="/transaction/image" method="post" enctype="multipart/form-data" class="js-hide">
                 <div class="form-group">
                     <label for="image">Use Camera or existing file</label>
@@ -23,15 +14,13 @@
     </div>
     <div class='col-sm-6'>
         <p>
-            <a class="btn btn-primary btn-lg btn-block" href="/transaction/form">Manual Entry</a>
+            <a class="btn btn-success btn-lg btn-block" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span> New Manual Entry</a>
         </p>
     </div>
 </div>
 
 <div class='row'>
-    <div class='col-sm-12'>
-        <h2>Transactions</h2>
-    </div>
+    <br/>
     <div class='col-sm-12'>
         <div class='table-responsive'>
             <table class='table table-striped table-hover table-condensed'>

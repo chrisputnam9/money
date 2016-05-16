@@ -37,6 +37,7 @@ class Transaction_Model extends Core_Model_Dbo
             . ' LEFT JOIN transaction_category cat ON (t.category = cat.id)'
             . ' LEFT JOIN transaction_classification class ON (t.classification = class.id)'
             . ' LEFT JOIN transaction_status s ON (t.status = s.id)'
+            . ' ORDER BY t.date_occurred DESC'
         ;
         return self::get($sql);
     }
