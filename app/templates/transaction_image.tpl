@@ -6,7 +6,7 @@
     <form action="" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="image">Use Camera or existing file</label>
-            <input type="file" accept="image/*" capture="camera" class="form-control" name="image" id="image" value="">
+            <input type="file" accept="image/*" capture="camera" class="form-control js-click" name="image" id="image" value="">
         </div>
         <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
     </form>

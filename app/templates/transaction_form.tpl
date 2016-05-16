@@ -14,7 +14,7 @@
             <label for="amount"><em>*</em> Amount</label>
             <div class="input-group">
                 <span class="input-group-addon">$</span>
-                <input type="text" class="form-control" name="amount" id="amount" value="{{amount}}" placeholder="0.00">
+                <input type="number" inputmode="numeric" autocomplete="off" class="form-control" name="amount" id="amount" value="{{amount}}" placeholder="0.00">
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                 </optgroup>
             {{/account_from_options}}
             </select>
-            <input type="text" class="form-control" data-combobox="#account_from" name="account_from_other" id="account_from_other" value="{{account_from_other}}" placeholder="Enter new account">
+            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_from" name="account_from_other" id="account_from_other" value="{{account_from_other}}" placeholder="Enter new account">
         </div>
     </div>
     <div class='col-sm-6'>  
@@ -59,7 +59,7 @@
                 </optgroup>
             {{/account_to_options}}
             </select>
-            <input type="text" class="form-control" data-combobox="#account_to" name="account_to_other" id="account_to_other" value="{{account_to_other}}" placeholder="Enter new account">
+            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_to" name="account_to_other" id="account_to_other" value="{{account_to_other}}" placeholder="Enter new account">
         </div>
     </div>
 
@@ -99,20 +99,43 @@
         </div>
     </div>
 {{/image}}
-    <div class='col-sm-4'>  
+
+{{#id}}
+    <div class='col-sm-2'>  
+{{/id}}
+{{^id}}
+    <div class='col-sm-3'>  
+{{/id}}
         <p>
             <button type="submit" class="btn btn-primary btn-lg btn-block" name="submit" value="apply">Apply</button>
         </p>
     </div>
-    <div class='col-sm-4'>  
+    <div class='col-sm-3'>  
         <p>
             <button type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="save_new">Save &amp; New</button>
         </p>
     </div>
-    <div class='col-sm-4'>  
+    <div class='col-sm-3'>  
         <p>
-            <button type="submit" class="btn btn-warning btn-lg btn-block" name="submit" value="save_close">Save &amp; Close</button>
+            <button type="submit" class="btn btn-info btn-lg btn-block" name="submit" value="save_close">Save &amp; Close</button>
         </p>
     </div>
+{{#id}}
+    <div class='col-sm-2'>  
+{{/id}}
+{{^id}}
+    <div class='col-sm-3'>  
+{{/id}}
+        <p>
+            <a href="/" class="btn btn-warning btn-lg btn-block">Cancel</a>
+        </p>
+    </div>
+{{#id}}
+    <div class='col-sm-2'>  
+        <p>
+            <a href="/transaction/delete?id={{id}}" class="btn btn-danger btn-lg btn-block" data-confirm="Are you sure you want to delete this item?">Delete</a>
+        </p>
+    </div>
+{{/id}}
 
 </form>

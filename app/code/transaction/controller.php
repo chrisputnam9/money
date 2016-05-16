@@ -106,6 +106,8 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $id = $request->get('id');
                 if ($id)
                 {
+                    // Allow muliple
+                    $id = explode(",", $id);
                     Transaction_Model::delete($id);
                 }
 

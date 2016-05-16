@@ -81,8 +81,45 @@ CPI = (function($) {
         })
     };
 
+    // Confirm click functionality
+    $.fn.confirm = function () {
+        return this.each(function () {
+            var $clickable = $(this),
+                message = $clickable.data('confirm');
+            
+            $clickable.click(function(event) {
+                result = window.confirm(message);
+                if (!result) {
+                    event.preventDefault();
+                }
+            });
+        })
+    }
+
+    // On Load
     $(function () {
         $('[data-combobox]').combobox();
+        $('[data-confirm]').confirm();
+
+        $('.js-click').click();
+
+        $('.js-show').show();
+        $('.js-hide').hide();
+
+        $('[data-click]').click(function (event) {
+            var $this = $(this)
+                target = $this.data('click');
+                $target = $(target);
+
+            if ($target.length > 0) {
+                event.preventDefault();
+                $target.click();
+            }
+        });
+
+        $('.js-change-submit').change(function () {
+            $(this).closest('form').submit();
+        });
     });
 
     return CPI;

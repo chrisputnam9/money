@@ -120,12 +120,7 @@ class Core_Model_Dbo extends Core_Model_Abstract
              . ' ('.join(',', $data->placeholders()).')'
         ;
 
-        echo("<pre>".print_r($sql,true)."</pre>");
-        echo("<pre>".print_r($data->hash(),true)."</pre>");
-        die;
-
         return self::execute($sql, $data->hash());
-
     }
 
 

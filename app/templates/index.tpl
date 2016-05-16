@@ -11,12 +11,19 @@
     </div>
     <div class='col-sm-6'>
         <p>
-            <a class="btn btn-primary btn-lg btn-block" href="/transaction/image">Image</a>
+            <a class="btn btn-primary btn-lg btn-block" href="/transaction/image" class="js-show" data-click="#image">Upload Image</a>
+            <form action="/transaction/image" method="post" enctype="multipart/form-data" class="js-hide">
+                <div class="form-group">
+                    <label for="image">Use Camera or existing file</label>
+                    <input type="file" accept="image/*" capture="camera" class="form-control js-change-submit" name="image" id="image" value="">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
+            </form>
         </p>
     </div>
     <div class='col-sm-6'>
         <p>
-            <a class="btn btn-primary btn-lg btn-block" href="/transaction/form">Manual</a>
+            <a class="btn btn-primary btn-lg btn-block" href="/transaction/form">Manual Entry</a>
         </p>
     </div>
 </div>
@@ -49,8 +56,8 @@
                         <td>{{account_to_value}}</td>
                         <td>{{category_value}}</td>
                         <td>
-                            <a href='/transaction/form?id={{id}}' class='btn btn-primary btn-block'>Edit</a>
-                            <a href='/transaction/delete?id={{id}}' class='btn btn-primary btn-block'>Delete</a>
+                            <a href='/transaction/form?id={{id}}' class='btn btn-primary'><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a href='/transaction/delete?id={{id}}' class='btn btn-danger' data-confirm="Are you sure you want to delete this item?"><span class="glyphicon glyphicon-trash"></span></a>
                         </td>
                     </tr>
                 {{/transactions}}
