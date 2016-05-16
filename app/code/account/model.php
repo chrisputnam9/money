@@ -17,9 +17,19 @@ class Account_Model extends Core_Model_Dbo
     {
         $grouped_accounts = [];
 
-        $sql = "SELECT a.*, c.title as classification"
+        $sql = "SELECT a.*, c.title as classification,"
+             . " ("
+             . "    SELECT cat.title"
+             . "    FROM transaction t"
+             . "    LEFT JOIN transaction_category cat ON (t.category = cat.id)"
+             . "    WHERE t.account_to = a.id"
+             . "    GROUP BY cat.title"
+             . "    ORDER BY count(cat.title) DESC"
+             . "    LIMIT 1"
+             . " ) AS popular_category"
              . " FROM account a"
              . " LEFT JOIN account_classification c ON (a.classification = c.id)"
+             . " GROUP BY a.id"
         ;
 
         $accounts = self::get($sql);
@@ -39,6 +49,13 @@ class Account_Model extends Core_Model_Dbo
 
         ksort($grouped_accounts);
         return array_values($grouped_accounts);
+    }
+
+    // Get map of account numbers to account IDs
+    static function getNumberMap()
+    {
+        $sql = "SELECT a.id,a.account_number FROM account a WHERE a.account_number <> ''";
+        return self::get($sql, null, 'account_number');
     }
 
 }

@@ -48,7 +48,7 @@ class OCR_Model extends Core_Model_Abstract
     {
         if ($this->cache and $this->image)
         {
-            $cachefile = self::DIR_CACHE . basename($this->image) . ".ocr-cache";
+            $cachefile = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($this->image)) . ".ocr-cache";
             if (is_file($cachefile))
             {
                 try {
@@ -71,7 +71,7 @@ class OCR_Model extends Core_Model_Abstract
                 mkdir(self::DIR_CACHE);
             }
             $cache = implode(EOL, $this->text);
-            $cachefile = self::DIR_CACHE . basename($this->image) . ".ocr-cache";
+            $cachefile = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($this->image)) . ".ocr-cache";
             file_put_contents($cachefile, $cache);
         }
     }
@@ -102,19 +102,39 @@ class OCR_Model extends Core_Model_Abstract
     }
 
     /**
+     * Get Pattern
+     */
+    function getPattern($pattern, $return_index=0)
+    {
+        $found = [];
+        $text = $this->getText();
+        foreach ($text as $line)
+        {
+            if (preg_match_all($pattern, $line, $matches))
+            {
+                $found = array_merge($found, $matches[$return_index]);
+            }
+        }
+
+        if (empty($found))
+            return false;
+
+        return $found;
+    }
+
+    /**
      * Get dollar amounts
      */
     function getDollars()
     {
-        $text = $this->getText();
-        $dollars = [];
-        foreach ($text as $line)
-        {
-            if (preg_match_all('/\$\s*(\d*\.\d*)/', $line, $matches))
-            {
-                $dollars = array_merge($dollars, $matches[1]);
-            }
-        }
-        return $dollars;
+        return $this->getPattern('/\d+\.\d{2}/');
+    }
+
+    /**
+     * Get date(s)
+     */
+    function getDates()
+    {
+        return $this->getPattern('/\d{1,2}\/\d{1,2}\/\d{2,4}/');
     }
 }

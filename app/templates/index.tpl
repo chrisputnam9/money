@@ -14,7 +14,7 @@
     </div>
     <div class='col-sm-6'>
         <p>
-            <a class="btn btn-success btn-lg btn-block" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span> New Manual Entry</a>
+            <a class="btn btn-primary btn-lg btn-block" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span> New Manual Entry</a>
         </p>
     </div>
 </div>

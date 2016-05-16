@@ -73,10 +73,52 @@ class Transaction_Controller extends Core_Controller_Abstract
                 if ($image and empty($amount))
                 {
                     $dir = self::DIR_UPLOAD;
-                    $ocr = new OCR_Model($dir . $image);
+                    // Load from cache (ran on original image)
+                    $ocr = new OCR_Model($dir . $image, true);
+
                     $dollars = $ocr->getDollars();
                     if (!empty($dollars))
                         $body_data['amount'] = max($dollars);
+
+                    // Use the most recent valid date found (if any)
+                    $dates = $ocr->getDates();
+                    $most_recent = 0;
+                    $now = time();
+                    if (!empty($dates))
+                    {
+                        foreach ($dates as $date)
+                        {
+                            $time = strtotime($date);
+                            // Going for most recent time, but can't be future (TODO configurable?)
+                            if (false !== $time and $time > $most_recent and $time <= $now)
+                            {
+                                $most_recent = $time;
+                            }
+                        }
+                    }
+                    if ($most_recent)
+                    {
+                        $body_data['date_occurred'] = date('Y-m-d', $most_recent);
+                    }
+
+                    // Account From
+                    // Use first valid account found (if any)
+                    $account_numbers = $ocr->getPattern('/[^\/\d](\d{4})($|\D)/', 1);
+                    if (!empty($account_numbers))
+                    {
+                        $account_map = Account_Model::getNumberMap();
+                        if (!empty($account_map))
+                        {
+                            foreach ($account_numbers as $number)
+                            {
+                                if (isset($account_map[$number]))
+                                {
+                                    $body_data['account_from'] = $account_map[$number]['id'];
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Options always needed for template
@@ -137,6 +179,10 @@ class Transaction_Controller extends Core_Controller_Abstract
         $path = $dir . $filename;
 
         move_uploaded_file( $image['tmp_name'], $path );
+
+        // Run OCR and cache for later
+        $ocr = new OCR_Model($path, true);
+        $ocr->getText();
 
         $dest_filename = preg_replace('/\.\w+$/', '.png', $filename);
         $destination = $dir . $dest_filename;

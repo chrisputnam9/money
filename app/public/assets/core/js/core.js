@@ -37,6 +37,7 @@ CPI = (function($) {
 
             $datalist.insertAfter($input);
             $input.attr('list', datalist_id);
+            $input.prop('required', true);
 
             $select.hide();
 
@@ -59,7 +60,7 @@ CPI = (function($) {
                     }
                 });
 
-                $select.val(selected);
+                $select.val(selected).trigger('combobox-change');
             });
 
             // Update input based on select value
@@ -96,10 +97,45 @@ CPI = (function($) {
         })
     }
 
+    // Auto select based on input change
+    $.fn.autoselect = function () {
+        return this.each(function () {
+            var $input = $(this),
+                target = $input.data('select')
+                $target = $(target);
+
+            if ($target.length == 0) {
+                return true;
+            }
+
+            $input.on('change combobox-change', function() {
+                if ($target.val() != ''){
+                    return;
+                }
+
+                if ($input.is('select')) {
+                    var $selected = $input.find('option:selected'),
+                        text = $selected.data('select');
+                }
+
+                console.log($target);
+                console.log('text: ' + text);
+
+                if ($target.is('select')) {
+                    $target.find('option').filter(function () {
+                        return this.text == text;
+                    }).prop('selected', true);
+                }
+            });
+
+        });
+    }
+
     // On Load
     $(function () {
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
+        $('select[data-select]').autoselect();
 
         $('.js-click').click();
 

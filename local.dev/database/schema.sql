@@ -44,7 +44,6 @@ CREATE TABLE transaction_status (
     title varchar(1023) NOT NULL
 );
 
-
 CREATE TABLE transaction (
     id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
