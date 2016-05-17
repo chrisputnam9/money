@@ -129,13 +129,94 @@ CPI = (function($) {
             });
 
         });
-    }
+    };
+
+    // Functionality for file upload form
+    $.fn.fileupload = function () {
+        return this.each(function () {
+            var $form = $(this),
+                $input = $form.find('input[type="file"]'),
+                progress_container = $form.data('progress'),
+                $progress_container = $(progress_container),
+                $progress_bar = $progress_container.find('.progress-bar'),
+                $percents = $progress_container.find('.percent');
+
+            if ($input.length != 1) {
+                return true;
+            }
+
+            // On submit, use ajax instead
+            $form.submit(function (event) {
+                var fd = new FormData(),
+                    xhr = new XMLHttpRequest();
+
+                event.preventDefault();
+
+                fd.append($input.attr('name'), $input.get()[0].files[0]);
+                fd.append('ajax', true);
+
+                xhr.upload.addEventListener("progress", uploadProgress, false);
+                xhr.addEventListener("load", uploadComplete, false);
+                xhr.addEventListener("error", uploadFailed, false);
+                xhr.addEventListener("abort", uploadCanceled, false);
+                xhr.open("POST", "/transaction/image");
+
+                // Show progress container
+                $progress_container.show();
+
+                xhr.send(fd);
+            });
+        
+            // File selected, upload right away
+            $input.change(function (event) {
+                $form.submit();
+            });
+
+            var uploadProgress = function (evt) {
+                if (evt.lengthComputable) {
+                    var percent = Math.round(evt.loaded * 100 / evt.total) + '%';
+                } else {
+                    var percent = '50%';
+                }
+                $progress_bar.css('width', percent);
+                $percents.html(percent);
+            }
+
+            var uploadComplete = function (evt) {
+                var responseJson = JSON.parse(evt.target.responseText);
+
+                $progress_bar.css('width', '100%');
+                $percents.html('100%');
+                $input.val('');
+
+                if ('location' in responseJson) {
+                    document.location = responseJson.location;
+                } else {
+                    alert("There may have been an error uploading the file. Please try again and report if this happens a second time.");
+                }
+            }
+
+            var uploadFailed = function (evt) {
+                alert("There was an error uploading the file. Please try again and report if this happens a second time.");
+                $progress_container.hide();
+                $input.val('');
+            }
+
+            var uploadCanceled = function (evt) {
+                alert("The upload has been canceled by the user or the browser dropped the connection. Please try again.");
+                $progress_container.hide();
+                $input.val('');
+            }
+
+        });
+    };
 
     // On Load
     $(function () {
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
         $('select[data-select]').autoselect();
+        $('.js-file-upload').fileupload();
 
         $('.js-click').click();
 
@@ -151,10 +232,6 @@ CPI = (function($) {
                 event.preventDefault();
                 $target.click();
             }
-        });
-
-        $('.js-change-submit').change(function () {
-            $(this).closest('form').submit();
         });
     });
 

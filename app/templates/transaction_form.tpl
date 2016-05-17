@@ -47,7 +47,7 @@
             <label for="amount"><em>*</em> Amount</label>
             <div class="input-group">
                 <span class="input-group-addon">$</span>
-                <input type="number" inputmode="numeric" autocomplete="off" class="form-control" name="amount" id="amount" value="{{amount}}" placeholder="0.00" required>
+                <input type="number" step="0.01" min="0.00" inputmode="numeric" autocomplete="off" class="form-control" name="amount" id="amount" value="{{amount}}" placeholder="0.00" required>
             </div>
         </div>
     </div>

@@ -1,12 +1,20 @@
 <div class='row'>
     <br/>
+    <div id='image-upload-progress' class='col-sm-12' style='display:none'>
+        <p class="label label-default">Uploading:</p>
+        <div class="progress">
+            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width:30px;">
+                <strong><span class='percent'>0%</span></strong>
+            </div>
+        </div>
+    </div>
     <div class='col-sm-6'>
         <p>
             <a class="btn btn-success btn-lg btn-block" href="/transaction/image" class="js-show" data-click="#image"><span class='glyphicon glyphicon-camera'></span> New From Image</a>
-            <form action="/transaction/image" method="post" enctype="multipart/form-data" class="js-hide">
+            <form action="/transaction/image" method="post" enctype="multipart/form-data" class="js-hide js-file-upload" data-progress='#image-upload-progress'>
                 <div class="form-group">
                     <label for="image">Use Camera or existing file</label>
-                    <input type="file" accept="image/*" capture="camera" class="form-control js-change-submit" name="image" id="image" value="">
+                    <input type="file" accept="image/*" capture="camera" class="form-control" name="image" id="image" value="">
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
             </form>

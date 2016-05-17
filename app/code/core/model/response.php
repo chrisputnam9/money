@@ -75,6 +75,16 @@ class Core_Model_Response extends Core_Model_Abstract
         $query_string = http_build_query($url_data);
         $url = $url_path . (empty($query_string) ? '' : '?' . $query_string);
         $this->setCode($code);
+
+        if ($this->getRequest()->post('ajax'))
+        {
+            header('Content-Type: application/json');
+            die(json_encode([
+                'location' => $url
+            ]));
+        }
+
+
         header("HTTP/1.0 " . $this->status);
         header("Location: " . $url);
         exit;
