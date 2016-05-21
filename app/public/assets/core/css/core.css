@@ -5,6 +5,10 @@ body {
     background: #f7f7f7;
 }
 
+.full-width {
+    width: 100%;
+}
+
 /**
  * Interface elements
  */

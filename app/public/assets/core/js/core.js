@@ -2,9 +2,58 @@ CPI = (function($) {
 
     var CPI = {};
 
+    // Auto select based on input change
+    $.fn.autoselect = function () {
+        return this.each(function () {
+            var $input = $(this),
+                target = $input.data('select')
+                $target = $(target);
+
+            if ($target.length == 0) {
+                return true;
+            }
+
+            $input.on('change combobox-change', function() {
+                if ($target.val() != ''){
+                    return;
+                }
+
+                if ($input.is('select')) {
+                    var $selected = $input.find('option:selected'),
+                        text = $selected.data('select');
+                }
+
+                console.log($target);
+                console.log('text: ' + text);
+
+                if ($target.is('select')) {
+                    $target.find('option').filter(function () {
+                        return this.text == text;
+                    }).prop('selected', true);
+                }
+            });
+
+        });
+    };
+
+    // Propagate element click to another element
+    $.fn.clickPropagate = function () {
+        return this.each(function () {
+            $(this).click(function (event) {
+                var $this = $(this)
+                    target = $this.data('click');
+                    $target = $(target);
+
+                if ($target.length > 0) {
+                    event.preventDefault();
+                    $target.click();
+                }
+            });
+        });
+    };
+
     // Combo Box Functionality
     $.fn.combobox = function () {
-        // Loop through all
         return this.each(function () {
             var $input = $(this),
                 select = $input.data('combobox'),
@@ -12,32 +61,59 @@ CPI = (function($) {
                 $optgroups = $select.find('optgroup'),
                 $options = $select.find('option'),
                 input_id = $input.attr('id'),
-                datalist_id = input_id + '__datalist',
-                $datalist = $('<datalist>')
-                    .attr('id', datalist_id);
+                dropdown_id = input_id + '__dropdown',
+                $dropdown = $('<div class="dropdown">'),
+                $input_group = $('<div class="input-group">'),
+                $button_span = $('<span class="input-group-btn">'),
+                $button = $('<button class="js-dropdown-toggle btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">')
+                    .attr('id', dropdown_id),
+                $button_caret = $('<span class="caret">'),
+                $dropdown_menu = $('<ul class="dropdown-menu dropdown-menu-right full-width" >')
+                    .attr('aria-labelledby', dropdown_id);
 
+            // Throw it in the DOM!
+            $dropdown.insertAfter($input);
+                $dropdown.append($input_group, $dropdown_menu);
+                $input.prop('required', true).detach();
+                $input_group.append($input, $button_span);
+                    $button_span.append($button);
+                    $button.append($button_caret);
+
+            // Add the options
+            var $divider = $('<li role="separator" class="divider">');
             $optgroups.each( function () {
                 var $group = $(this),
                     group = $group.attr('label');
+                
+                $dropdown_menu.append(
+                    $divider.clone(),
+                    $('<li class="dropdown-header">').text(group),
+                    $divider.clone()
+                );
 
                 $group.find('option').each( function () {
                     var $option = $(this),
                         value = $option.val(),
                         text = $option.text(),
-                        $list_option = $('<option>');
+                        $link = $('<a>')
+                            .attr('href', '#' + value)
+                            .text(text),
+                        $option = $('<li>')
+                            .append($link);
+
                     if (value == '') {
                         return true;
                     }
-                    $list_option.text(group)
-                        .val(text);
-                    $datalist.append($list_option);
+
+                    $dropdown_menu.append($option);
                 });
+
+                first = false;
 
             });
 
-            $datalist.insertAfter($input);
-            $input.attr('list', datalist_id);
-            $input.prop('required', true);
+            // I feel like bootstrap should already work this way... boo!
+            $button.click(function() {$dropdown.toggleClass('open');});
 
             $select.hide();
 
@@ -96,40 +172,6 @@ CPI = (function($) {
             });
         })
     }
-
-    // Auto select based on input change
-    $.fn.autoselect = function () {
-        return this.each(function () {
-            var $input = $(this),
-                target = $input.data('select')
-                $target = $(target);
-
-            if ($target.length == 0) {
-                return true;
-            }
-
-            $input.on('change combobox-change', function() {
-                if ($target.val() != ''){
-                    return;
-                }
-
-                if ($input.is('select')) {
-                    var $selected = $input.find('option:selected'),
-                        text = $selected.data('select');
-                }
-
-                console.log($target);
-                console.log('text: ' + text);
-
-                if ($target.is('select')) {
-                    $target.find('option').filter(function () {
-                        return this.text == text;
-                    }).prop('selected', true);
-                }
-            });
-
-        });
-    };
 
     // Functionality for file upload form
     $.fn.fileupload = function () {
@@ -213,26 +255,21 @@ CPI = (function($) {
 
     // On Load
     $(function () {
+
+        // Bootstrap functionality
+
+        // Custom Functionality
+        $('.js-file-upload').fileupload();
+        $('[data-click]').clickPropagate();
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
         $('select[data-select]').autoselect();
-        $('.js-file-upload').fileupload();
 
+        // Simple stuff:
         $('.js-click').click();
-
-        $('.js-show').show();
         $('.js-hide').hide();
+        $('.js-show').show();
 
-        $('[data-click]').click(function (event) {
-            var $this = $(this)
-                target = $this.data('click');
-                $target = $(target);
-
-            if ($target.length > 0) {
-                event.preventDefault();
-                $target.click();
-            }
-        });
     });
 
     return CPI;
