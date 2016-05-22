@@ -56,6 +56,7 @@ CPI = (function($) {
     $.fn.combobox = function () {
         return this.each(function () {
             var $input = $(this),
+                initialized = false,
                 select = $input.data('combobox'),
                 $select = $(select),
                 $optgroups = $select.find('optgroup'),
@@ -80,24 +81,20 @@ CPI = (function($) {
                     $button.append($button_caret);
 
             // Add the options
-            var $divider = $('<li role="separator" class="divider">');
             $optgroups.each( function () {
                 var $group = $(this),
                     group = $group.attr('label');
-                
-                $dropdown_menu.append(
-                    $divider.clone(),
-                    $('<li class="dropdown-header">').text(group),
-                    $divider.clone()
-                );
 
                 $group.find('option').each( function () {
                     var $option = $(this),
                         value = $option.val(),
                         text = $option.text(),
+                        search = (group + ' ' + text).toLowerCase(),
                         $link = $('<a>')
                             .attr('href', '#' + value)
-                            .text(text),
+                            .attr('data-search', search)
+                            .text(text)
+                            .append($('<span>').text(group)),
                         $option = $('<li>')
                             .append($link);
 
@@ -106,6 +103,14 @@ CPI = (function($) {
                     }
 
                     $dropdown_menu.append($option);
+
+                    // fill input when link is clicked
+                    $link.click(function(event) {
+                        event.preventDefault();
+                        $input.val(text).trigger('input');
+                        $dropdown_menu.hide();
+                    });
+
                 });
 
                 first = false;
@@ -113,21 +118,40 @@ CPI = (function($) {
             });
 
             // I feel like bootstrap should already work this way... boo!
-            $button.click(function() {$dropdown.toggleClass('open');});
+            $dropdown.on('show.bs.dropdown hide.bs.dropdown', function() {
+                $dropdown.toggleClass('open');
+                if ($dropdown.hasClass('open')) {
+                    $dropdown_menu.show();
+                } else {
+                    $dropdown_menu.hide();
+                }
+            });
 
             $select.hide();
 
             // When input changes, select value, style
             $input.on('input', function () {
                 var value = $input.val(),
-                    selected = "";
+                    selected = "",
+                    groups = [],
+                    $dropdown_options = $dropdown_menu.find('li>a');
 
-                if (value == "") {
+                if (value == "" || !initialized) {
                     $input.css({ 'font-weight':'', 'font-style':'' });
+                    $dropdown_options.show();
                 } else {
+                    var $filtered = $dropdown_options.filter('[data-search*="'+value.toLowerCase()+'"]');
                     $input.css({ 'font-weight':'', 'font-style':'italic' });
+                    if ($filtered.length > 0) {
+                        $dropdown_menu.show();
+                        $dropdown_options.hide()
+                        $filtered.show();
+                    } else {
+                        $dropdown_menu.hide();
+                        $dropdown_options.show()
+                    }
                 }
-                
+
                 $options.each(function () {
                     var $option = $(this);
                     if ($option.text() == value) {
@@ -155,7 +179,9 @@ CPI = (function($) {
 
             $select.on('change click', updateInput);
 
-        })
+            initialized = true;
+
+        });
     };
 
     // Confirm click functionality

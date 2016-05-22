@@ -12,6 +12,15 @@ body {
 /**
  * Interface elements
  */
+ul.dropdown-menu li a {
+    padding: 3px 10px;
+}
+ul.dropdown-menu li a span {
+    float:right;
+    color: #777;
+    font-size: .8em;
+}
+
 p.alert {
     padding: 10px;
     font-weight: bold;
