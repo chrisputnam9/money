@@ -71,10 +71,18 @@ class Core_Model_Dbo extends Core_Model_Abstract
     }
 
     // Get everything from a table
-    static function getAll($table="")
+    static function getAll($table="", $order=null)
     {
         $table = self::cleanTable($table);
-        return self::get('SELECT * FROM ' . $table);
+
+        $sql = 'SELECT * FROM ' . $table;
+        if (!empty($order))
+        {
+            $sql.= ' ORDER BY ' . $order;
+        }
+
+        return self::get($sql);
+
     }
 
     // Get by field
