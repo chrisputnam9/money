@@ -22,7 +22,9 @@
                 </optgroup>
             {{/account_from_options}}
             </select>
+
             <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_from" name="account_from_other" id="account_from_other" value="{{account_from_other}}" placeholder="Enter new account">
+
         </div>
     </div>
     <div class='col-sm-6'>  

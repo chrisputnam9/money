@@ -30,6 +30,7 @@ class Account_Model extends Core_Model_Dbo
              . " FROM account a"
              . " LEFT JOIN account_classification c ON (a.classification = c.id)"
              . " GROUP BY a.id"
+             . " ORDER BY a.title"
         ;
 
         $accounts = self::get($sql);

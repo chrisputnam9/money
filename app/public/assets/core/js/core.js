@@ -2,101 +2,6 @@ CPI = (function($) {
 
     var CPI = {};
 
-    // Combo Box Functionality
-    $.fn.combobox = function () {
-        // Loop through all
-        return this.each(function () {
-            var $input = $(this),
-                select = $input.data('combobox'),
-                $select = $(select),
-                $optgroups = $select.find('optgroup'),
-                $options = $select.find('option'),
-                input_id = $input.attr('id'),
-                datalist_id = input_id + '__datalist',
-                $datalist = $('<datalist>')
-                    .attr('id', datalist_id);
-
-            $optgroups.each( function () {
-                var $group = $(this),
-                    group = $group.attr('label');
-
-                $group.find('option').each( function () {
-                    var $option = $(this),
-                        value = $option.val(),
-                        text = $option.text(),
-                        $list_option = $('<option>');
-                    if (value == '') {
-                        return true;
-                    }
-                    $list_option.text(group)
-                        .val(text);
-                    $datalist.append($list_option);
-                });
-
-            });
-
-            $datalist.insertAfter($input);
-            $input.attr('list', datalist_id);
-            $input.prop('required', true);
-
-            $select.hide();
-
-            // When input changes, select value, style
-            $input.on('input', function () {
-                var value = $input.val(),
-                    selected = "";
-
-                if (value == "") {
-                    $input.css({ 'font-weight':'', 'font-style':'' });
-                } else {
-                    $input.css({ 'font-weight':'', 'font-style':'italic' });
-                }
-                
-                $options.each(function () {
-                    var $option = $(this);
-                    if ($option.text() == value) {
-                        $input.css({ 'font-weight':'bold', 'font-style':'' });
-                        selected = $option.val();
-                    }
-                });
-
-                $select.val(selected).trigger('combobox-change');
-            });
-
-            // Update input based on select value
-            var updateInput = function () {
-                var selected = $select.val(),
-                    $option = $select.find('option[value="'+selected+'"]');
-                if (selected == "") {
-                    $input.val("");
-                } else {
-                    $input.val($option.text());
-                }
-                $input.trigger('input');
-            }
-
-            updateInput();
-
-            $select.on('change click', updateInput);
-
-        })
-    };
-
-    // Confirm click functionality
-    $.fn.confirm = function () {
-        return this.each(function () {
-            var $clickable = $(this),
-                message = $clickable.data('confirm');
-            
-            $clickable.click(function(event) {
-                result = window.confirm(message);
-                if (!result) {
-                    event.preventDefault();
-                }
-            });
-        })
-    }
-
     // Auto select based on input change
     $.fn.autoselect = function () {
         return this.each(function () {
@@ -130,6 +35,169 @@ CPI = (function($) {
 
         });
     };
+
+    // Propagate element click to another element
+    $.fn.clickPropagate = function () {
+        return this.each(function () {
+            $(this).click(function (event) {
+                var $this = $(this)
+                    target = $this.data('click');
+                    $target = $(target);
+
+                if ($target.length > 0) {
+                    event.preventDefault();
+                    $target.click();
+                }
+            });
+        });
+    };
+
+    // Combo Box Functionality
+    $.fn.combobox = function () {
+        return this.each(function () {
+            var $input = $(this),
+                initialized = false,
+                select = $input.data('combobox'),
+                $select = $(select),
+                $optgroups = $select.find('optgroup'),
+                $options = $select.find('option'),
+                input_id = $input.attr('id'),
+                dropdown_id = input_id + '__dropdown',
+                $dropdown = $('<div class="dropdown">'),
+                $input_group = $('<div class="input-group">'),
+                $button_span = $('<span class="input-group-btn">'),
+                $button = $('<button class="js-dropdown-toggle btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">')
+                    .attr('id', dropdown_id),
+                $button_caret = $('<span class="caret">'),
+                $dropdown_menu = $('<ul class="dropdown-menu dropdown-menu-right full-width" >')
+                    .attr('aria-labelledby', dropdown_id);
+
+            // Throw it in the DOM!
+            $dropdown.insertAfter($input);
+                $dropdown.append($input_group, $dropdown_menu);
+                $input.prop('required', true).detach();
+                $input_group.append($input, $button_span);
+                    $button_span.append($button);
+                    $button.append($button_caret);
+
+            // Add the options
+            $optgroups.each( function () {
+                var $group = $(this),
+                    group = $group.attr('label');
+
+                $group.find('option').each( function () {
+                    var $option = $(this),
+                        value = $option.val(),
+                        text = $option.text(),
+                        search = (group + ' ' + text).toLowerCase(),
+                        $link = $('<a>')
+                            .attr('href', '#' + value)
+                            .attr('data-search', search)
+                            .text(text)
+                            .append($('<span>').text(group)),
+                        $option = $('<li>')
+                            .append($link);
+
+                    if (value == '') {
+                        return true;
+                    }
+
+                    $dropdown_menu.append($option);
+
+                    // fill input when link is clicked
+                    $link.click(function(event) {
+                        event.preventDefault();
+                        $input.val(text).trigger('input');
+                        $dropdown_menu.hide();
+                    });
+
+                });
+
+                first = false;
+
+            });
+
+            // I feel like bootstrap should already work this way... boo!
+            $dropdown.on('show.bs.dropdown hide.bs.dropdown', function() {
+                $dropdown.toggleClass('open');
+                if ($dropdown.hasClass('open')) {
+                    $dropdown_menu.show();
+                } else {
+                    $dropdown_menu.hide();
+                }
+            });
+
+            $select.hide();
+
+            // When input changes, select value, style
+            $input.on('input', function () {
+                var value = $input.val(),
+                    selected = "",
+                    groups = [],
+                    $dropdown_options = $dropdown_menu.find('li>a');
+
+                if (value == "" || !initialized) {
+                    $input.css({ 'font-weight':'', 'font-style':'' });
+                    $dropdown_options.show();
+                } else {
+                    var $filtered = $dropdown_options.filter('[data-search*="'+value.toLowerCase()+'"]');
+                    $input.css({ 'font-weight':'', 'font-style':'italic' });
+                    if ($filtered.length > 0) {
+                        $dropdown_menu.show();
+                        $dropdown_options.hide()
+                        $filtered.show();
+                    } else {
+                        $dropdown_menu.hide();
+                        $dropdown_options.show()
+                    }
+                }
+
+                $options.each(function () {
+                    var $option = $(this);
+                    if ($option.text() == value) {
+                        $input.css({ 'font-weight':'bold', 'font-style':'' });
+                        selected = $option.val();
+                    }
+                });
+
+                $select.val(selected).trigger('combobox-change');
+            });
+
+            // Update input based on select value
+            var updateInput = function () {
+                var selected = $select.val(),
+                    $option = $select.find('option[value="'+selected+'"]');
+                if (selected == "") {
+                    $input.val("");
+                } else {
+                    $input.val($option.text());
+                }
+                $input.trigger('input');
+            }
+
+            updateInput();
+
+            $select.on('change click', updateInput);
+
+            initialized = true;
+
+        });
+    };
+
+    // Confirm click functionality
+    $.fn.confirm = function () {
+        return this.each(function () {
+            var $clickable = $(this),
+                message = $clickable.data('confirm');
+            
+            $clickable.click(function(event) {
+                result = window.confirm(message);
+                if (!result) {
+                    event.preventDefault();
+                }
+            });
+        })
+    }
 
     // Functionality for file upload form
     $.fn.fileupload = function () {
@@ -213,26 +281,21 @@ CPI = (function($) {
 
     // On Load
     $(function () {
+
+        // Bootstrap functionality
+
+        // Custom Functionality
+        $('.js-file-upload').fileupload();
+        $('[data-click]').clickPropagate();
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
         $('select[data-select]').autoselect();
-        $('.js-file-upload').fileupload();
 
+        // Simple stuff:
         $('.js-click').click();
-
-        $('.js-show').show();
         $('.js-hide').hide();
+        $('.js-show').show();
 
-        $('[data-click]').click(function (event) {
-            var $this = $(this)
-                target = $this.data('click');
-                $target = $(target);
-
-            if ($target.length > 0) {
-                event.preventDefault();
-                $target.click();
-            }
-        });
     });
 
     return CPI;

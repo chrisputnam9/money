@@ -59,7 +59,7 @@ class Transaction_Model extends Core_Model_Dbo
                 empty($data['account_from']) ? false : $data['account_from']
             ),
             'account_to_options' => self::populateSelectedOptions(
-                $account_options,
+                array_reverse($account_options),
                 empty($data['account_to']) ? false : $data['account_to']
             ),
             'category_options' => self::populateSelectedOptions(
