@@ -50,7 +50,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $db_data = Transaction_Model::getById($id);
                     if (!empty($db_data[$id]))
                     {
-
+                        $body_data['form_title'] = 'Edit Transaction';
                         $body_data = array_merge($body_data, $db_data[$id]);
                     }
                 }
@@ -67,55 +67,84 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $body_data = array_merge($body_data, $_POST);
                 }
 
+                // TODO refactor so this query doesn't have to happen twice:
+                //   eg. pass through below or cache on account model
+                $account_options = Account_Model::getGroupedAccounts();
+
                 // OCR if applicable
                 $image = $request->get('image');
-                $amount = $request->post('amount');
-                if ($image and empty($amount))
+                if ($image)
                 {
                     $dir = self::DIR_UPLOAD;
                     // Load from cache (ran on original image)
                     $ocr = new OCR_Model($dir . $image, true);
+                    $ocr_text = join("\n", $ocr->getText());
+                    $body_data['ocr-text'] = $ocr_text;
 
-                    $dollars = $ocr->getDollars();
-                    if (!empty($dollars))
-                        $body_data['amount'] = max($dollars);
+                    if (empty($body_data['amount']))
+                    {
+                        $dollars = $ocr->getDollars();
+                        if (!empty($dollars))
+                            $body_data['amount'] = max($dollars);
+                    }
 
                     // Use the most recent valid date found (if any)
-                    $dates = $ocr->getDates();
-                    $most_recent = 0;
-                    $now = time();
-                    if (!empty($dates))
+                    if (empty($body_data['date_occurred']))
                     {
-                        foreach ($dates as $date)
+                        $dates = $ocr->getDates();
+                        $most_recent = 0;
+                        $now = time();
+                        if (!empty($dates))
                         {
-                            $time = strtotime($date);
-                            // Going for most recent time, but can't be future (TODO configurable?)
-                            if (false !== $time and $time > $most_recent and $time <= $now)
+                            foreach ($dates as $date)
                             {
-                                $most_recent = $time;
+                                $time = strtotime($date);
+                                // Going for most recent time, but can't be future (TODO configurable?)
+                                if (false !== $time and $time > $most_recent and $time <= $now)
+                                {
+                                    $most_recent = $time;
+                                }
                             }
                         }
-                    }
-                    if ($most_recent)
-                    {
-                        $body_data['date_occurred'] = date('Y-m-d', $most_recent);
+                        if ($most_recent)
+                        {
+                            $body_data['date_occurred'] = date('Y-m-d', $most_recent);
+                        }
                     }
 
                     // Account From
                     // Use first valid account found (if any)
-                    $account_numbers = $ocr->getPattern('/[^\/\d](\d{4})($|\D)/', 1);
-                    if (!empty($account_numbers))
+                    if (empty($body_data['account_from']))
                     {
-                        $account_map = Account_Model::getNumberMap();
-                        if (!empty($account_map))
+                        $account_numbers = $ocr->getPattern('/[^\/\d](\d{4})($|\D)/', 1);
+                        if (!empty($account_numbers))
                         {
-                            foreach ($account_numbers as $number)
+                            $account_map = Account_Model::getNumberMap();
+                            if (!empty($account_map))
                             {
-                                if (isset($account_map[$number]))
+                                foreach ($account_numbers as $number)
                                 {
-                                    $body_data['account_from'] = $account_map[$number]['id'];
-                                    break;
+                                    if (isset($account_map[$number]))
+                                    {
+                                        $body_data['account_from'] = $account_map[$number]['id'];
+                                        break;
+                                    }
                                 }
+                            }
+                        }
+                    }
+
+                    // Check for valid account names which could indicate
+                    //  the transaction recipient
+                    if (empty($body_data['account_to']))
+                    {
+                        $lower_text = strtolower($ocr_text);
+                        foreach($account_options[2]['options'] as $option)
+                        {
+                            $name = strtolower($option['title']);
+                            if (strpos($lower_text, $name) !== false)
+                            {
+                                $body_data['account_to'] = $option['id'];
                             }
                         }
                     }

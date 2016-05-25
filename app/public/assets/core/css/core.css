@@ -5,6 +5,19 @@ body {
     background: #f7f7f7;
 }
 
+.hidden,
+.js-show {
+    display: none;
+}
+
+.float--left {
+    float: left;
+}
+
+.float--right {
+    float: right;
+}
+
 .full-width {
     width: 100%;
 }

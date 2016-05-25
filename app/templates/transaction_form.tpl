@@ -98,6 +98,13 @@
             <div class='window window--thumbnail img-thumbnail'>
                 <img class='img-responsive img-stretch' src='/upload/transaction/{{image}}' alt='{{image}}'/>
             </div>
+            <div class='js-show'>
+                <small class='float--right'><a href='#ocr-text' class='js-toggle'>View Raw OCR Text</a></small>
+                <div class='float--right full-width'>
+                    <pre id='ocr-text'>{{ocr-text}}</pre>
+                    <br/>
+                </div>
+            </div>
         </div>
     </div>
 {{/image}}
@@ -109,7 +116,7 @@
     <div class='col-sm-3'>  
 {{/id}}
         <p>
-            <button type="submit" class="btn btn-primary btn-lg btn-block" name="submit" value="apply">Apply</button>
+            <button type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="apply">Apply</button>
         </p>
     </div>
     <div class='col-sm-3'>  
@@ -119,7 +126,7 @@
     </div>
     <div class='col-sm-3'>  
         <p>
-            <button type="submit" class="btn btn-info btn-lg btn-block" name="submit" value="save_close">Save &amp; Close</button>
+            <button type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="save_close">Save &amp; Close</button>
         </p>
     </div>
 {{#id}}

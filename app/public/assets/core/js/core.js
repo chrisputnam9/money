@@ -6,7 +6,7 @@ CPI = (function($) {
     $.fn.autoselect = function () {
         return this.each(function () {
             var $input = $(this),
-                target = $input.data('select')
+                target = $input.data('select'),
                 $target = $(target);
 
             if ($target.length == 0) {
@@ -23,9 +23,6 @@ CPI = (function($) {
                         text = $selected.data('select');
                 }
 
-                console.log($target);
-                console.log('text: ' + text);
-
                 if ($target.is('select')) {
                     $target.find('option').filter(function () {
                         return this.text == text;
@@ -40,8 +37,8 @@ CPI = (function($) {
     $.fn.clickPropagate = function () {
         return this.each(function () {
             $(this).click(function (event) {
-                var $this = $(this)
-                    target = $this.data('click');
+                var $this = $(this),
+                    target = $this.data('click'),
                     $target = $(target);
 
                 if ($target.length > 0) {
@@ -241,10 +238,11 @@ CPI = (function($) {
             });
 
             var uploadProgress = function (evt) {
+                var percent;
                 if (evt.lengthComputable) {
-                    var percent = Math.round(evt.loaded * 100 / evt.total) + '%';
+                    percent = Math.round(evt.loaded * 100 / evt.total) + '%';
                 } else {
-                    var percent = '50%';
+                    percent = '50%';
                 }
                 $progress_bar.css('width', percent);
                 $percents.html(percent);
@@ -279,6 +277,23 @@ CPI = (function($) {
         });
     };
 
+    // Functionality to toggle an element's visibility
+    //  based on a click
+    $.fn.togglePropagate = function () {
+        return this.each(function () {
+            var $this = $(this),
+                target = $this.attr('href'),
+                $target = $(target);
+            if ($target.length > 0) {
+                $target.hide();
+                $this.click(function(event) {
+                    event.preventDefault();
+                    $target.toggle();
+                });
+            }
+        });
+    };
+
     // On Load
     $(function () {
 
@@ -286,6 +301,7 @@ CPI = (function($) {
 
         // Custom Functionality
         $('.js-file-upload').fileupload();
+        $('.js-toggle').togglePropagate();
         $('[data-click]').clickPropagate();
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();

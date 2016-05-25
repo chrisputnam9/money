@@ -12,6 +12,7 @@ class OCR_Model extends Core_Model_Abstract
 {
 
     protected $cache = true;
+    protected $cache_file = null;
     protected $image;
     protected $text;
 
@@ -26,6 +27,18 @@ class OCR_Model extends Core_Model_Abstract
 
         if ($image)
             $this->setImage($image);
+    }
+
+    /**
+     * Get cache file path
+     */
+    protected function getCacheFile()
+    {
+        if (is_null($this->cache_file))
+        {
+            $this->cache_file = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($this->image)) . ".ocr-cache";
+        }
+        return $this->cache_file;
     }
 
     /**
@@ -48,7 +61,7 @@ class OCR_Model extends Core_Model_Abstract
     {
         if ($this->cache and $this->image)
         {
-            $cachefile = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($this->image)) . ".ocr-cache";
+            $cachefile = $this->getCacheFile();
             if (is_file($cachefile))
             {
                 try {
@@ -71,7 +84,7 @@ class OCR_Model extends Core_Model_Abstract
                 mkdir(self::DIR_CACHE);
             }
             $cache = implode(EOL, $this->text);
-            $cachefile = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($this->image)) . ".ocr-cache";
+            $cachefile = $this->getCacheFile();
             file_put_contents($cachefile, $cache);
         }
     }
