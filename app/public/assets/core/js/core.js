@@ -21,11 +21,12 @@ CPI = (function($) {
                 return true;
             }
 
-            $input.on('change combobox-change', updateTargets);
+
+            $input.on('change combobox-change', function () {
+                updateTargets();
+            });
 
             var updateTargets = function () {
-                console.log('Update Targets:');
-                console.log($targets);
                 $.each($targets, function(i, $target) {
                     var data_select = 'select';
 
@@ -33,7 +34,7 @@ CPI = (function($) {
                         data_select+= (i + 1);
                     }
 
-                    if ($target.val() != ''){
+                    if ($target.val() != '' && ! $target.hasClass('js-autochanged')){
                         return;
                     }
 
@@ -43,7 +44,9 @@ CPI = (function($) {
                     }
 
                     if ($target.is('select')) {
-                        $target.val(value).trigger('change');
+                        $target.val(value)
+                            .addClass('js-autochanged')
+                            .trigger('autoselect-change');
                     }
                 });
             };
@@ -197,7 +200,7 @@ CPI = (function($) {
 
             updateInput();
 
-            $select.on('change click', updateInput);
+            $select.on('change click autoselect-change', updateInput);
 
             initialized = true;
 
