@@ -6,29 +6,50 @@ CPI = (function($) {
     $.fn.autoselect = function () {
         return this.each(function () {
             var $input = $(this),
-                target = $input.data('select'),
-                $target = $(target);
+                targets = $input.data('select').split(','),
+                $targets = [];
 
-            if ($target.length == 0) {
+            $.each(targets, function(t, target) {
+                var $target = $(target);
+                if ($target.length > 0)
+                {
+                    $targets.push($target);
+                }
+            });
+
+            if ($targets.length == 0) {
                 return true;
             }
 
-            $input.on('change combobox-change', function() {
-                if ($target.val() != ''){
-                    return;
-                }
+            $input.on('change combobox-change', updateTargets);
 
-                if ($input.is('select')) {
-                    var $selected = $input.find('option:selected'),
-                        text = $selected.data('select');
-                }
+            var updateTargets = function () {
+                console.log('Update Targets:');
+                console.log($targets);
+                $.each($targets, function(i, $target) {
+                    var data_select = 'select';
 
-                if ($target.is('select')) {
-                    $target.find('option').filter(function () {
-                        return this.text == text;
-                    }).prop('selected', true);
-                }
-            });
+                    if (i > 0) {
+                        data_select+= (i + 1);
+                    }
+
+                    if ($target.val() != ''){
+                        return;
+                    }
+
+                    if ($input.is('select')) {
+                        var $selected = $input.find('option:selected'),
+                            value = $selected.data(data_select);
+                    }
+
+                    if ($target.is('select')) {
+                        $target.val(value).trigger('change');
+                    }
+                });
+            };
+
+            // Initiate from page load
+            updateTargets();
 
         });
     };
@@ -154,6 +175,8 @@ CPI = (function($) {
                     if ($option.text() == value) {
                         $input.css({ 'font-weight':'bold', 'font-style':'' });
                         selected = $option.val();
+                        $dropdown_menu.hide();
+                        $dropdown_options.show()
                     }
                 });
 

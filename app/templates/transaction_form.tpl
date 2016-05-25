@@ -11,13 +11,30 @@
 
     <div class='col-sm-6'>  
         <div class="form-group">
+            <label for="account_to"><em>*</em> Payee - Account/Party To</label>
+            <select class="form-control" name="account_to" id="account_to" data-select="#category,#account_from">
+                <option value="">- Select One -</option>
+            {{#account_to_options}}
+                <optgroup label="{{group}}">
+                {{#options}}
+                    <option value="{{id}}" {{selected}} data-select="{{popular_category}}" data-select2="{{popular_account_from}}">{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
+                {{/options}}
+                </optgroup>
+            {{/account_to_options}}
+            </select>
+            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_to" name="account_to_other" id="account_to_other" value="{{account_to_other}}" placeholder="Enter new account" autocomplete="off">
+        </div>
+    </div>
+
+    <div class='col-sm-6'>  
+        <div class="form-group">
             <label for="account_from"><em>*</em> Payer - Account/Party From</label>
-            <select class="form-control" name="account_from" id="account_from" data-select="#category">
+            <select class="form-control" name="account_from" id="account_from">
                 <option value="">- Select One -</option>
             {{#account_from_options}}
                 <optgroup label="{{group}}">
                 {{#options}}
-                    <option value="{{id}}" {{selected}} data-select="{{popular_category}}">{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
+                    <option value="{{id}}" {{selected}}>{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
                 {{/options}}
                 </optgroup>
             {{/account_from_options}}
@@ -25,22 +42,6 @@
 
             <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_from" name="account_from_other" id="account_from_other" value="{{account_from_other}}" placeholder="Enter new account" autocomplete="off">
 
-        </div>
-    </div>
-    <div class='col-sm-6'>  
-        <div class="form-group">
-            <label for="account_to"><em>*</em> Payee - Account/Party To</label>
-            <select class="form-control" name="account_to" id="account_to" data-select="#category">
-                <option value="">- Select One -</option>
-            {{#account_to_options}}
-                <optgroup label="{{group}}">
-                {{#options}}
-                    <option value="{{id}}" {{selected}} data-select="{{popular_category}}">{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
-                {{/options}}
-                </optgroup>
-            {{/account_to_options}}
-            </select>
-            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_to" name="account_to_other" id="account_to_other" value="{{account_to_other}}" placeholder="Enter new account" autocomplete="off">
         </div>
     </div>
 

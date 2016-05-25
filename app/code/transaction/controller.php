@@ -72,7 +72,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $account_options = Account_Model::getGroupedAccounts();
 
                 // OCR if applicable
-                $image = $request->get('image');
+                $image = empty($body_data['image']) ? false : $body_data['image'];
                 if ($image)
                 {
                     $dir = self::DIR_UPLOAD;
