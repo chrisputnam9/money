@@ -23,7 +23,7 @@
             {{/account_from_options}}
             </select>
 
-            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_from" name="account_from_other" id="account_from_other" value="{{account_from_other}}" placeholder="Enter new account">
+            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_from" name="account_from_other" id="account_from_other" value="{{account_from_other}}" placeholder="Enter new account" autocomplete="off">
 
         </div>
     </div>
@@ -40,7 +40,7 @@
                 </optgroup>
             {{/account_to_options}}
             </select>
-            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_to" name="account_to_other" id="account_to_other" value="{{account_to_other}}" placeholder="Enter new account">
+            <input type="text" autocapitalize="words" class="form-control" data-combobox="#account_to" name="account_to_other" id="account_to_other" value="{{account_to_other}}" placeholder="Enter new account" autocomplete="off">
         </div>
     </div>
 
