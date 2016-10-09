@@ -39,6 +39,22 @@ p.alert {
     font-weight: bold;
 }
 
+.tab-container {
+    background: white;
+    float: left;
+    width: 100%;
+    padding: 20px 0;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px 4px 4px 4px;
+}
+@media (min-width: 768px) {
+    .tab-container {
+        border-top: 0;
+        border-radius: 0 0 4px 4px;
+    }
+}
+
 .window {
     overflow: auto;
 }

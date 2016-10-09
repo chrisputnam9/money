@@ -303,20 +303,70 @@ CPI = (function($) {
         });
     };
 
-    // Functionality to toggle an element's visibility
-    //  based on a click
-    $.fn.togglePropagate = function () {
+    // Tab functionality
+    $.fn.tabify = function () {
         return this.each(function () {
             var $this = $(this),
-                target = $this.attr('href'),
-                $target = $(target);
-            if ($target.length > 0) {
-                $target.hide();
-                $this.click(function(event) {
+                $links = $this.find('a');
+            $links.each(function () {
+                var $link = $(this)
+                    $target = tabifyTarget($link);
+
+                if (!$link.closest('li').hasClass('active')) {
+                    $target.hide();
+                }
+
+                $link.on('click', function (event) {
                     event.preventDefault();
-                    $target.toggle();
+                    var $previous_li = $links.closest('li.active');
+                    $previous_li.removeClass('active');
+                    tabifyTarget($previous_li.find('a')).hide();
+                    $link.closest('li').addClass('active');
+                    $target.show();
+                })
+                    
+            });
+        });
+    };
+        var tabifyTarget = function ($link) {
+            target = $link.attr('href')
+            return $(target);
+        };
+
+    // Functionality to toggle an element's visibility
+    //  based on a click or select change
+    $.fn.togglePropagate = function () {
+        return this.each(function () {
+            var $this = $(this);
+
+            if ($this.is('select')) {
+
+                // All targets have this class
+                var group = $this.data('toggle_group'),
+                    $group = $(group);
+                $group.hide();
+
+                $this.on('change', function (event) {
+                    var $option = $this.find(':selected'),
+                        target = $option.data('toggle_target'),
+                        $target = $(target);
+                    $group.hide();
+                    $target.show();
                 });
-            }
+
+            } else {
+
+                var target = $this.attr('href'),
+                $target = $(target);
+                if ($target.length > 0) {
+                    $target.hide();
+                    $this.click(function(event) {
+                        event.preventDefault();
+                        $target.toggle();
+                    });
+                }
+
+            }// end non-select element
         });
     };
 
@@ -327,6 +377,7 @@ CPI = (function($) {
 
         // Custom Functionality
         $('.js-file-upload').fileupload();
+        $('.js-tabify').tabify();
         $('.js-toggle').togglePropagate();
         $('[data-click]').clickPropagate();
         $('[data-combobox]').combobox();
