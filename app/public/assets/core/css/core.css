@@ -55,12 +55,16 @@ p.alert {
     }
 }
 
+.nav.nav-tabs li a{
+    outline: none;
+}
+
 .window {
     overflow: auto;
 }
     .window.window--thumbnail {
         width: 100%;
-        height: 260px;
+        height: 400px;
     }
 
 .img-stretch {

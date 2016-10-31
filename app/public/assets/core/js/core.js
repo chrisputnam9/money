@@ -305,33 +305,35 @@ CPI = (function($) {
 
     // Tab functionality
     $.fn.tabify = function () {
+            var tabifyTarget = function ($link) {
+                target = $link.attr('href')
+                return $(target);
+            };
         return this.each(function () {
             var $this = $(this),
-                $links = $this.find('a');
-            $links.each(function () {
-                var $link = $(this)
+                $lis = $this.find('li');
+            $lis.each(function () {
+                var $li = $(this),
+                    $link = $li.find('a'),
                     $target = tabifyTarget($link);
 
-                if (!$link.closest('li').hasClass('active')) {
+                if ( ! $li.hasClass('active')) {
                     $target.hide();
                 }
 
                 $link.on('click', function (event) {
                     event.preventDefault();
-                    var $previous_li = $links.closest('li.active');
+                    var $previous_li = $lis.filter('.active'),
+                        $previous_link = $previous_li.find('a');
                     $previous_li.removeClass('active');
-                    tabifyTarget($previous_li.find('a')).hide();
-                    $link.closest('li').addClass('active');
+                    tabifyTarget($previous_link).hide();
+                    $li.addClass('active');
                     $target.show();
                 })
                     
             });
         });
     };
-        var tabifyTarget = function ($link) {
-            target = $link.attr('href')
-            return $(target);
-        };
 
     // Functionality to toggle an element's visibility
     //  based on a click or select change

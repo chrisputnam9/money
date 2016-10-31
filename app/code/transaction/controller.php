@@ -321,9 +321,24 @@ class Transaction_Controller extends Core_Controller_Abstract
         $submit = $_POST['submit'];
         unset($_POST['submit']);
 
+        $repeat = false;
+        if (isset($_POST['repeat']))
+        {
+            $repeat = $_POST['repeat'];
+            unset($_POST['repeat']);
+        }
+
+
         if (Transaction_Model::save($_POST))
         {
             $id = Transaction_Model::lastInsertId();
+
+            // Update recurrance
+            if ($repeat)
+            {
+                Transaction_Recurrance_Controller::save($id, $repeat);
+            }
+
         }
         else
         {

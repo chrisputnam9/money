@@ -1,4 +1,4 @@
-<div id='tab_0'>
+<div id='tab_general'>
 
     <div class='col-sm-6'>  
         <div class="form-group">

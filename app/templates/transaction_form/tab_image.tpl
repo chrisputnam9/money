@@ -1,4 +1,4 @@
-<div id='tab_2'>
+<div id='tab_image'>
 
         <div class='col-sm-12'>  
             <div class="form-group">

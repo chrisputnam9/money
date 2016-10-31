@@ -2,26 +2,35 @@
 
     <input type='hidden' name='id' value='{{id}}'/>
 
+<div class="row">
     <div class='col-sm-12'>  
         <h1>{{form_title}}</h1>
         {{#error}}
         <p class='alert bg-danger'>{{error}}</p>
         {{/error}}
     </div>
+</div>
 
-    {{> tab_menu }}
+<div class="row">
+    <div class='col-sm-12'>
+        {{> tab_menu }}
+    </div>
+</div>
 
-    <div class='tab-container'>
-        <div class='col-sm-12'>
-            {{> tab_0 }}
-            {{> tab_1 }}
+<div class="row">
+    <div class='col-sm-12'>
+        <div class='tab-container'>
+            {{> tab_general }}
         {{#image}}
-            {{> tab_2 }}
+            {{> tab_image }}
         {{/image}}
+            {{> tab_repeat }}
         </div>
     </div>
+</div>
 
 
+<div class='row'>
 {{#id}}
     <div class='col-sm-2'>  
 {{/id}}
@@ -59,5 +68,7 @@
         </p>
     </div>
 {{/id}}
+
+</div>
 
 </form>

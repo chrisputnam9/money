@@ -25,7 +25,9 @@ class Autoload
             return true;
         }
         else
+        {
             return false;
+        }
     }
 }
 spl_autoload_register('\MCPI\Autoload::load');
