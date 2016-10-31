@@ -22,9 +22,5 @@ class Transaction_Recurrance_Type_Month extends Transaction_Recurrance_Type_Abst
         {
             $to = new DateTime();
         }
-
-        var_dump($from);
-        var_dump($to);
-        die;
     }
 }
