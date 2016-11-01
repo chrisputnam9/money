@@ -29,7 +29,7 @@
     <div class='col-sm-12'>  
         <div class="form-group">
             <label for="repeat_date_end"><em>*</em> Repeat Through</label>
-            <input type="date" class="form-control" name="repeat[date_end]" id="repeat_date_end" value="{{repeat.date_end}}" required>
+            <input type="date" class="form-control" name="repeat[date_end]" id="repeat_date_end" value="{{repeat.date_end}}">
         </div>
     </div>
 
