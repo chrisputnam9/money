@@ -44,6 +44,13 @@ class Account_Model extends Core_Model_Dbo
 
         foreach ($accounts as $id => $account)
         {
+            // Card Replacement - PNC Old => New
+            // TODO Create dynamic method for this(?)
+            if ($account['popular_account_from'] == 4)
+            {
+                $account['popular_account_from'] = 213;
+            }
+            
             $group = $account['classification'];
             if (!isset($grouped_accounts[$group]))
             {
