@@ -20,7 +20,7 @@ class Core_Controller extends Core_Controller_Abstract
             }
         }
         $response = self::getResponse();
-        $response->body = 'Endpoint Not Found';
+        $response->body = 'Unable to find valid route';
         $response->setCode('404');
         $response->finalize();
     }

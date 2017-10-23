@@ -12,9 +12,23 @@ class Transaction_Controller extends Core_Controller_Abstract
     static public function route()
     {
         $request = self::getRequest();
+        $response = self::getResponse();
+
         if ($request->index(0,'transaction'))
         {
-            $response = self::getResponse();
+            $response->main_data['show_menu'] = true;
+
+            // List
+            if (empty($request->index(1)) or $request->index(1,'list'))
+            {
+                $response->menu['transaction']['class'] = 'active';
+                $response->main_data['show_transaction_buttons'] = true;
+
+                $response->body_template = 'transaction_list';
+                $response->body_data = [
+                    'transactions' => array_values(Transaction_Model::getListing()),
+                ];
+            }
 
             // Image Form?
             if ($request->index(1,'image'))

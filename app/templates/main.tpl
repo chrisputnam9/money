@@ -11,7 +11,8 @@
 <body>
     <div class="container">
         <div class="template-container--body">
-        {{{ render_body }}}
+            {{#show_menu}}{{> menu }}{{/show_menu}}
+            {{{ render_body }}}
         </div>
         {{> scripts_foot }}
     </div>

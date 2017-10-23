@@ -14,7 +14,7 @@ abstract class Transaction_Recurrance_Type_Abstract extends Core_Model_Dbo
     // Transaction ID
     protected $transaction_id;
 
-    protected $_fields = array();
+    protected $_fields = [];
 
 
     /**
@@ -38,7 +38,7 @@ abstract class Transaction_Recurrance_Type_Abstract extends Core_Model_Dbo
      */
     public function getData()
     {
-        $data = array();
+        $data = [];
         foreach ($this->_fields as $field)
         {
             $data[$field] = $this->$field;

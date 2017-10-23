@@ -8,7 +8,7 @@ class Core_Model_Session extends Core_Model_Abstract
 {
     const DEFAULT_KEY = 'MCPI_Default';
 
-    protected static $instance = array();
+    protected static $instance = [];
 
     protected $key = null;
 
@@ -31,7 +31,7 @@ class Core_Model_Session extends Core_Model_Abstract
     {
         session_start();
         if (!isset($_SESSION[$key]))
-            $_SESSION[$key] = array();
+            $_SESSION[$key] = [];
 
         $this->key = $key;
     }

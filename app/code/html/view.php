@@ -10,7 +10,11 @@ class Html_View
 {
 
     public $_template = 'main';
+
+    public $menu = [];
+
     public $body = '';
+    public $body_data = [];
     public $body_template = '';
 
     protected $_fresh = true;
@@ -18,7 +22,7 @@ class Html_View
     /**
      * Constructor
      */
-    public function __construct($parameters = array())
+    public function __construct($parameters = [])
     {
         $this->set($parameters);
     }
@@ -30,7 +34,17 @@ class Html_View
     {
         foreach ($parameters as $key => $value)
         {
-            $this->$key = $value;
+            if (($key == 'main_data'))
+            {
+                foreach ($value as $_key => $_value)
+                {
+                    $this->$_key = $_value;
+                }
+            }
+            else
+            {
+                $this->$key = $value;
+            }
         }
     }
 
@@ -53,7 +67,10 @@ class Html_View
         if (empty($template))
         {
             if ($this->_fresh)
+            {
+                $this->menu = array_values($this->menu);
                 $template = $this->_template;
+            }
             else
                 return 'Empty';
         }

@@ -11,9 +11,12 @@ class Core_Model_Response extends Core_Model_Abstract
     public $format = 'html';
 
     public $title = 'Money.cpi';
+    public $menu = [];
+    public $main_data = [];
+
     public $body = '';
     public $body_template = '';
-    public $body_data = array();
+    public $body_data = [];
 
     protected $status = '200 OK';
 
@@ -63,7 +66,7 @@ class Core_Model_Response extends Core_Model_Abstract
         if (!is_array($data))
         {
             $code = $data;
-            $data = array();
+            $data = [];
         }
 
         $url_parts = parse_url($url);
@@ -100,6 +103,8 @@ class Core_Model_Response extends Core_Model_Abstract
         {
             $view = new $view_class(array(
                 'title' => $this->title,
+                'menu' => $this->menu,
+                'main_data' => $this->main_data,
                 'body' => $this->body,
                 'body_template' => $this->body_template,
                 'body_data' => $this->body_data,
