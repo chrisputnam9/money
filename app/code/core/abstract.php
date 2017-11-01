@@ -7,6 +7,15 @@ namespace MCPI;
  */
 class Core_Abstract
 {
+
+    /**
+     * Return date filter singleton
+     */
+    static function getDateFilter()
+    {
+        return Core_Model_Datefilter::instance();
+    }
+
     /**
      * Return message singleton
      */

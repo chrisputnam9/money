@@ -30,7 +30,7 @@ class Index_Controller extends Core_Controller_Abstract
         {
             // Designate homepage
             $request->uri_segments = [
-                'transaction',
+                'budget',
                 'list',
             ];
         }

@@ -9,9 +9,10 @@
     {{> scripts_head }}
 </head>
 <body>
+    {{#show_menu}}{{> menu }}{{/show_menu}}
+    {{#show_date_menu}}{{> date_menu }}{{/show_date_menu}}
     <div class="container">
         <div class="template-container--body">
-            {{#show_menu}}{{> menu }}{{/show_menu}}
             {{{ render_body }}}
         </div>
         {{> scripts_foot }}

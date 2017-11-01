@@ -1,7 +1,7 @@
-<span class="navbar-right hidden-sm hidden-xs">
-    <a class="btn btn-primary navbar-btn" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span> New Manual Entry</a>
+<span class="navbar-right hidden-xs">
+    <a class="btn btn-primary navbar-btn" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span> New Entry</a>
 
-    <a class="btn btn-success navbar-btn" href="/transaction/image" class="js-show" data-click="#image"><span class='glyphicon glyphicon-camera'></span> New From Image</a>
+    <a class="btn btn-success navbar-btn" href="/transaction/image" class="js-show" data-click="#image"><span class='glyphicon glyphicon-camera'></span> New Image</a>
 </span>
 
 <form action="/transaction/image" method="post" enctype="multipart/form-data" class="js-hide js-file-upload" data-progress='#image-upload-progress' style='display:none'>

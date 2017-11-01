@@ -109,4 +109,19 @@ class Core_Model_Request extends Core_Model_Abstract
     {
         return (strtolower($type) == strtolower($_SERVER['REQUEST_METHOD']));
     }
+
+    /**
+     * Generate URL based on current data combined with changes
+     */
+    public function url($base=null, $query_args=[])
+    {
+        if (is_null($base)) $base = $this->uri_segments;
+        if (is_array($base)) $base = join("/", $base);
+        $base = trim($base, " \t\n\r\0\x0B/");
+
+        $query_args = array_merge($_GET, $query_args);
+        $query = http_build_query($query_args);
+
+        return '/' . $base . '?' . $query;
+    }
 }

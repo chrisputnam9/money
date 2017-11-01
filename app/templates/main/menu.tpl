@@ -12,7 +12,7 @@
                 <a class="navbar-brand" href="/"><span class="glyphicon glyphicon glyphicon-credit-card" aria-hidden="true"></span></a>
 
                 {{#show_transaction_buttons}}
-                    <span class="visible-sm visible-xs">
+                    <span class="visible-xs">
                         <a class="btn btn-primary navbar-btn" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span></a>
 
                         <a class="btn btn-success navbar-btn" href="/transaction/image" class="js-show" data-click="#image"><span class='glyphicon glyphicon-camera'></span></a>
