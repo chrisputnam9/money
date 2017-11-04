@@ -11,7 +11,6 @@ class Budget_Controller extends Core_Controller_Abstract
     {
         $request = self::getRequest();
         $response = self::getResponse();
-        $date_filter = self::getDateFilter();
 
         if ($request->index(0,'budget'))
         {
@@ -22,9 +21,11 @@ class Budget_Controller extends Core_Controller_Abstract
                 $response->menu['budget']['class'] = 'active';
                 $response->main_data['show_menu'] = true;
                 $response->main_data['show_transaction_buttons'] = true;
-                $date_filter->enable();
 
-                $budget = new Budget_Model($date_filter);
+                self::getDateFilter()->enable();
+                self::getBudgetMenu()->enable();
+
+                $budget = Budget_Model::instance();
 
                 $response->body_template = 'budget_list';
 

@@ -8,42 +8,115 @@ class Transaction_Model extends Core_Model_Dbo
 {
     protected static $table = 'transaction';
 
-    // Listing Data
-    static function getListing()
+    public $date_filter;
+    public $category_id;
+
+    protected $_category = null;
+    protected $_listing = null;
+    protected $_all_flat = null;
+
+    public function __construct ()
     {
-        $data = self::getAllFlat();
-        foreach ($data as &$row)
+        $request = self::getRequest();
+        $this->date_filter = self::getDateFilter();
+        $this->category_id = $request->get('category', 'number_int');
+    }
+
+    /**
+     * Get category name
+     */
+    public function getCategory()
+    {
+        if (is_null($this->_category))
         {
-            $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
-            $row['date_occurred_formatted'] = date('m/d/y', strtotime($row['date_occurred']));
+            if (empty($this->category_id))
+            {
+                $this->_category = "";
+            }
+            else
+            {
+                $all_flat = $this->getAllFlat();
+                if (empty($all_flat))
+                {
+                    $sql = 'SELECT * FROM transaction_category WHERE id = ?';
+                    $results = self::get($sql, [$this->category_id]);
+                    if (!empty($results))
+                    {
+                        $result = reset($results);
+                        $this->_category = $result['title'];
+                    }
+                }
+                else
+                {
+                    // Save a query - get it from flat data
+                    $first = reset($all_flat);
+                    $this->_category = $first['category_value'];
+                }
+            }
         }
 
-        return $data;
+        return $this->_category;
+    }
+
+    // Listing Data
+    public function getListing()
+    {
+        if (is_null($this->_listing))
+        {
+            $request = self::getRequest();
+            $this->_listing = $this->getAllFlat();
+            foreach ($this->_listing as &$row)
+            {
+                $row['category_url'] = $request->url(null, ['category' => $row['category']]);
+                $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
+                $row['date_occurred_formatted'] = date('m/d/y', strtotime($row['date_occurred']));
+            }
+        }
+
+        return $this->_listing;
     }
 
     // Get all data, flattened via joins
-    static function getAllFlat()
+    public function getAllFlat()
     {
-        $table = self::cleanTable();
-        $sql = 'SELECT t.*'
-                . ', af.title as account_from_value'
-                . ', at.title as account_to_value'
-                . ', cat.title as category_value'
-                . ', class.title as classification_value'
-                . ', s.title as status_value'
-            . ' FROM ' . $table . ' t'
-            . ' LEFT JOIN account af ON (t.account_from = af.id)'
-            . ' LEFT JOIN account at ON (t.account_to = at.id)'
-            . ' LEFT JOIN transaction_category cat ON (t.category = cat.id)'
-            . ' LEFT JOIN transaction_classification class ON (t.classification = class.id)'
-            . ' LEFT JOIN transaction_status s ON (t.status = s.id)'
-            . ' ORDER BY t.date_occurred DESC'
-        ;
-        return self::get($sql);
+        if (is_null($this->_all_flat))
+        {
+            $table = self::cleanTable();
+            $sql = 'SELECT t.*'
+                    . ', af.title as account_from_value'
+                    . ', at.title as account_to_value'
+                    . ', cat.title as category_value'
+                    . ', class.title as classification_value'
+                    . ', s.title as status_value'
+                . ' FROM ' . $table . ' t'
+                . ' LEFT JOIN account af ON (t.account_from = af.id)'
+                . ' LEFT JOIN account at ON (t.account_to = at.id)'
+                . ' LEFT JOIN transaction_category cat ON (t.category = cat.id)'
+                . ' LEFT JOIN transaction_classification class ON (t.classification = class.id)'
+                . ' LEFT JOIN transaction_status s ON (t.status = s.id)'
+                . ' WHERE t.date_occurred >= ?'
+                . ' AND t.date_occurred < ?'
+            ;
+            
+            if ($this->category_id)
+            {
+                $sql.= ' AND t.category = "'.$this->category_id.'"';
+            }
+
+            $sql.= 
+                ' ORDER BY t.date_occurred DESC'
+            ;
+            $this->_all_flat = self::get($sql, [
+                $this->date_filter->getPeriodStart()->format('Y-m-d H:i:s'),
+                $this->date_filter->getPeriodEnd()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return $this->_all_flat;
     }
 
     // Get options for linked tables
-    static function getOptions($data)
+    public function getOptions($data)
     {
         $request = self::getRequest();
 

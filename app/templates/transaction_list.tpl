@@ -1,5 +1,9 @@
 <div class='row'>
-    <br/>
+        {{#category}}
+            <h2 class='text-center'>{{category}}</h2>
+            <p class='text-center'><a href='{{show_all_url}}'>Show All</a></p>
+            <br>
+        {{/category}}
     <div class='col-sm-12'>
         <div class='table-responsive'>
             <table class='table table-striped table-hover table-condensed'>
@@ -22,7 +26,7 @@
                         <td align="right">{{date_occurred_formatted}}</td>
                         <td>{{account_from_value}}</td>
                         <td>{{account_to_value}}</td>
-                        <td>{{category_value}}</td>
+                        <td><a href='{{category_url}}'>{{category_value}}</a></td>
                         <td>
                             <a href='/transaction/form?id={{id}}' class='btn btn-primary'><span class="glyphicon glyphicon-pencil"></span></a>
                             <a href='/transaction/delete?id={{id}}' class='btn btn-danger' data-confirm="Are you sure you want to delete this item?"><span class="glyphicon glyphicon-trash"></span></a>

@@ -9,6 +9,14 @@ class Core_Abstract
 {
 
     /**
+     * Return budget menu singleton
+     */
+    static function getBudgetMenu()
+    {
+        return Budget_Model_Menu::instance();
+    }
+
+    /**
      * Return date filter singleton
      */
     static function getDateFilter()

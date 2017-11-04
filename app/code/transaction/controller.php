@@ -13,9 +13,11 @@ class Transaction_Controller extends Core_Controller_Abstract
     {
         $request = self::getRequest();
         $response = self::getResponse();
+        $budget_menu = self::getBudgetMenu();
 
         if ($request->index(0,'transaction'))
         {
+            $transaction_model = new Transaction_Model();
             $response->main_data['show_menu'] = true;
 
             // List
@@ -23,10 +25,14 @@ class Transaction_Controller extends Core_Controller_Abstract
             {
                 $response->menu['transaction']['class'] = 'active';
                 $response->main_data['show_transaction_buttons'] = true;
+                self::getDateFilter()->enable();
+                self::getBudgetMenu()->enable();
 
                 $response->body_template = 'transaction_list';
                 $response->body_data = [
-                    'transactions' => array_values(Transaction_Model::getListing()),
+                    'category' => $transaction_model->getCategory(),
+                    'show_all_url' => $request->url(null, ['category' => null]),
+                    'transactions' => array_values($transaction_model->getListing()),
                 ];
             }
 
@@ -165,7 +171,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                 }
 
                 // Options always needed for template
-                $options = Transaction_Model::getOptions($body_data);
+                $options = $transaction_model->getOptions($body_data);
 
                 $body_data = array_merge($body_data, $options);
 
@@ -197,7 +203,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                 }
 
                 // Back to index
-                $response->redirect();
+                $response->redirect('/transaction/list');
             }
 
             $response->finalize();
@@ -372,7 +378,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $response->redirect('/transaction/form');
                     break;
                 case 'save_close':
-                    $response->redirect();
+                    $response->redirect('/transaction/list');
                     break;
             }
         }

@@ -10,6 +10,8 @@ class Budget_Model extends Core_Model_Dbo
 {
     protected static $table = 'budget';
 
+    protected static $instance = null;
+
     public $date_filter;
 
     public $month_start;
@@ -20,41 +22,76 @@ class Budget_Model extends Core_Model_Dbo
 
     protected $_budgets = null;
     protected $_budgeted = null;
+    protected $_total_budgeted = null;
     protected $_unbudgeted = null;
     protected $_spending = [];
 
-    public function __construct ($date_filter)
+    /**
+     * Singleton - get instance
+     */
+    static public function instance()
     {
-        $this->date_filter = $date_filter;
-        $this->month_start = $date_filter->month_start;
-        $this->month_end = $date_filter->month_end;
-        $this->year_start = $date_filter->year_start;
-        $this->year_end = $date_filter->year_end;
+        if (is_null(self::$instance))
+        {
+            self::$instance = new Self();
+        }
+        return self::$instance;
+    }
+
+    public function __construct ()
+    {
+        $this->date_filter = self::getDateFilter();
+        $this->month_start = $this->date_filter->month_start;
+        $this->month_end = $this->date_filter->month_end;
+        $this->year_start = $this->date_filter->year_start;
+        $this->year_end = $this->date_filter->year_end;
+    }
+
+    /**
+     * Get Total Budget across all categories
+     */
+    public function getTotalBudgeted()
+    {
+        $this->getBudgeted();
+        return $this->_total_budgeted;
+
     }
 
     /**
      * Get Budgeted totals
      */
-    public function getBudgeted()
+    public function getBudgeted($cat_id=null)
     {
         if (is_null($this->_budgeted))
         {
+            $request = $this->getRequest();
             $period = $this->date_filter->getPeriod();
+
+            $diff = $this->month_start->diff($this->year_end);
+            $months_remaining = (12 * $diff->y) + $diff->m;
+
             $this->_budgeted = [];
-            foreach ($this->getBudgets() as $cat_id => $budget_data)
+            $total_budgeted = [
+                'limit' => 0,
+                'spending' => 0,
+                'remaining' => 0,
+                'year_spending' => 0,
+                'month_spending' => 0,
+                'months_remaining' => $months_remaining,
+            ];
+
+            foreach ($this->getBudgets() as $_cat_id => $budget_data)
             {
                 $spending = [];
-                $spending_year = $this->getSpending('year', $cat_id);
+                $spending_year = $this->getSpending('year', $_cat_id);
                 $spending['year'] = empty($spending_year) ? 0 : $spending_year['amount'];
-                $spending_month = $this->getSpending('month', $cat_id);
+                $spending_month = $this->getSpending('month', $_cat_id);
                 $spending['month'] = empty($spending_month) ? 0 : $spending_month['amount'];
-
-                $diff = $this->month_start->diff($this->year_end);
-                $months_remaining = (12 * $diff->y) + $diff->m;
 
                 $budgeted = [
                     'period' => $period,
                     'category' => $budget_data['category'],
+                    'transactions_url' => $request->url(['transaction','list'],['category' => $_cat_id]),
                     'limit' => 0,
                     'spending' => $spending[$period],
                     'remaining' => 0,
@@ -65,33 +102,55 @@ class Budget_Model extends Core_Model_Dbo
                     'budgets' => $budget_data['budget_list'],
                 ];
 
+                $total_budgeted['spending']+= $spending[$period];
+                $total_budgeted['year_spending']+= $spending['year'];
+                $total_budgeted['month_spending']+= $spending['month'];
+
                 foreach ($budget_data['budget_list'] as $budget)
                 {
                     $limit = $this->addToLimit($budgeted, $budget, $period);
+                    $limit = $this->addToLimit($total_budgeted, $budget, $period);
                 }
 
-                $budgeted['remaining'] = max(0,$budgeted['limit'] - $budgeted['spending']);
-                if ($budgeted['limit'] > 0)
-                    $budgeted['remaining_percentage'] = round(($budgeted['remaining'] / $budgeted['limit']) * 100);
-
-                $budgeted['status'] = 'success';
-                if ($budgeted['remaining_percentage'] < 50)
-                    $budgeted['status'] = 'warning';
-                if ($budgeted['remaining_percentage'] < 5)
-                    $budgeted['status'] = 'danger';
-
-                $budgeted['limit_formatted'] = '$' . number_format($budgeted['limit'], 2);
-                $budgeted['spending_formatted'] = '$' . number_format($budgeted['spending'], 2);
-                $budgeted['remaining_formatted'] = '$' . number_format($budgeted['remaining'], 2);
-                $budgeted['year_spending_formatted'] = '$' . number_format($budgeted['year_spending'], 2);
-                $budgeted['month_spending_formatted'] = '$' . number_format($budgeted['month_spending'], 2);
-
-                $this->_budgeted[]= $budgeted;
+                $this->_budgeted[$_cat_id]= $this->finalizeBudgeted($budgeted);
             }
+
+            $this->_total_budgeted = $this->finalizeBudgeted($total_budgeted);
         }
 
-        return $this->_budgeted;
+        if (is_null($cat_id))
+            return $this->_budgeted;
+
+        if (empty($this->_budgeted[$cat_id]))
+            return false;
+
+        return $this->_budgeted[$cat_id];
     }
+
+        /**
+         * Finalize budgeted values
+         */
+        protected function finalizeBudgeted($budgeted)
+        {
+            $budgeted['remaining'] = max(0,$budgeted['limit'] - $budgeted['spending']);
+            if ($budgeted['limit'] > 0)
+                $budgeted['remaining_percentage'] = round(($budgeted['remaining'] / $budgeted['limit']) * 100);
+
+            $budgeted['status'] = 'success';
+            if ($budgeted['remaining_percentage'] < 50)
+                $budgeted['status'] = 'warning';
+            if ($budgeted['remaining_percentage'] < 5)
+                $budgeted['status'] = 'danger';
+
+            $budgeted['limit_formatted'] = '$' . number_format($budgeted['limit'], 2);
+            $budgeted['spending_formatted'] = '$' . number_format($budgeted['spending'], 2);
+            $budgeted['remaining_formatted'] = '$' . number_format($budgeted['remaining'], 2);
+            $budgeted['year_spending_formatted'] = '$' . number_format($budgeted['year_spending'], 2);
+            $budgeted['month_spending_formatted'] = '$' . number_format($budgeted['month_spending'], 2);
+
+            return $budgeted;
+        }
+
         /**
          * Add budget limit for a given period
          */
@@ -158,13 +217,16 @@ class Budget_Model extends Core_Model_Dbo
                 . ' FROM transaction t'
                 . ' LEFT JOIN transaction_category cat ON (t.category = cat.id)'
                 . ' LEFT JOIN transaction_classification class ON (t.classification = class.id)'
-                . ' WHERE t.date_occurred >= "'.$this->{$period . '_start'}->format('Y-m-d H:i:s').'"'
-                . ' AND t.date_occurred < "'.$this->{$period . '_end'}->format('Y-m-d H:i:s').'"'
+                . ' WHERE t.date_occurred >= ?'
+                . ' AND t.date_occurred < ?'
                 . ' GROUP BY category_value'
                 . ' ORDER BY category_value'
             ;
 
-            $this->_spending[$period] = self::get($sql, [], 'category_id');
+            $this->_spending[$period] = self::get($sql, [
+                $this->{$period . '_start'}->format('Y-m-d H:i:s'),
+                $this->{$period . '_end'}->format('Y-m-d H:i:s'),
+            ], 'category_id');
         }
 
         // no category specified, return all

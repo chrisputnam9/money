@@ -15,6 +15,9 @@ class Core_Model_Datefilter extends Core_Model_Abstract
     protected $_offset;
     protected $_period;
 
+    protected  $_period_start;
+    protected  $_period_end;
+
     /* Date ranges */
     public $month_start;
     public $month_end;
@@ -66,6 +69,9 @@ class Core_Model_Datefilter extends Core_Model_Abstract
 
         $this->year_end = clone $this->year_start;
         $this->year_end->modify("+1 year");
+
+        $format = ($period == 'year') ? 'Y' : 'F, Y';
+        $this->title = $this->month_start->format($format);
     }
 
     /**
@@ -91,9 +97,6 @@ class Core_Model_Datefilter extends Core_Model_Abstract
 
         $this->month_active = ($period == 'month');
         $this->year_active = ($period == 'year');
-
-        $format = ($period == 'year') ? 'Y' : 'F, Y';
-        $this->title = $this->month_start->format($format);
     }
 
     /**
@@ -121,6 +124,32 @@ class Core_Model_Datefilter extends Core_Model_Abstract
             $this->_period = ($period == 'year') ? 'year' : 'month';
         }
         return $this->_period;
+    }
+
+    /**
+     * Get Period Start
+     */
+    public function getPeriodStart()
+    {
+        if (is_null($this->_period_start))
+        {
+            $period = $this->getPeriod();
+            $this->_period_start = $this->{$period . '_start'};
+        }
+        return $this->_period_start;
+    }
+
+    /**
+     * Get Period End
+     */
+    public function getPeriodEnd()
+    {
+        if (is_null($this->_period_end))
+        {
+            $period = $this->getPeriod();
+            $this->_period_end = $this->{$period . '_end'};
+        }
+        return $this->_period_end;
     }
 
 }

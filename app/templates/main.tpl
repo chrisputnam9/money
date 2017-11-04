@@ -17,5 +17,6 @@
         </div>
         {{> scripts_foot }}
     </div>
+    {{#show_budget_menu}}{{> budget_menu }}{{/show_budget_menu}}
 </body>
 </html>
