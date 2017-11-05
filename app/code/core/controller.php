@@ -11,10 +11,11 @@ class Core_Controller extends Core_Controller_Abstract
     {
         Login_Controller::redirect('/login');
         $code_dir = opendir(DIR_CODE);
-        while ($file = readdir($code_dir))
+        while ($dir = readdir($code_dir))
         {
-            $file_path = DIR_CODE . DS . $file . DS . 'controller.php';
-            if (is_file(DIR_CODE . DS . $file . DS . 'controller.php'))
+            if (in_array($dir, ['.','..']) or !is_dir(DIR_CODE . DS . $dir)) continue;
+            $file_path = DIR_CODE . DS . $dir . DS . 'controller.php';
+            if (is_file($file_path))
             {
                 require_once($file_path);
             }

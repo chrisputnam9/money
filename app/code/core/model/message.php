@@ -8,6 +8,7 @@ use \Exception;
  */
 class Core_Model_Message extends Core_Abstract
 {
+    public $environment = "html";
 
     protected static $instance = null;
 
@@ -28,29 +29,73 @@ class Core_Model_Message extends Core_Abstract
      */
     protected function __construct()
     {
+        if (defined('APP_ENVIRONMENT'))
+        {
+            $this->environment = APP_ENVIRONMENT;
+        }
     }
 
-    // Error action
-    // TODO have this use resposne and output correct error code
-    function showError($error, $type='general')
+    /**
+     * Log output
+     */
+    public function _log($message, $header=false)
     {
-        echo "<b>" . ucwords($type) . "</b><br/>";
+        $log_method = "log_" . $this->environment;
 
-        if ($error instanceof Exception)
-            echo $error->getMessage();
-        elseif (is_string($error))
-            echo $error;
-        else
+        $lines = [];
+        if ($header)
+        {
+            $lines[]= "================================";
+            $lines[]= strtoupper($header) . ":";
+            $lines[]= "--------------------------------";
+        }
+
+        if(is_array($message))
+        {
+            $message = print_r($message, true);
+        }
+        else if (!is_string($message))
+        {
+            ob_start();
+            var_dump($message);
+            $message = ob_get_clean();
+        }
+
+        $lines= array_merge($lines, explode("\n", $message));
+
+        $output = "";
+        $timestamp = date('Y-m-d H:i:s');
+        foreach ($lines as $line)
+        {
+            $output.= $timestamp . " | " . $line . "\n";
+        }
+
+        $this->$log_method($output);
+    }
+        // HTML
+        // TODO have this use response?
+        protected function log_html($output)
         {
             echo "<pre>";
-            if (is_array($error))
-                print_r($error);
-            else
-                var_dump($error);
+            echo $output;
             echo "</pre>";
         }
+        // CLI
+        protected function log_cli($output)
+        {
+            echo $output;
+        }
+
+    // Error action
+    // TODO have this use response and output correct error code
+    function _error($error, $die=true, $type=false)
+    {
+        if ($error instanceof Exception)
+            $error = $error->getMessage();
+
+        $this->log($error, "error");
             
-        die;
+        if ($die) die;
     }
 
 }

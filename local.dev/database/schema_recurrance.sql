@@ -6,15 +6,14 @@ CREATE TABLE transaction_recurring (
 
     main_transaction_id int(11) NOT NULL,
 
-    date_end DATETIME NOT NULL,
+    date_end DATETIME NULL,
     recurrance_type varchar(255) NOT NULL,
     recurrance_data TEXT,
 
     UNIQUE unique_per_transaction (main_transaction_id),
     FOREIGN KEY (main_transaction_id) REFERENCES transaction (id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
-
+        ON DELETE CASCADE,
 );
 
 CREATE TABLE transaction_recurring_transaction (

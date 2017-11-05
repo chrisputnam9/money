@@ -1,0 +1,12 @@
+#!/usr/bin/php
+<?php
+namespace MCPI;
+
+// Set environment to CLI for output, etc.
+define('APP_ENVIRONMENT', 'CLI');
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . "code" . DIRECTORY_SEPARATOR . "autoload.php";
+
+Core_Shell_Abstract::route($argv);
+
+# vim: syntax=php

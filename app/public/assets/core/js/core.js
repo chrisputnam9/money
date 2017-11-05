@@ -348,13 +348,16 @@ CPI = (function($) {
                     $group = $(group);
                 $group.hide();
 
-                $this.on('change', function (event) {
+                function update () {
                     var $option = $this.find(':selected'),
                         target = $option.data('toggle_target'),
                         $target = $(target);
                     $group.hide();
                     $target.show();
-                });
+                }
+
+                update();
+                $this.on('change', update);
 
             } else {
 

@@ -28,10 +28,36 @@ class Transaction_Recurrance_Controller extends Core_Controller_Abstract
         }
     }
 
+    /**
+     * Get existing repeat data for form
+     */
+    public static function getFormData($transaction_id)
+    {
+        $form_data = [];
+        $data = Transaction_Recurrance_Type_Abstract::getBy(['main_transaction_id' => $transaction_id ]);
+        if (is_array($data))
+        {
+            $data = reset($data);
+            $rec_data = json_decode($data['recurrance_data'], true);
+            if ($rec_data)
+            {
+                foreach ($rec_data as $key => $value)
+                {
+                    $data[$key] = $value;
+                }
+            }
+            $type = $data['recurrance_type'];
+            $data['type_'.$type] = true;
+            $form_data = $data;
+        }
+
+        return $form_data;
+    }
+
     // Determine class for the given repeat type
     protected static function getTypeClass($type)
     {
-        $class = str_replace(' ', '_', ucwords(str_replace(' ','_', $type)));
+        $class = str_replace(' ', '_', ucwords(str_replace('_',' ', $type)));
         $class = 'MCPI\Transaction_Recurrance_Type_' . $class;
         return $class;
     }

@@ -1,0 +1,41 @@
+Data:
+	transaction (Main Transaction)
+		- normal data
+	- 1-to-0|1 -
+	transaction_recurring
+		- date_end (may be empty)
+		- recurrance_type
+		- recurrance_data (json,flexible)
+	- 1-to-1+ -
+	transaction_recurring_transaction
+		- links to transactions created by recurrance
+	- 1-to-1 -
+	transaction
+		- normal data
+
+Recurrance Types:
+	transaction/recurrance/type/__
+		- extends abstract
+		- catchup method - runs on save and daily cron (see below)
+	static template for now - more modular later?
+
+Create Recurring:
+	- Catch Up based on settings
+	- Cron will update going forward
+Update Recurrance (child):
+	- Alert and link to master
+Update Recurring Master:
+	- List recurrances
+	- Checkbox to update all (checked by default)
+	(if unchecked, skip the rest)
+		- Remove children
+		- Normal save process - replace data, recreate children
+Cron:
+	cron.php in module roots
+	similar to controller - loop and check all
+	extends abstract
+	possible methods:
+		- day(diff)
+		- hour(diff)
+		- minute(diff)
+		logic can check diff as needed

@@ -72,6 +72,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                     {
                         $body_data['form_title'] = 'Edit Transaction';
                         $body_data = array_merge($body_data, $db_data[$id]);
+                        $body_data['repeat'] = Transaction_Recurrance_Controller::getFormData($id);
                     }
                 }
 
@@ -351,11 +352,12 @@ class Transaction_Controller extends Core_Controller_Abstract
 
         if (Transaction_Model::save($_POST))
         {
-            $id = Transaction_Model::lastInsertId();
+            $id = empty($_POST['id']) ? Transaction_Model::lastInsertId() : $_POST['id'];
 
             // Update recurrance
             if ($repeat)
             {
+                $repeat['date_start'] = $_POST['date_occurred'];
                 Transaction_Recurrance_Controller::save($id, $repeat);
             }
 

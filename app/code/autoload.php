@@ -17,17 +17,20 @@ class Autoload
 {
     static public function load($class_name)
     {
+        // Check if already loaded
+        if (class_exists($class_name, false))
+            return true;
+
         $class_name = preg_replace('/^\\\\?MCPI\\\\/', '', $class_name);
         $file_name = __DIR__ . DS . strtolower(str_replace('_', DS, $class_name)) . ".php";
+
         if (file_exists($file_name))
         {
             require_once $file_name;
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 }
-spl_autoload_register('\MCPI\Autoload::load');
+spl_autoload_register('\MCPI\Autoload::load', true, true);

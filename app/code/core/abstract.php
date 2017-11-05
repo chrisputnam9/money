@@ -35,10 +35,16 @@ class Core_Abstract
         /* Message Helpers */
         /*******************/
 
-        // show an error message
-        static function error($message, $type=null)
+        // show a message
+        static function log($message, $type=false)
         {
-            self::getMessage()->showError($message, $type);
+            self::getMessage()->_log($message, $type);
+        }
+
+        // show an error message
+        static function error($message, $type=false)
+        {
+            self::getMessage()->_error($message, $type);
         }
 
     /**

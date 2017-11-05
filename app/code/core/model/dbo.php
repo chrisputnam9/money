@@ -133,16 +133,26 @@ class Core_Model_Dbo extends Core_Model_Abstract
 
 
     // Save data into table
-    static function save($data, $table="", $method='REPLACE')
+    static function save($data, $table="")
     {
         $table = self::cleanTable($table);
         $data = new Core_Model_Dbo_Data($data);
 
-        $sql = $method . ' INTO ' . $table
-             . ' ('.join(',', $data->fields()).')'
+        $fields = $data->fields();
+        $placeholders = $data->placeholders();
+
+        $sql = 'INSERT INTO ' . $table
+             . ' ('.join(',', $fields).')'
              . ' VALUES'
-             . ' ('.join(',', $data->placeholders()).')'
+             . ' ('.join(',', $placeholders).')'
+
+             . ' ON DUPLICATE KEY UPDATE'
         ;
+        foreach ($fields as $i => $field)
+        {
+            $sql.= ($i ? ',' : '')
+                . ' ' . $field . ' = VALUES(' . $field . ')';
+        }
 
         return self::execute($sql, $data->hash());
     }
@@ -150,7 +160,7 @@ class Core_Model_Dbo extends Core_Model_Abstract
     // Create entry in table
     static function create($data, $table="")
     {
-        return self::save($data, $table, 'INSERT');
+        return self::save($data, $table);
     }
 
     // Get clean table name

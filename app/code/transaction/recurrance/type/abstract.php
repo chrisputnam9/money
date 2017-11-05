@@ -24,11 +24,26 @@ abstract class Transaction_Recurrance_Type_Abstract extends Core_Model_Dbo
      */
     public function __construct($transaction_id, $data)
     {
-        $this->_fields = array_merge(static::$fields, array(
+        $this->_fields = array_merge(static::$fields, [
+            'date_start',
             'date_end',
-        ));
+        ]);
 
         $this->transaction_id = $transaction_id;
+
+        $old_data = self::getBy(['main_transaction_id' => $transaction_id]);
+
+        /*
+        if (is_array($old_data))
+        {
+            $old_data = reset($old_data);
+            $data_diff = array_diff($old_data, $data);
+            self::log($old_data);
+            self::log($data);
+            self::log($data_diff);
+            die;
+        }
+         */
 
         $this->setData($data);
     }

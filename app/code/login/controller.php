@@ -43,7 +43,7 @@ class Login_Controller extends Core_Controller_Abstract
 
         if (Login_Helper::login($request->post('username'), $request->post('password')))
         {
-            self::getResponse()->redirect('/');
+            self::getResponse()->redirect($request->get('redirect'));
         }
 
         return ['error' => 'Incorrect username or password'];
