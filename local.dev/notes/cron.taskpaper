@@ -1,0 +1,9 @@
+Cron:
+	cron.php in module roots
+	similar to controller - loop and check all
+	extends abstract
+	possible methods:
+		- day(diff)
+		- hour(diff)
+		- minute(diff)
+		logic can check diff as needed

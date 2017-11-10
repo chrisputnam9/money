@@ -1,0 +1,16 @@
+Preliminary:
+	- Option to paste text
+	- Special Endpoint - receive text
+	- Parse text same logic as ocr
+
+---------------
+
+Login Endpoint:
+	- Parse login post if passed
+	- Return status
+
+Extension:
+	- Check login status (before posting)
+	- Login in popup if needed
+	- Copy html on the page
+	- Send to endpoint, finish in new tab
