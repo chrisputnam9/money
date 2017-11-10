@@ -1,3 +1,30 @@
+Up Next:
+	- Dev Setup
+	- Delete Logic - https://money.chrisputnam.info/transaction/form?id=1011
+	- Delete From Live - https://money.chrisputnam.info/transaction/form?id=1011
+	- Disabling repeat - store recurring id in hidden field?
+	- Cron
+
+Create Recurring:
+	- Catch Up based on settings @done(2017-11-05)
+	- Cron will update going forward
+Edit Recurrance (child):
+	- Alert and link to master @done(2017-11-06)
+Delete Recurrance (child):
+	- Normal @done(2017-11-05)
+Edit Recurring Master:
+	- List recurrances @done(2017-11-06)
+	- Checkbox to update all (checked by default) @done(2017-11-06)
+	If Checked:
+		- Remove children
+		- Normal save process - replace data, recreate children @done(2017-11-06)
+Delete Recurring Master:
+	- Special alert (additional?)
+	- Follow checkbox
+		- Remove children if checked
+		- Orphan children if unchecked
+	- Remove tr & trt data
+
 Data:
 	transaction (Main Transaction)
 		- normal data
@@ -18,24 +45,3 @@ Recurrance Types:
 		- extends abstract
 		- catchup method - runs on save and daily cron (see below)
 	static template for now - more modular later?
-
-Create Recurring:
-	- Catch Up based on settings
-	- Cron will update going forward
-Update Recurrance (child):
-	- Alert and link to master
-Update Recurring Master:
-	- List recurrances
-	- Checkbox to update all (checked by default)
-	(if unchecked, skip the rest)
-		- Remove children
-		- Normal save process - replace data, recreate children
-Cron:
-	cron.php in module roots
-	similar to controller - loop and check all
-	extends abstract
-	possible methods:
-		- day(diff)
-		- hour(diff)
-		- minute(diff)
-		logic can check diff as needed

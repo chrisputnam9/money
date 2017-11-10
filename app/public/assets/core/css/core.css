@@ -3,7 +3,7 @@
  */
 body {
     background: #f7f7f7;
-    padding: 70px 0;
+    padding: 70px 0 70px;
 }
 
 .hidden,
@@ -21,6 +21,11 @@ body {
 
 .full-width {
     width: 100%;
+}
+
+.col-tight {
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 /**

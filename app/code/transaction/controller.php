@@ -200,6 +200,9 @@ class Transaction_Controller extends Core_Controller_Abstract
                 {
                     // Allow muliple
                     $id = explode(",", $id);
+
+                    Transaction_Recurrance_Controller::preDelete($id);
+
                     Transaction_Model::delete($id);
                 }
 
@@ -348,17 +351,23 @@ class Transaction_Controller extends Core_Controller_Abstract
             $repeat = $_POST['repeat'];
             unset($_POST['repeat']);
         }
-
+         
+        $update_children = false;
+        if (isset($_POST['update_recurrances']))
+        {
+            $update_children = ($_POST['update_recurrances'] == 'yes');
+            unset($_POST['update_recurrances']);
+        }
 
         if (Transaction_Model::save($_POST))
         {
             $id = empty($_POST['id']) ? Transaction_Model::lastInsertId() : $_POST['id'];
 
             // Update recurrance
-            if ($repeat)
+            if ($repeat or $update_children)
             {
                 $repeat['date_start'] = $_POST['date_occurred'];
-                Transaction_Recurrance_Controller::save($id, $repeat);
+                Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
             }
 
         }

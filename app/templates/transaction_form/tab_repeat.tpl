@@ -37,4 +37,14 @@
         </div>
     </div>
 
+    {{#repeat.is_repeat_parent}}
+        <div class='col-sm-12'>  
+            <hr/>
+            <b>Existing Recurrances</b><br>
+            {{#repeat.children}}
+                    <a href="{{url}}" class="btn btn-default btn-sm" style="margin-bottom:5px;">{{date_occurred_formatted}}</a>
+            {{/repeat.children}}
+        </div>
+    {{/repeat.is_repeat_parent}}
+
 </div>

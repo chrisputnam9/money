@@ -28,8 +28,14 @@
                         <td>{{account_to_value}}</td>
                         <td><a href='{{category_url}}'>{{category_value}}</a></td>
                         <td>
+                            <a href='/transaction/delete?id={{id}}' class='btn btn-danger' data-confirm="Are you sure you want to delete this item? {{#is_repeat_parent}}All recurrances will be deleted as well.{{/is_repeat_parent}}{{#is_repeat_child}}This recurrance may be re-created automatically based on the master transaction.{{/is_repeat_child}}"><span class="glyphicon glyphicon-trash"></span></a>
                             <a href='/transaction/form?id={{id}}' class='btn btn-primary'><span class="glyphicon glyphicon-pencil"></span></a>
-                            <a href='/transaction/delete?id={{id}}' class='btn btn-danger' data-confirm="Are you sure you want to delete this item?"><span class="glyphicon glyphicon-trash"></span></a>
+                            {{#is_repeat_parent}}
+                                <span title="Recurring Transaction"><a href='#' class='btn btn-disabled disabled'><span class="glyphicon glyphicon-repeat"></span></a></span>
+                            {{/is_repeat_parent}}
+                            {{#is_repeat_child}}
+                                <a href='/transaction/form?id={{repeat_parent_id}}' class='btn btn-info'><span class="glyphicon glyphicon-repeat"></span></a>
+                            {{/is_repeat_child}}
                         </td>
                     </tr>
                 {{/transactions}}

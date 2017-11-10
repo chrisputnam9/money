@@ -6,7 +6,7 @@ namespace MCPI;
  */
 class Transaction_Model extends Core_Model_Dbo
 {
-    protected static $table = 'transaction';
+    public static $table = 'transaction';
 
     public $date_filter;
     public $category_id;
@@ -71,6 +71,7 @@ class Transaction_Model extends Core_Model_Dbo
                 $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
                 $row['date_occurred_formatted'] = date('m/d/y', strtotime($row['date_occurred']));
             }
+
         }
 
         return $this->_listing;
@@ -88,12 +89,18 @@ class Transaction_Model extends Core_Model_Dbo
                     . ', cat.title as category_value'
                     . ', class.title as classification_value'
                     . ', s.title as status_value'
+                    . ', (tr.id IS NOT NULL) as is_repeat_parent'
+                    . ', (trt.id IS NOT NULL) as is_repeat_child'
+                    . ', trp.main_transaction_id as repeat_parent_id'
                 . ' FROM ' . $table . ' t'
                 . ' LEFT JOIN account af ON (t.account_from = af.id)'
                 . ' LEFT JOIN account at ON (t.account_to = at.id)'
                 . ' LEFT JOIN transaction_category cat ON (t.category = cat.id)'
                 . ' LEFT JOIN transaction_classification class ON (t.classification = class.id)'
                 . ' LEFT JOIN transaction_status s ON (t.status = s.id)'
+                . ' LEFT JOIN transaction_recurring tr ON (t.id = tr.main_transaction_id)'
+                . ' LEFT JOIN transaction_recurring_transaction trt ON (t.id = trt.transaction_id)'
+                . ' LEFT JOIN transaction_recurring trp ON (trt.transaction_recurring_id = trp.id)'
                 . ' WHERE t.date_occurred >= ?'
                 . ' AND t.date_occurred < ?'
             ;
