@@ -11,6 +11,8 @@ class Html_View
 
     public $_template = 'main';
 
+    public $is_development = IS_DEVELOPMENT;
+
     public $menu = [];
 
     public $body = '';

@@ -9,15 +9,33 @@
                     <span class="icon-bar"></span>
                 </button>
 
-                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon glyphicon-credit-card" aria-hidden="true"></span></a>
+                {{#is_development}}
+                    <span class="hidden-xs">
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <a class="bg-danger text-danger" href="/">
+                                    <b>DEV</b>
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
+                {{/is_development}}
+                {{^is_development}}
+                    <a class="navbar-brand" href="/">
+                        <span class="glyphicon glyphicon glyphicon-credit-card" aria-hidden="true"></span>
+                    </a>
+                {{/is_development}}
 
-                {{#show_transaction_buttons}}
-                    <span class="visible-xs">
+                <span class="visible-xs">
+                    {{#is_development}}
+                        <a class="btn btn-danger navbar-btn" href="/">DEV</a>
+                    {{/is_development}}
+                    {{#show_transaction_buttons}}
                         <a class="btn btn-primary navbar-btn" href="/transaction/form"><span class='glyphicon glyphicon-pencil'></span></a>
 
                         <a class="btn btn-success navbar-btn" href="/transaction/image" class="js-show" data-click="#image"><span class='glyphicon glyphicon-camera'></span></a>
-                    </span>
-                {{/show_transaction_buttons}}
+                    {{/show_transaction_buttons}}
+                </span>
 
             </div>
 
