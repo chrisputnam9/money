@@ -201,7 +201,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                     // Allow muliple
                     $id = explode(",", $id);
 
-                    Transaction_Recurrance_Controller::preDelete($id);
+                    Transaction_Recurrance_Controller::delete($id);
 
                     Transaction_Model::delete($id);
                 }
@@ -364,11 +364,11 @@ class Transaction_Controller extends Core_Controller_Abstract
             $id = empty($_POST['id']) ? Transaction_Model::lastInsertId() : $_POST['id'];
 
             // Update recurrance
-            if ($repeat or $update_children)
+            if ($repeat)
             {
                 $repeat['date_start'] = $_POST['date_occurred'];
-                Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
             }
+            Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
 
         }
         else

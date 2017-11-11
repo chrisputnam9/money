@@ -244,6 +244,24 @@ class Transaction_Recurrance_Model extends Core_Model_Dbo
     }
 
     /**
+     * Delete recurring data & children
+     */
+    public static function deleteByTransactionId($main_transaction_ids)
+    {
+        $table = self::cleanTable(static::$table);
+
+        $data = new Core_Model_Dbo_Data($main_transaction_ids);
+
+        $sql = 'DELETE'
+             . ' FROM ' . $table
+             . ' WHERE main_transaction_id IN'
+             . '  ('.join(',', $data->placeholders()).')'
+        ;
+
+        return self::execute($sql, $data->hash());
+    }
+
+    /**
      * Get Parent (if exists) of potential child transaction
      */
     public static function getParentOf($child_id)

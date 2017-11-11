@@ -13,16 +13,22 @@ class Transaction_Recurrance_Controller extends Core_Controller_Abstract
      *  repeat_type
      *  keys for options (fully passed to type instance)
      */
-    public static function save($transaction_id, $data, $delete_children=false)
+    public static function save($id, $repeat_data, $delete_children=false)
     {
-        if (!empty($data['type']))
+        // Disabled Repeat
+        if (empty($repeat_data['type']))
         {
-            $type = $data['type'];
+            self::delete($id);
+        }
+        else
+        // Enabled Repeat
+        {
+            $type = $repeat_data['type'];
             $class = self::getTypeClass($type);
             if (class_exists($class))
             {
-                $type_instance = new $class($transaction_id);
-                $type_instance->saveRecurringData($data, $delete_children);
+                $type_instance = new $class($id);
+                $type_instance->saveRecurringData($repeat_data, $delete_children);
                 $type_instance->catchup();
             }
         }
@@ -32,14 +38,10 @@ class Transaction_Recurrance_Controller extends Core_Controller_Abstract
      * Pre delete actions regarding repetition
      * @param transaction_id
      */
-    public static function preDelete($ids)
+    public static function delete($ids)
     {
         if (!is_array($ids)) $ids = [$ids];
-        foreach ($ids as $id)
-        {
-            $type_instance = new Transaction_Recurrance_Type_Abstract($id);
-            $type_instance->deleteChildren();
-        }
+        Transaction_Recurrance_Type_Abstract::deleteByTransactionId($ids);
     }
 
     /**
