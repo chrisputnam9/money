@@ -1,10 +1,6 @@
-Up Next:
-	- Handle bad data (eg. required fields)
-	- Cron
-
 Create Recurring:
 	- Catch Up based on settings @done(2017-11-05)
-	- Cron will update going forward
+	- Cron will update going forward @done(2017-11-10)
 Edit Recurrance (child):
 	- Alert and link to master @done(2017-11-06)
 Delete Recurrance (child):

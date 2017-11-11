@@ -21,8 +21,8 @@ class Core_Shell_Cron extends Core_Shell_Abstract
 
             if (class_exists($class_name))
             {
-                $instance = new $class_name($args);
-                $instance->run($timediff);
+                $instance = new $class_name($now, $timediff);
+                $instance->run();
             }
 
         }

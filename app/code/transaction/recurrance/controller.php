@@ -34,6 +34,21 @@ class Transaction_Recurrance_Controller extends Core_Controller_Abstract
         }
     }
 
+    /**
+     * Catch Up Recurrance
+     */
+    public static function catchup($recurrance)
+    {
+        $type = $recurrance['recurrance_type'];
+        $id = $recurrance['main_transaction_id'];
+        $class = self::getTypeClass($type);
+        if (class_exists($class))
+        {
+            $type_instance = new $class($id);
+            $type_instance->catchup();
+        }
+    }
+
     /*
      * Pre delete actions regarding repetition
      * @param transaction_id

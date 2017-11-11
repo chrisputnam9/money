@@ -6,9 +6,22 @@ class Transaction_Cron extends Core_Cron_Abstract
     /**
      * Run every day at midnight
      */
-    protected function day()
-    // protected function minute()
+    // protected function day()
+    protected function minute()
     {
-        self::log('Updating repeat crons', 'Transaction Cron - Daily');
+        $table = Transaction_Recurrance_Model::$table;
+        $today = $this->now->format('Y-m-d') . ' 00:00:00';
+
+        $sql = 'SELECT t.*'
+            . ' FROM ' . $table . ' t'
+            . ' WHERE t.date_start <= "' . $today . '"'
+            . '   AND t.date_end >= "' . $today . '"'
+        ;
+        $recurrances = Transaction_Recurrance_Model::get($sql);
+
+        foreach ($recurrances as $recurrance)
+        {
+            Transaction_Recurrance_Controller::catchup($recurrance);
+        }
     }
 }
