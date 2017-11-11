@@ -26,21 +26,25 @@ class Transaction_Recurrance_Type_Abstract extends Transaction_Recurrance_Model
     }
 
     /**
-     * Catchup repetitions to given dates
-     */
-    public function catchup()
-    {
-        self::error('Implement this in child classes');
-    }
-
-    /**
      * Generic catchup logic with date modification string
      */
     public function catchupByModString($next, $end, $mod_string)
     {
+        $i = 1;
+        $prev = clone $next;
         while ($next->modify($mod_string) <= $end)
         {
+            if ($i > 100)
+                self::error('Too many repeats during catchup.  Something went wrong.', true);
+
+            // 12 hrs: 60*60*12 = 43200
+            if (($next->getTimestamp() - $prev->getTimestamp()) < 43200)
+                self::error('Repeat too frequent during catchup.  Something went wrong.', true);
+
             $this->addChild($next);
+
+            $i++;
+            $prev = clone $next;
         }
     }
 
@@ -88,6 +92,22 @@ class Transaction_Recurrance_Type_Abstract extends Transaction_Recurrance_Model
         }
 
         return $now;
+    }
+
+    /**
+     * Catchup repetitions
+     */
+    public function catchup()
+    {
+        self::error('Implement this in child classes');
+    }
+
+    /**
+     * Catchup repetitions to given dates
+     */
+    public function checkData($data)
+    {
+        self::error('Implement this in child classes');
     }
 
 }

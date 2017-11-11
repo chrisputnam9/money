@@ -42,9 +42,9 @@ class Core_Abstract
         }
 
         // show an error message
-        static function error($message, $type=false)
+        static function error($message, $die=false)
         {
-            self::getMessage()->_error($message, $type);
+            self::getMessage()->_error($message, $die);
         }
 
     /**

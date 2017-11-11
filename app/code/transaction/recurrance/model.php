@@ -121,6 +121,8 @@ class Transaction_Recurrance_Model extends Core_Model_Dbo
      */
     public function saveRecurringData($data, $delete_children=false)
     {
+        $this->checkData($data);
+
         $db_data = false;
 
         // Don't bother querying db if we already know we're deleting

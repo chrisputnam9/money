@@ -14,6 +14,23 @@ class Transaction_Recurrance_Type_Month extends Transaction_Recurrance_Type_Abst
         'month_day',
     ); 
 
+    /**
+     * Check Data and throw error if there's an issue
+     */
+    public function checkData($data)
+    {
+        if (
+            empty($data['month_count'])
+            or
+            empty($data['month_day'])
+        ) {
+            self::error('Missing required data.  Go back and try again.', true);
+        }
+    }
+
+    /**
+     * Catch up repetitions
+     */
     public function catchup()
     {
         $data = $this->getRecurringData();

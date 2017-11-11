@@ -88,7 +88,7 @@ class Core_Model_Message extends Core_Abstract
 
     // Error action
     // TODO have this use response and output correct error code
-    function _error($error, $die=true, $type=false)
+    function _error($error, $die=true)
     {
         if ($error instanceof Exception)
             $error = $error->getMessage();

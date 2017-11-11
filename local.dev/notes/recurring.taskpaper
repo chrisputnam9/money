@@ -1,5 +1,5 @@
 Up Next:
-	- Disabling repeat - store recurring id in hidden field?
+	- Handle bad data (eg. required fields)
 	- Cron
 
 Create Recurring:
@@ -13,14 +13,12 @@ Edit Recurring Master:
 	- List recurrances @done(2017-11-06)
 	- Checkbox to update all (checked by default) @done(2017-11-06)
 	If Checked:
-		- Remove children
+		- Remove children @done(2017-11-10)
 		- Normal save process - replace data, recreate children @done(2017-11-06)
 Delete Recurring Master:
-	- Special alert (additional?)
-	- Follow checkbox
-		- Remove children if checked
-		- Orphan children if unchecked
-	- Remove tr & trt data
+	- Special alert (additional?) @done(2017-11-10)
+	- Remove children if checked @done(2017-11-10)
+	- Remove tr & trt data @done(2017-11-10)
 
 Data:
 	transaction (Main Transaction)
