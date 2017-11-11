@@ -37,7 +37,7 @@ class Transaction_Recurrance_Controller extends Core_Controller_Abstract
         if (!is_array($ids)) $ids = [$ids];
         foreach ($ids as $id)
         {
-            $type_abstract = new Transaction_Recurrance_Type_Abstract($transaction_id);
+            $type_instance = new Transaction_Recurrance_Type_Abstract($id);
             $type_instance->deleteChildren();
         }
     }
