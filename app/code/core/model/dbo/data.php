@@ -40,8 +40,13 @@ class Core_Model_Dbo_Data extends Core_Model_Abstract
         $i=0;
         foreach ($this->raw_data as $raw_field => $value)
         {
+            // Skip empty id
+            if ($raw_field == 'id' and empty($value))
+                continue;
+            
             if (is_numeric($raw_field))
                 $raw_field = "f" . $raw_field;
+
             $field = self::sanitizeColumnOrTable($raw_field);
             $placeholder = ":" . $field;
 

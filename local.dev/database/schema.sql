@@ -49,8 +49,8 @@ CREATE TABLE transaction (
 
     amount DECIMAL(10,4) NOT NULL,
     date_occurred DATETIME NOT NULL,
-    image TEXT NOT NULL,
-    notes TEXT NOT NULL,
+    image TEXT NOT NULL DEFAULT "",
+    notes TEXT NOT NULL DEFAULT "",
 
     account_from int(11) NOT NULL,
     account_to int(11) NOT NULL,

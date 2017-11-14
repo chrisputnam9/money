@@ -90,10 +90,10 @@ class Core_Model_Message extends Core_Abstract
     // TODO have this use response and output correct error code
     function _error($error, $die=true)
     {
-        if ($error instanceof Exception)
-            $error = $error->getMessage();
+        if (!$error instanceof Exception)
+            $error = new Exception($error);
 
-        $this->log($error, "error");
+        $this->log($error->getTraceAsString(), "ERROR: " . $error->getMessage());
             
         if ($die) die;
     }

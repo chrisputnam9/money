@@ -1,0 +1,12 @@
+Output:
+	- Verbose/Debug Option: constant, shell arg
+	- Logging (to file): constant, shell arg
+	Config:
+		- log: 0,1,2, display: 0,1,2
+	- Better display for html
+	- Auto Log Cleanup
+Tabs:
+	- Set URL hash and check on load
+
+Recurrance Button List:
+	- Add Delete Option

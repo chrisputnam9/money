@@ -143,11 +143,15 @@ class Transaction_Recurrance_Model extends Core_Model_Dbo
         // Arrange new data for saving
         $new_data = [
             'main_transaction_id' => $this->_transaction_id,
-            'date_start' => $config['date_start'],
-            'date_end' => $config['date_end'],
             'recurrance_type' => static::$type,
             'recurrance_data' => $config,
         ];
+
+        if (!empty($config['date_start']))
+            $new_data['date_start'] = $config['date_start'];
+
+        if (!empty($config['date_end']))
+            $new_data['date_end'] = $config['date_end'];
 
         // Was there data in DB?
         //  - if so...

@@ -47,7 +47,8 @@ class OCR_Model extends Core_Model_Abstract
     function setImage($image)
     {
         if (!is_file($image))
-            die('Invalid image file: ' . $image);
+            return false;
+        //TODO log('Invalid image file: ' . $image);
 
         $this->image = $image;
 
@@ -98,14 +99,20 @@ class OCR_Model extends Core_Model_Abstract
         {
             $image = $this->image;
 
+            if (empty($image))
+            {
+                $this->text = [""];
+                return $this->text;
+            }
+
             $command = 'tesseract "' . $image . '" stdout 2>&1';
 
             exec($command, $output, $return);
 
             if ($return != 0)
             {
-                echo "OCR Error: ";
-                die("<pre>".print_r($output,true)."</pre>");
+                self::log($output);
+                self::error('OCR Error', true);
             }
 
             $this->text = $output;
