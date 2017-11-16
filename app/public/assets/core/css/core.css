@@ -27,6 +27,21 @@ body {
     padding-left: 2px;
     padding-right: 2px;
 }
+.col-bare {
+    padding:0;
+}
+
+.panel.panel-tight {
+    margin-bottom: 8px;
+}
+.panel.panel-tight .panel-body {
+    padding: 8px;
+}
+
+.panel-body.panel-heading * {
+    font-weight: bold;
+    text-decoration: underline; 
+}
 
 /**
  * Interface elements
@@ -76,3 +91,15 @@ p.alert {
 .img-stretch {
     width: 100%;
 }
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .panel.panel-tight {
+        margin-bottom: -1px;
+        border-radius: 0px;
+    }
+    .pad-top-md {
+        padding-top: 5px;
+    }
+}
+
