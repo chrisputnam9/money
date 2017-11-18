@@ -6,13 +6,13 @@
         {{/category}}
     <div class='col-sm-12'>
 
-        <div class="panel panel-default panel-tight">
+        <div class="panel panel-default panel-tight hidden-xs">
             <div class="panel-body panel-heading">
                 <div class="col-xs-8 col-sm-9 col-md-10 pad-top-md col-bare">
                     <div class="col-xs-6 col-sm-3 col-md-1 col-bare">Date</div>
                     <div class="col-xs-5 col-sm-9 col-md-1 col-bare">
                         <div class="visible-sm-block">Amount</div>
-                        <div class="hidden-sm hidden-sm text-right">Amount</div>
+                        <div class="hidden-sm text-right">Amount</div>
                     </div>
                     <div class="col-xs-12 col-sm-3 col-md-3 col-md-offset-1 col-bare">Category</div>
                     <div class="hidden-xs col-sm-9 col-md-6 col-bare">

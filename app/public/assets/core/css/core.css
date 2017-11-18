@@ -32,15 +32,22 @@ body {
 }
 
 .panel.panel-tight {
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 .panel.panel-tight .panel-body {
     padding: 8px;
+}
+.panel.panel-tight .progress {
+    margin-bottom: 0px;
 }
 
 .panel-body.panel-heading * {
     font-weight: bold;
     text-decoration: underline; 
+}
+
+.pad-left {
+    padding-left: 20px;
 }
 
 /**
