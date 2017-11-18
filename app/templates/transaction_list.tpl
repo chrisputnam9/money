@@ -5,14 +5,6 @@
             <br>
         {{/category}}
     <div class='col-sm-12'>
-    <!-- 
-        <th class="text-right">Amount</th>
-        <th class="text-right">Date</th>
-        <th>From</th>
-        <th>To</th>
-        <th>Category</th>
-        <th>Actions</th>
-    -->
 
         <div class="panel panel-default panel-tight">
             <div class="panel-body panel-heading">
