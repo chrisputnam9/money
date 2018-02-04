@@ -231,7 +231,10 @@ class Transaction_Controller extends Core_Controller_Abstract
 
         $path = $dir . $filename;
 
-        move_uploaded_file( $image['tmp_name'], $path );
+        $success = move_uploaded_file( $image['tmp_name'], $path );
+
+        if (!$success)
+            die('Unable to move uploaded file');
 
         // Run OCR and cache for later
         $ocr = new OCR_Model($path, true);
