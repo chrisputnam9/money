@@ -128,7 +128,7 @@ class Budget_Model extends Core_Model_Dbo
     }
 
         /**
-         * Finalize budgeted values
+         * Finalize budgeted values for display
          */
         protected function finalizeBudgeted($budgeted)
         {

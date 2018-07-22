@@ -240,7 +240,7 @@ class Transaction_Controller extends Core_Controller_Abstract
         $ocr = new OCR_Model($path, true);
         $ocr->getText();
 
-        $dest_filename = preg_replace('/\.\w+$/', '.png', $filename);
+        $dest_filename = preg_replace('/\.\w+$/', '_resized.png', $filename);
         $destination = $dir . $dest_filename;
 
         self::shrinkImage($path, $destination);

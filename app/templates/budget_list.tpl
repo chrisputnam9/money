@@ -5,8 +5,8 @@
         <div class="panel panel-default panel-tight hidden-xs hidden-sm">
             <div class="panel-body panel-heading">
                 <div class="col-xs-6 col-md-3 col-bare">Category</div>
-                <div class="col-xs-6 col-md-3 col-md-push-6 col-bare pad-left">Spent</div>
-                <div class="col-xs-12 col-md-6 col-md-pull-3 col-bare">Remaining</div>
+                <div class="col-xs-6 col-md-3 col-bare pad-left">Spent</div>
+                <div class="col-xs-12 col-md-6 col-bare">Remaining</div>
             </div>
         </div>
 
@@ -17,15 +17,15 @@
                     <div class="col-xs-6 col-md-3 col-bare">
                         <b>{{category}}</b>
                     </div>
-                    <div class="col-xs-6 col-md-3 col-md-push-6 col-bare pad-left">
-                        <div class="hidden-xs">
+                    <div class="col-xs-6 col-md-3 col-bare pad-left">
+                        <div class="hidden-xs hidden-sm">
                             <small>{{spending_formatted}} spent of {{limit_formatted}}</small>
                         </div>
-                        <div class="visible-xs-block text-right">
+                        <div class="visible-xs-block visible-sm-block text-right">
                             <small>{{spending_formatted}} spent of {{limit_formatted}}</small>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-md-6 col-md-pull-3 col-bare">
+                    <div class="col-xs-12 col-md-6 col-bare">
                         <div class="progress">
                             <div class="progress-bar progress-bar-{{status}}" role="progressbar" aria-valuenow="{{remaining_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{remaining_percentage}}%; min-width:30px;">
                                 <strong><span class='percent'>{{remaining_formatted}}</span></strong>

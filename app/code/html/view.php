@@ -97,4 +97,57 @@ class Html_View
         return $m->render($template, $data);
     }
 
+    /**
+     * Render style_tag
+     */
+    public function style_tag()
+    {
+        return function ($file)
+        {
+            $uri = $this->_asset_info($file, 'css');
+            if (empty($uri))
+            {
+                return '<b>STYLESHEET NOT FOUND: ' . $file . '</b><br>';
+            }
+
+            return '<link rel="stylesheet" href="' . $uri . '" >';
+        };
+    }
+
+    /**
+     * Render script tag
+     */
+    public function script_tag()
+    {
+        return function ($file)
+        {
+            $uri = $this->_asset_info($file, 'js');
+            if (empty($uri))
+            {
+                return '<b>SCRIPT NOT FOUND: ' . $file . '</b><br>';
+            }
+
+            return '<script src="' . $uri . '"></script>';
+        };
+    }
+
+    /**
+     * Get asset info
+     */
+    protected function _asset_info ($file, $type)
+    {
+        // Check zones in order, return as soon as file is found
+        foreach (['core', 'vendor'] as $zone) 
+        {
+            $path = "/assets/" . $zone . "/" . $type . "/" . $file;
+            $filepath = DIR_PUBLIC . $path;
+            if (is_file($filepath))
+            {
+                return $path . "?v=" . filemtime($filepath);
+            }
+        }
+
+        return false;
+    }
+
 }

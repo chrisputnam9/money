@@ -31,6 +31,16 @@ body {
     padding:0;
 }
 
+.navbar.navbar-tight {
+    min-height: 0;
+}
+.navbar.navbar-tight .navbar-text {
+    margin: 8px 0;
+}
+.navbar.navbar-tight .progress {
+    margin-bottom: 0px;
+}
+
 .panel.panel-tight {
     margin-bottom: 5px;
 }
@@ -48,6 +58,9 @@ body {
 
 .pad-left {
     padding-left: 20px;
+}
+.pad-right {
+    padding-right: 20px;
 }
 
 /**
