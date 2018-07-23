@@ -3,26 +3,11 @@
 <nav class="navbar navbar-inverse navbar-fixed-bottom navbar-tight">
     <div class="container">
 
-<!--
-        <div class="col-sm-12">
-            <div id="filter-menu-collapsible">
-                <div class="clearfix navbar-text col-bare">
-                    Filter inputs will go here<br>
-                    Filter inputs will go here<br>
-                    Filter inputs will go here<br>
-                    Filter inputs will go here<br>
-                    Filter inputs will go here<br>
-                    Filter inputs will go here<br>
-                </div>
-            </div>
-        </div>
--->
+        {{> filters }}
 
-        <div class="col-xs-12 clearfix navbar-text col-bare pad-right">
+        <div class="col-xs-11 clearfix navbar-text col-bare pad-left">
             <div class="col-xs-4 col-md-3 col-bare">
-        <!--
-                <b>&lt; Date &gt;</b>
-        -->
+                <b>Date</b>
             </div>
             <div class="col-xs-8 col-md-3 col-bare pad-left">
                 <div class="hidden-xs hidden-sm">
@@ -40,15 +25,6 @@
                 </div>
             </div>
         </div>
-
-<!--
-        <div class="col-xs-1 clearfix navbar-text col-bare text-right">
-            <a class="btn btn-primary js-toggle" href="#filter-menu-collapsible" title="Toggle filters">
-                <span class="sr-only">Toggle filters</span>
-                <span class="glyphicon glyphicon-filter"></span>
-            </a>
-        </div>
--->
 
     </div>
 </nav>

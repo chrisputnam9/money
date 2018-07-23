@@ -35,8 +35,10 @@
                         {{date_occurred_formatted}}
                     </div>
                     <div class="col-xs-5 col-sm-9 col-md-1 col-bare">
-                        <div class="visible-sm-block"><b>{{amount_formatted}}</b></div>
-                        <div class="hidden-sm hidden-sm text-right"><b>{{amount_formatted}}</b></div>
+                        <a href='/transaction/form?id={{id}}'>
+                            <div class="visible-sm-block"><b>{{amount_formatted}}</b></div>
+                            <div class="hidden-sm hidden-sm text-right"><b>{{amount_formatted}}</b></div>
+                        </a>
                     </div>
                     <div class="col-xs-12 col-sm-3 col-md-3 col-md-offset-1 col-bare">
                         <a href='{{category_url}}'>{{category_value}}</a>

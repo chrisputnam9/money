@@ -62,6 +62,12 @@ body {
 .pad-right {
     padding-right: 20px;
 }
+.pad-bottom {
+    padding-bottom: 20px;
+}
+.pad-top {
+    padding-top: 20px;
+}
 
 /**
  * Interface elements
