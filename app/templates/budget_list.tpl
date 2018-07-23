@@ -16,6 +16,7 @@
                 <div class="panel-body">
                     <div class="col-xs-6 col-md-3 col-bare">
                         <b>{{category}}</b>
+                        <br>
                     </div>
                     <div class="col-xs-6 col-md-3 col-bare pad-left">
                         <div class="hidden-xs hidden-sm">
@@ -31,6 +32,9 @@
                                 <strong><span class='percent'>{{remaining_formatted}}</span></strong>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-xs-12 col-bare">
+                        {{budget_list_formatted}}
                     </div>
                 </div>
             </div>

@@ -41,10 +41,15 @@ class Budget_Model extends Core_Model_Dbo
     public function __construct ()
     {
         $this->date_filter = self::getDateFilter();
+
         $this->month_start = $this->date_filter->month_start;
         $this->month_end = $this->date_filter->month_end;
+
         $this->year_start = $this->date_filter->year_start;
         $this->year_end = $this->date_filter->year_end;
+
+        $this->year_to_month_start = $this->date_filter->year_start;
+        $this->year_to_month_end = $this->date_filter->month_start;
     }
 
     /**
@@ -76,6 +81,7 @@ class Budget_Model extends Core_Model_Dbo
                 'spending' => 0,
                 'remaining' => 0,
                 'year_spending' => 0,
+                'year_to_month_spending' => 0,
                 'month_spending' => 0,
                 'months_remaining' => $months_remaining,
             ];
@@ -83,20 +89,26 @@ class Budget_Model extends Core_Model_Dbo
             foreach ($this->getBudgets() as $_cat_id => $budget_data)
             {
                 $spending = [];
+
                 $spending_year = $this->getSpending('year', $_cat_id);
                 $spending['year'] = empty($spending_year) ? 0 : $spending_year['amount'];
+
+                $spending_year_to_month = $this->getSpending('year_to_month', $_cat_id);
+                $spending['year_to_month'] = empty($spending_year_to_month) ? 0 : $spending_year_to_month['amount'];
+
                 $spending_month = $this->getSpending('month', $_cat_id);
                 $spending['month'] = empty($spending_month) ? 0 : $spending_month['amount'];
 
                 $budgeted = [
-                    'period' => $period,
                     'category' => $budget_data['category'],
+                    'period' => $period,
                     'transactions_url' => $request->url(['transaction','list'],['category' => $_cat_id]),
                     'limit' => 0,
                     'spending' => $spending[$period],
                     'remaining' => 0,
                     'remaining_percentage' => 0,
                     'year_spending' => $spending['year'],
+                    'year_to_month_spending' => $spending['year_to_month'],
                     'month_spending' => $spending['month'],
                     'months_remaining' => $months_remaining,
                     'budgets' => $budget_data['budget_list'],
@@ -104,6 +116,7 @@ class Budget_Model extends Core_Model_Dbo
 
                 $total_budgeted['spending']+= $spending[$period];
                 $total_budgeted['year_spending']+= $spending['year'];
+                $total_budgeted['year_to_month_spending']+= $spending['year_to_month'];
                 $total_budgeted['month_spending']+= $spending['month'];
 
                 foreach ($budget_data['budget_list'] as $budget)
@@ -148,6 +161,16 @@ class Budget_Model extends Core_Model_Dbo
             $budgeted['year_spending_formatted'] = '$' . number_format($budgeted['year_spending'], 2);
             $budgeted['month_spending_formatted'] = '$' . number_format($budgeted['month_spending'], 2);
 
+            $budget_list = [];
+            if (!empty($budgeted['budgets']))
+            {
+                foreach ($budgeted['budgets'] as $budget)
+                {
+                    $budget_list[]= '$' . number_format($budget['amount']) . '/' . $budget['timespan'];
+                }
+            }
+            $budgeted['budget_list_formatted'] = implode(", ", $budget_list);
+
             return $budgeted;
         }
 
@@ -168,14 +191,13 @@ class Budget_Model extends Core_Model_Dbo
                 return $budgeted['limit']+= ($limit * 12);
 
             // Yearly to monthly - a bit trickier...
-            // - start with year's spending
-            // - subtract months spending
+            // - start with year's spending, up to (but not including) current month
             // - subtract result from yearly limit
-            // - divide that by months remining in the year
+            // - divide that by months remaining in the year
             // - max - no less than 0
             if ($budget_period == 'year' and $current_period == 'month')
                 return $budgeted['limit']+= max(0,
-                    ($limit - ($budgeted['year_spending'] - $budgeted['month_spending']))
+                    ($limit - $budgeted['year_to_month_spending'])
                         /
                     $budgeted['months_remaining']
                 );
@@ -212,7 +234,7 @@ class Budget_Model extends Core_Model_Dbo
         if (!isset($this->_spending[$period]))
         {
             $sql =
-                'SELECT SUM(IF(class.title = "Credit", -1 * t.amount, t.amount)) as amount'
+                'SELECT SUM(IF(class.title IN ("Credit","Income"), -1 * t.amount, t.amount)) as amount'
                     . ', cat.id as category_id, cat.title as category_value'
                 . ' FROM transaction t'
                 . ' LEFT JOIN transaction_category cat ON (t.category = cat.id)'
