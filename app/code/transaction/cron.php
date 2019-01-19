@@ -4,9 +4,8 @@ namespace MCPI;
 class Transaction_Cron extends Core_Cron_Abstract
 {
     /**
-     * Run every day at midnight
+     * Run every tick
      */
-    // protected function day()
     protected function minute()
     {
         $table = Transaction_Recurrance_Model::$table;
@@ -15,7 +14,7 @@ class Transaction_Cron extends Core_Cron_Abstract
         $sql = 'SELECT t.*'
             . ' FROM ' . $table . ' t'
             . ' WHERE t.date_start <= "' . $today . '"'
-            . '   AND t.date_end >= "' . $today . '"'
+            . '   AND (t.date_end IS NULL OR t.date_end >= "' . $today . '")'
         ;
         $recurrances = Transaction_Recurrance_Model::get($sql);
 
