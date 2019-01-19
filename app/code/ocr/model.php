@@ -10,23 +10,38 @@ namespace MCPI;
 // - date patterns, others?
 class OCR_Model extends Core_Model_Abstract
 {
+    const DIR_CACHE = DIR_TMP . 'ocr' . DS;
+
+    public static $months_short = array(
+        'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+        'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+    );
+
+    public static $months_long = array(
+        'january', 'febuary', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december',
+    );
 
     protected $cache = true;
     protected $cache_file = null;
-    protected $image;
-    protected $text;
 
-    const DIR_CACHE = DIR_TMP . 'ocr' . DS;
+    protected $image = null;
+    protected $text_file = null;
+
+    protected $text = null;
 
     /**
      * Construct with image
      */
-    function __construct($image=false, $cache=true)
+    function __construct($image=false, $text_file=false, $cache=true)
     {
         $this->cache = $cache;
 
         if ($image)
             $this->setImage($image);
+
+        if ($text_file)
+            $this->setTextFile($text_file);
     }
 
     /**
@@ -38,6 +53,18 @@ class OCR_Model extends Core_Model_Abstract
         {
             $this->cache_file = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($this->image)) . ".ocr-cache";
         }
+
+        // Check if this is a resized version - if so, prefer pre-resized ocr cache
+        if (preg_match('/^(.*)_resized(\.\w+)$/', $this->image, $matches))
+        {
+            $potential_original = $matches[1] . $matches[2];
+            $preferred_cache_file = self::DIR_CACHE . preg_replace('/\.[^.]+$/', '', basename($potential_original)) . ".ocr-cache";
+            if (is_file($preferred_cache_file))
+            {
+                $this->cache_file = $preferred_cache_file;
+            }
+        }
+
         return $this->cache_file;
     }
 
@@ -53,6 +80,17 @@ class OCR_Model extends Core_Model_Abstract
         $this->image = $image;
 
         $this->loadCache();
+    }
+
+    /**
+     * Set text file
+     */
+    function setTextFile($text_file)
+    {
+        if (!is_file($text_file))
+            return false;
+
+        $this->text_file = $text_file;
     }
 
     /**
@@ -97,6 +135,13 @@ class OCR_Model extends Core_Model_Abstract
     {
         if (is_null($this->text))
         {
+            // Prefer text file if set
+            if (!is_null($this->text_file))
+            {
+                $this->text = explode(EOL, file_get_contents($this->text_file));
+                return $this->text;
+            }
+
             $image = $this->image;
 
             if (empty($image))
@@ -124,17 +169,37 @@ class OCR_Model extends Core_Model_Abstract
     /**
      * Get Pattern
      */
-    function getPattern($pattern, $return_index=0)
+    function getPattern($patterns, $return_index=0)
     {
         $found = [];
         $text = $this->getText();
+
+        if (!is_array($patterns))
+        {
+            $patterns = [$patterns];
+        }
+
+
         foreach ($text as $line)
         {
-            if (preg_match_all($pattern, $line, $matches))
+            $line = trim($line);
+            if (empty($line)) continue;
+
+            // echo "$line<br>";
+            foreach ($patterns as $pattern)
             {
-                $found = array_merge($found, $matches[$return_index]);
+                $pattern = '~'.$pattern.'~i';
+                // echo " --- $pattern<br>";
+                if (preg_match_all($pattern, $line, $matches))
+                {
+                    $match = $matches[$return_index];
+                    // echo " *** MATCH: " . implode(" : ", $match) . " ***<br>";
+                    $found = array_merge($found, $match);
+                }
             }
+            // echo "<br>";
         }
+        // echo "------------------------------------------------------------------------------------------------------------------<br>";
 
         if (empty($found))
             return false;
@@ -147,7 +212,7 @@ class OCR_Model extends Core_Model_Abstract
      */
     function getDollars()
     {
-        return $this->getPattern('/\d+\.\d{2}/');
+        return $this->getPattern('\d+\.\d{2}');
     }
 
     /**
@@ -155,6 +220,12 @@ class OCR_Model extends Core_Model_Abstract
      */
     function getDates()
     {
-        return $this->getPattern('/\d{1,2}\/\d{1,2}\/\d{2,4}/');
+        return $this->getPattern(array(
+            '\d{1,2}([-/])\d{1,2}\1\d{2}',
+            '\d{1,2}([-/])\d{1,2}\1\d{4}',
+            '\d{4}([/-])\d{2}\1\d{2}',
+            '('.implode('|', self::$months_short) .')\s*\d{1,2}(,?\s*\d{4})?',
+            '('.implode('|', self::$months_long) .')\s*\d{1,2}(,?\s*\d{4})?',
+        ));
     }
 }

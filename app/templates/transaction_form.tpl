@@ -32,6 +32,9 @@
         {{#image}}
             {{> tab_image }}
         {{/image}}
+        {{#file}}
+            {{> tab_file }}
+        {{/file}}
         {{^repeat.is_repeat_child}}
             {{> tab_repeat }}
         {{/repeat.is_repeat_child}}

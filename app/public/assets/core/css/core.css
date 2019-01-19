@@ -8,7 +8,7 @@ body {
 
 .hidden,
 .js-show {
-    display: none;
+    display: none !important;
 }
 
 .float--left {
@@ -104,9 +104,14 @@ p.alert {
     overflow: auto;
 }
     .window.window--thumbnail {
+        box-sizing: border-box;
         width: 100%;
-        height: 400px;
+        padding: 20px;
     }
+
+.img-responsive {
+    max-width: 100%;
+}
 
 .img-stretch {
     width: 100%;

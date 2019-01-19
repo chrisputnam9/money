@@ -1,7 +1,7 @@
 <div class='col-sm-4 col-sm-offset-4'>  
     <h1>Upload Receipt</h1>
     {{#error}}
-    <p class='alert bg-danger'>{{error}}</p>
+        <p class='alert bg-danger'>{{error}}</p>
     {{/error}}
     <form action="" method="post" enctype="multipart/form-data">
         <div class="form-group">

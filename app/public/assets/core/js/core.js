@@ -73,6 +73,22 @@ CPI = (function($) {
         });
     };
 
+    // Propagate element click to another element
+    $.fn.clickToggle = function () {
+        return this.each(function () {
+            $(this).click(function (event) {
+                var $this = $(this),
+                    target = $this.data('clicktoggle'),
+                    $target = $(target);
+
+                if ($target.length > 0) {
+                    event.preventDefault();
+                    $target.toggleClass('hidden');
+                }
+            });
+        });
+    };
+
     // Combo Box Functionality
     $.fn.combobox = function () {
         return this.each(function () {
@@ -129,7 +145,7 @@ CPI = (function($) {
                     $link.click(function(event) {
                         event.preventDefault();
                         $input.val(text).trigger('input');
-                        $dropdown_menu.hide();
+                        $dropdown_menu.addClass('hidden');
                     });
 
                 });
@@ -142,13 +158,13 @@ CPI = (function($) {
             $dropdown.on('show.bs.dropdown hide.bs.dropdown', function() {
                 $dropdown.toggleClass('open');
                 if ($dropdown.hasClass('open')) {
-                    $dropdown_menu.show();
+                    $dropdown_menu.removeClass('hidden');
                 } else {
-                    $dropdown_menu.hide();
+                    $dropdown_menu.addClass('hidden');
                 }
             });
 
-            $select.hide();
+            $select.addClass('hidden');
 
             // When input changes, select value, style
             $input.on('input', function () {
@@ -159,17 +175,17 @@ CPI = (function($) {
 
                 if (value == "" || !initialized) {
                     $input.css({ 'font-weight':'', 'font-style':'' });
-                    $dropdown_options.show();
+                    $dropdown_options.removeClass('hidden');
                 } else {
                     var $filtered = $dropdown_options.filter('[data-search*="'+value.toLowerCase()+'"]');
                     $input.css({ 'font-weight':'', 'font-style':'italic' });
                     if ($filtered.length > 0) {
-                        $dropdown_menu.show();
-                        $dropdown_options.hide()
-                        $filtered.show();
+                        $dropdown_menu.removeClass('hidden');
+                        $dropdown_options.addClass('hidden')
+                        $filtered.removeClass('hidden');
                     } else {
-                        $dropdown_menu.hide();
-                        $dropdown_options.show()
+                        $dropdown_menu.addClass('hidden');
+                        $dropdown_options.removeClass('hidden')
                     }
                 }
 
@@ -178,8 +194,8 @@ CPI = (function($) {
                     if ($option.text() == value) {
                         $input.css({ 'font-weight':'bold', 'font-style':'' });
                         selected = $option.val();
-                        $dropdown_menu.hide();
-                        $dropdown_options.show()
+                        $dropdown_menu.addClass('hidden');
+                        $dropdown_options.removeClass('hidden')
                     }
                 });
 
@@ -253,7 +269,7 @@ CPI = (function($) {
                 xhr.open("POST", "/transaction/image");
 
                 // Show progress container
-                $progress_container.show();
+                $progress_container.removeClass('hidden');
 
                 xhr.send(fd);
             });
@@ -290,13 +306,13 @@ CPI = (function($) {
 
             var uploadFailed = function (evt) {
                 alert("There was an error uploading the file. Please try again and report if this happens a second time.");
-                $progress_container.hide();
+                $progress_container.addClass('hidden');
                 $input.val('');
             }
 
             var uploadCanceled = function (evt) {
                 alert("The upload has been canceled by the user or the browser dropped the connection. Please try again.");
-                $progress_container.hide();
+                $progress_container.addClass('hidden');
                 $input.val('');
             }
 
@@ -318,7 +334,7 @@ CPI = (function($) {
                     $target = tabifyTarget($link);
 
                 if ( ! $li.hasClass('active')) {
-                    $target.hide();
+                    $target.addClass('hidden');
                 }
 
                 $link.on('click', function (event) {
@@ -326,9 +342,9 @@ CPI = (function($) {
                     var $previous_li = $lis.filter('.active'),
                         $previous_link = $previous_li.find('a');
                     $previous_li.removeClass('active');
-                    tabifyTarget($previous_link).hide();
+                    tabifyTarget($previous_link).addClass('hidden');
                     $li.addClass('active');
-                    $target.show();
+                    $target.removeClass('hidden');
                 })
                     
             });
@@ -346,14 +362,14 @@ CPI = (function($) {
                 // All targets have this class
                 var group = $this.data('toggle_group'),
                     $group = $(group);
-                $group.hide();
+                $group.addClass('hidden');
 
                 function update () {
                     var $option = $this.find(':selected'),
                         target = $option.data('toggle_target'),
                         $target = $(target);
-                    $group.hide();
-                    $target.show();
+                    $group.addClass('hidden');
+                    $target.removeClass('hidden');
                 }
 
                 update();
@@ -364,10 +380,10 @@ CPI = (function($) {
                 var target = $this.attr('href'),
                 $target = $(target);
                 if ($target.length > 0) {
-                    $target.hide();
+                    $target.addClass('hidden');
                     $this.click(function(event) {
                         event.preventDefault();
-                        $target.toggle();
+                        $target.toggleClass('hidden');
                     });
                 }
 
@@ -385,14 +401,17 @@ CPI = (function($) {
         $('.js-tabify').tabify();
         $('.js-toggle').togglePropagate();
         $('[data-click]').clickPropagate();
+        $('[data-clicktoggle]').clickToggle();
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
         $('select[data-select]').autoselect();
 
         // Simple stuff:
         $('.js-click').click();
-        $('.js-hide').hide();
-        $('.js-show').show();
+        $('.js-hide')
+			.addClass('hidden')
+			.removeClass('js-hide');
+        $('.js-show').removeClass('js-show');
 
     });
 

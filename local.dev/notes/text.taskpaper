@@ -1,0 +1,6 @@
+Next:
+	- New tab - Text @done(2019-01-19)
+	- Process text with same logic as OCR @done(2019-01-19)
+	- Modify OCR constructor, maybe add new method @done(2019-01-19)
+	- Save filename in DB - add 'file' column
+	- Bonus: add new date recognition pattern(s) @done(2019-01-19)

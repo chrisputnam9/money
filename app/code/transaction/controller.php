@@ -8,6 +8,7 @@ class Transaction_Controller extends Core_Controller_Abstract
 {
 
     const DIR_UPLOAD = DIR_UPLOAD . 'transaction' . DS;
+    const DIR_FILE = DIR_TMP . 'file' . DS;
 
     static public function route()
     {
@@ -45,6 +46,17 @@ class Transaction_Controller extends Core_Controller_Abstract
                 }
 
                 $response->body_template = 'transaction_image';
+            }
+
+            // Text Form?
+            if ($request->index(1,'text'))
+            {
+                if ($request->post('text'))
+                {
+                    self::processText($request->post('text'), $response);
+                }
+
+                $response->body_template = 'transaction_text';
             }
 
             // Standard Form?
@@ -94,12 +106,16 @@ class Transaction_Controller extends Core_Controller_Abstract
 
                 // OCR if applicable
                 $image = empty($body_data['image']) ? false : $body_data['image'];
-                if ($image)
+                $file = empty($body_data['file']) ? false : $body_data['file'];
+
+                $image_or_file = $image ? $image : $file;
+                $dir = $image ? self::DIR_UPLOAD : self::DIR_FILE;
+
+                if ($image_or_file)
                 {
-                    $dir = self::DIR_UPLOAD;
                     // Load from cache (ran on original image)
-                    $ocr = new OCR_Model($dir . $image, true);
-                    $ocr_text = join("\n", $ocr->getText());
+                    $ocr = new OCR_Model($dir . $image, $dir . $file);
+                    $ocr_text = join(EOL, $ocr->getText());
                     $body_data['ocr-text'] = $ocr_text;
 
                     if (empty($body_data['amount']))
@@ -137,7 +153,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                     // Use first valid account found (if any)
                     if (empty($body_data['account_from']))
                     {
-                        $account_numbers = $ocr->getPattern('/[^\/\d](\d{4})($|\D)/', 1);
+                        $account_numbers = $ocr->getPattern('[^/\d](\d{4})($|\D)', 1);
                         if (!empty($account_numbers))
                         {
                             $account_map = Account_Model::getNumberMap();
@@ -237,7 +253,7 @@ class Transaction_Controller extends Core_Controller_Abstract
             die('Unable to move uploaded file');
 
         // Run OCR and cache for later
-        $ocr = new OCR_Model($path, true);
+        $ocr = new OCR_Model($path);
         $ocr->getText();
 
         $dest_filename = preg_replace('/\.\w+$/', '_resized.png', $filename);
@@ -248,6 +264,31 @@ class Transaction_Controller extends Core_Controller_Abstract
         unlink($path);
 
         $response->redirect('/transaction/form', ['image'=>$dest_filename]);
+    }
+
+	// Process text submission
+	static public function processText($text, $response)
+    {
+        // Build unique filename based on
+        //  - first 10 alphanumeric characters of text
+        //  - date/time
+        //  - all lowercase
+        $alphanumeric = preg_replace('/[^a-z0-9]+/', '', strtolower($text));
+        $filename = substr($alphanumeric, 0, 50);
+        $filename = date('Ymd-His_') . $filename . '.txt';
+
+        $dir = self::DIR_FILE;
+        if (!is_dir($dir))
+            mkdir($dir);
+
+        $path = $dir . $filename;
+
+        $success = file_put_contents($path, $text);
+
+        if ($success == false)
+            die('Unable to save text to ' . $path);
+
+        $response->redirect('/transaction/form', ['file'=>$filename]);
     }
 
     // Shrink an image
@@ -276,12 +317,12 @@ class Transaction_Controller extends Core_Controller_Abstract
         $width = $info[0];
         $height = $info[1];
 
-        $new_width = 500;
-        $new_height = 500;
+        $new_width = 750;
+        $new_height = 750;
 
         if ($width > $new_width or $height > $new_height)
         {
-            // Resize whichever is higher to 500
+            // Resize whichever is higher to new dimension
             if ($height > $width)
                 $new_width = round($width * ($new_height / $height));
             else
