@@ -2,6 +2,11 @@
 <?php
 namespace MCPI;
 
+// Enable and show errors
+ini_set('display_errors', 1);
+ini_set('html_errors', 1);
+error_reporting(E_ALL);
+
 // Set environment to CLI for output, etc.
 define('APP_ENVIRONMENT', 'CLI');
 
