@@ -145,7 +145,8 @@ CPI = (function($) {
                     $link.click(function(event) {
                         event.preventDefault();
                         $input.val(text).trigger('input');
-                        $dropdown_menu.addClass('hidden');
+                        $dropdown.removeClass('open');
+                        $button.removeClass('open');
                     });
 
                 });
@@ -157,11 +158,15 @@ CPI = (function($) {
             // I feel like bootstrap should already work this way... boo!
             $dropdown.on('show.bs.dropdown hide.bs.dropdown', function() {
                 $dropdown.toggleClass('open');
+                /*
                 if ($dropdown.hasClass('open')) {
-                    $dropdown_menu.removeClass('hidden');
+                    $dropdown.addClass('open');
+                    $button.addClass('open');
                 } else {
-                    $dropdown_menu.addClass('hidden');
+                    $dropdown.removeClass('open');
+                    $button.removeClass('open');
                 }
+                */
             });
 
             $select.addClass('hidden');
@@ -180,11 +185,15 @@ CPI = (function($) {
                     var $filtered = $dropdown_options.filter('[data-search*="'+value.toLowerCase()+'"]');
                     $input.css({ 'font-weight':'', 'font-style':'italic' });
                     if ($filtered.length > 0) {
-                        $dropdown_menu.removeClass('hidden');
+                        $dropdown.addClass('open');
+                        $button.addClass('open');
+
                         $dropdown_options.addClass('hidden')
                         $filtered.removeClass('hidden');
                     } else {
-                        $dropdown_menu.addClass('hidden');
+                        $dropdown.removeClass('open');
+                        $button.removeClass('open');
+
                         $dropdown_options.removeClass('hidden')
                     }
                 }
@@ -194,7 +203,10 @@ CPI = (function($) {
                     if ($option.text() == value) {
                         $input.css({ 'font-weight':'bold', 'font-style':'' });
                         selected = $option.val();
-                        $dropdown_menu.addClass('hidden');
+
+                        $dropdown.removeClass('open');
+                        $button.removeClass('open');
+
                         $dropdown_options.removeClass('hidden')
                     }
                 });
