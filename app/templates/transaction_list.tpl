@@ -58,6 +58,8 @@
 
                     <span title="Edit"><a href='/transaction/form?id={{id}}' class='btn btn-sm btn-primary'><span class="glyphicon glyphicon-pencil"></span></a></span>
                     <span title="Delete"><a href='/transaction/delete?id={{id}}' class='btn btn-sm btn-danger' data-confirm="Are you sure you want to delete this item? {{#is_repeat_parent}}All recurrances will be deleted as well.{{/is_repeat_parent}}{{#is_repeat_child}}This recurrance may be re-created automatically based on the master transaction.{{/is_repeat_child}}"><span class="glyphicon glyphicon-trash"></span></a></span>
+
+                    <span class='glyphicon glyphicon-{{entry_icon}} label-icon' title='{{entry_type}}'></span>
                 </div>
 
                 <div class="col-xs-12 col-bare visible-xs-block">
