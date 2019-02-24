@@ -67,6 +67,19 @@ class Transaction_Model extends Core_Model_Dbo
             $this->_listing = $this->getAllFlat();
             foreach ($this->_listing as &$row)
             {
+                $row['entry_type'] = 'Manual Entry';
+                $row['entry_icon'] = 'pencil';
+                if (!empty($row['file']))
+                {
+                    $row['entry_type'] = 'Text / Document';
+                    $row['entry_icon'] = 'align-left';
+                }
+                if (!empty($row['image']))
+                {
+                    $row['entry_type'] = 'Image';
+                    $row['entry_icon'] = 'camera';
+                }
+
                 $row['category_url'] = $request->url(null, ['category' => $row['category']]);
                 $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
                 $row['date_occurred_formatted'] = date('m/d/y', strtotime($row['date_occurred']));
