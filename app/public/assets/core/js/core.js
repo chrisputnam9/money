@@ -73,7 +73,7 @@ CPI = (function($) {
         });
     };
 
-    // Propagate element click to another element
+    // Toggle one element (show/hide) when another is clicked
     $.fn.clickToggle = function () {
         return this.each(function () {
             $(this).click(function (event) {
@@ -84,6 +84,22 @@ CPI = (function($) {
                 if ($target.length > 0) {
                     event.preventDefault();
                     $target.toggleClass('hidden');
+                }
+            });
+        });
+    };
+
+    // Focus one element when another is clicked
+    $.fn.clickFocus = function () {
+        return this.each(function () {
+            $(this).click(function (event) {
+                var $this = $(this),
+                    target = $this.data('clickfocus'),
+                    $target = $(target);
+
+                if ($target.length > 0) {
+                    event.preventDefault();
+                    $target.focus();
                 }
             });
         });
@@ -414,6 +430,7 @@ CPI = (function($) {
         $('.js-toggle').togglePropagate();
         $('[data-click]').clickPropagate();
         $('[data-clicktoggle]').clickToggle();
+        $('[data-clickfocus]').clickFocus();
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
         $('select[data-select]').autoselect();

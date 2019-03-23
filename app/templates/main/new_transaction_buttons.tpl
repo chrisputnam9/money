@@ -4,7 +4,7 @@
 		<span class='hidden-xs'>New Entry</span>
 	</a>
 
-	<a class="btn btn-info navbar-btn" href="/transaction/text" data-clicktoggle="#text-entry-form">
+	<a class="btn btn-info navbar-btn" href="/transaction/text" data-clicktoggle="#text-entry-form" data-clickfocus="#transaction-text-entry">
 		<span class='glyphicon glyphicon-align-left'></span>
 		<span class='hidden-xs'>New Text</span>
 	</a>
