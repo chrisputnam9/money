@@ -199,7 +199,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                 // Prep the amount
                 if (!empty($body_data['amount']))
                 {
-                    $body_data['amount'] = number_format((float) $body_data['amount'], 2);
+                    $body_data['amount'] = number_format((float) $body_data['amount'], 2, '.', '');
                 }
 
                 $response->body_data = $body_data;
