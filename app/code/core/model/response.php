@@ -59,6 +59,33 @@ class Core_Model_Response extends Core_Model_Abstract
     }
 
     /**
+     * Give an error message
+     */
+    public function fail($message, $data=[], $code='500')
+    {
+        if (!is_array($data))
+        {
+            $code = $data;
+            $data = [];
+        }
+        
+        $this->setCode($code);
+
+        if ($this->getRequest()->post('ajax'))
+        {
+            header('Content-Type: application/json');
+            die(json_encode([
+                'error' => $message,
+                'data' => $data,
+            ]));
+        }
+
+        header("HTTP/1.0 " . $this->status);
+        die($message);
+        exit;
+    }
+
+    /**
      * Redirect
      */
     public function redirect($url='/', $data=[], $code='302')

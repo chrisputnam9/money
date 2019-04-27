@@ -298,6 +298,7 @@ CPI = (function($) {
 
                 // Show progress container
                 $progress_container.removeClass('hidden');
+                $progress_bar.removeClass('progress-bar-danger');
 
                 xhr.send(fd);
             });
@@ -309,26 +310,41 @@ CPI = (function($) {
 
             var uploadProgress = function (evt) {
                 var percent;
+
                 if (evt.lengthComputable) {
-                    percent = Math.round(evt.loaded * 100 / evt.total) + '%';
+                    percent = Math.round(evt.loaded * 95 / evt.total);
                 } else {
-                    percent = '50%';
+                    percent = 50;
                 }
-                $progress_bar.css('width', percent);
-                $percents.html(percent);
+
+                $progress_bar.css('width', percent + '%');
+                if (percent == 95) {
+                    $percents.html('Upload complete. Processing image...');
+                } else {
+                    $percents.html(percent + '%');
+                }
+
             }
 
             var uploadComplete = function (evt) {
                 var responseJson = JSON.parse(evt.target.responseText);
-
-                $progress_bar.css('width', '100%');
-                $percents.html('100%');
                 $input.val('');
 
+                $progress_bar.css('width', '95%');
+
                 if ('location' in responseJson) {
+                    $progress_bar.addClass('progress-bar-success');
+
                     document.location = responseJson.location;
                 } else {
-                    alert("There may have been an error uploading the file. Please try again and report if this happens a second time.");
+                    var error="There may have been an error uploading the file. Please try again and report if this happens a second time.";
+                    if ('error' in responseJson) {
+                        error=responseJson.error;
+                    }
+
+                    $progress_bar.removeClass('progress-bar-success');
+                    $progress_bar.addClass('progress-bar-danger');
+                    $percents.html('ERROR: ' + error);
                 }
             }
 

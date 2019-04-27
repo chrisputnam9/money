@@ -233,10 +233,18 @@ class Transaction_Controller extends Core_Controller_Abstract
     // Process image submission
     static public function processImage($image, $response)
     {
+
         // TODO Make extensions configurable
         $filename = strtolower($image['name']);
         if (!preg_match('/\.(png|jpe?g|gif)$/', $filename))
-            die('Image must be png, jpg or gif.  Go back and try again.');
+            $response->fail('Image must be png, jpg or gif.');
+
+        if (
+            !empty($image['error'])
+            or empty($image['tmp_name'])
+        ){
+            $response->fail('Failed to upload image. May be too large. Limit is ' . ini_get('upload_max_filesize') . '.');
+        }
 
         $filename = preg_replace('/[^\w-_.]+/', '-', $filename);
         $filename = date('Ymd-His_') . $filename;
@@ -250,7 +258,7 @@ class Transaction_Controller extends Core_Controller_Abstract
         $success = move_uploaded_file( $image['tmp_name'], $path );
 
         if (!$success)
-            die('Unable to move uploaded file');
+            $response->fail('Failed to move uploaded file - check permissions');
 
         // Run OCR and cache for later
         $ocr = new OCR_Model($path);
