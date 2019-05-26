@@ -8,7 +8,7 @@
             {{#account_to_options}}
                 <optgroup label="{{group}}">
                 {{#options}}
-                    <option value="{{id}}" {{selected}} data-select="{{popular_category}}" data-select2="{{popular_account_from}}">{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
+                    <option value="{{id}}" {{selected}} data-select="{{popular_category}}" data-select2="{{popular_account_from}}" data-classification="{{group}}">{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
                 {{/options}}
                 </optgroup>
             {{/account_to_options}}
@@ -25,7 +25,7 @@
             {{#account_from_options}}
                 <optgroup label="{{group}}">
                 {{#options}}
-                    <option value="{{id}}" {{selected}}>{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
+                    <option value="{{id}}" {{selected}} data-classification="{{group}}">{{title}}{{#account_number}} ({{account_number}}){{/account_number}}</option>
                 {{/options}}
                 </optgroup>
             {{/account_from_options}}

@@ -435,6 +435,42 @@ CPI = (function($) {
         });
     };
 
+    // Auto Classify Transaction Based on Account Classifications
+    $.fn.autoClassify = function () {
+        var PAYMENT = 1,
+            CREDIT = 2,
+            INCOME = 3,
+            TRANSFER = 4,
+
+            $from = $('#account_from'),
+            $to = $('#account_to'),
+            $classification = $('#classification');
+
+        return this.each(function () {
+            $(this).on('change combobox-change', function() {
+                var from_class = $from.find('option:selected').data('classification'),
+                    to_class = $to.find('option:selected').data('classification'),
+                    from_internal = (from_class == 'Bank Account' || from_class == 'Credit Card'),
+                    to_internal = (to_class == 'Bank Account' || to_class == 'Credit Card'),
+                    classification = PAYMENT; // Payment
+
+                // If to external, we'll just keep as Payment
+                if (to_internal) {
+                    if (from_internal) {
+                        classification = TRANSFER;
+                    } else if (to_class == 'Bank Account') {
+                        classification = INCOME;
+                    } else if (to_class == 'Credit Card') {
+                        classification = CREDIT;
+                    }
+                }
+
+                $classification.val(classification);
+
+            });
+        });
+    };
+
     // On Load
     $(function () {
 
@@ -450,6 +486,8 @@ CPI = (function($) {
         $('[data-combobox]').combobox();
         $('[data-confirm]').confirm();
         $('select[data-select]').autoselect();
+
+        $('#account_from,#account_to').autoClassify();
 
         // Simple stuff:
         $('.js-click').click();
