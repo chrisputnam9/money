@@ -8,9 +8,14 @@ class Core_Model_Request extends Core_Model_Abstract
 {
     protected static $instance = null;
 
+    public $headers;
+
     public $url;
     public $uri;
     public $uri_segments;
+
+    public $api_request = false;
+    public $body = null;
 
     /**
      * Singleton - get instance
@@ -30,9 +35,17 @@ class Core_Model_Request extends Core_Model_Abstract
     protected function __construct()
     {
         $request_uri = empty($_SERVER['REQUEST_URI']) ? "" : $_SERVER['REQUEST_URI'];
+        $this->headers = getallheaders();
         $this->url = $request_uri;
         $this->uri = trim(explode("?", $request_uri)[0], "/");
         $this->uri_segments = explode('/', $this->uri);
+
+        $this->api_request = (isset($this->headers['Content-Type']) and $this->headers['Content-Type'] == 'application/json');
+        if ($this->api_request)
+        {
+            $body = file_get_contents('php://input');
+            $this->body = json_decode($body, true);
+        }
     }
 
     /**

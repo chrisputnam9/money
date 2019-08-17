@@ -51,9 +51,28 @@ class Transaction_Controller extends Core_Controller_Abstract
             // Text Form?
             if ($request->index(1,'text'))
             {
+                $extra_data = [];
+                $text = false;
+                $action = 'render';
+
                 if ($request->post('text'))
                 {
-                    self::processText($request->post('text'), $response);
+                    $text = $request->post('text');
+                }
+                else
+                {
+                    $data = $request->body;
+                    $page_title = $data['page_title'];
+                    $page_url = $data['page_url'];
+                    $text = $data['selection'];
+
+                    $extra_data['notes'] = "Page:\n$page_title\n\n";
+                    $extra_data['notes'].= "URL:\n$page_url";
+                }
+
+                if (!empty($text))
+                {
+                    self::processText($text, $extra_data, $response);
                 }
 
                 $response->body_template = 'transaction_text';
@@ -275,7 +294,7 @@ class Transaction_Controller extends Core_Controller_Abstract
     }
 
 	// Process text submission
-	static public function processText($text, $response)
+	static public function processText($text, $extra_data=[], $response)
     {
         // Build unique filename based on
         //  - first 10 alphanumeric characters of text
@@ -296,7 +315,7 @@ class Transaction_Controller extends Core_Controller_Abstract
         if ($success == false)
             die('Unable to save text to ' . $path);
 
-        $response->redirect('/transaction/form', ['file'=>$filename]);
+        $response->redirect('/transaction/form', array_merge($extra_data, ['file'=>$filename]));
     }
 
     // Shrink an image

@@ -12,14 +12,14 @@ class Login_Helper extends Core_Helper_Abstract
     /**
      * Try to login with given username/password
      */
-    public static function login($username, $password)
+    public static function login($username, $password, $hash='hash')
     {
         require_once DIR_CONFIG . 'users.php';
         foreach ($_USERS as $id => $user)
         {
             if ($username == $user['name'])
             {
-                if (self::verify($password, $user['hash']))
+                if (self::verify($password, $user[$hash]))
                 {
                     self::getSession(self::SESSION_KEY)->set('status', 'logged_in');
                     return true;
@@ -28,6 +28,7 @@ class Login_Helper extends Core_Helper_Abstract
         }
         return false;
     }
+
     /**
      * Check if session user has privilege level
      *  * - any privilege, just checks logged_in

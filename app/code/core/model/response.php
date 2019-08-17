@@ -71,7 +71,7 @@ class Core_Model_Response extends Core_Model_Abstract
         
         $this->setCode($code);
 
-        if ($this->getRequest()->post('ajax'))
+        if ($this->getRequest()->post('ajax') or $this->getRequest()->api_request)
         {
             header('Content-Type: application/json');
             die(json_encode([
@@ -106,7 +106,7 @@ class Core_Model_Response extends Core_Model_Abstract
         $url = $url_path . (empty($query_string) ? '' : '?' . $query_string);
         $this->setCode($code);
 
-        if ($this->getRequest()->post('ajax'))
+        if ($this->getRequest()->post('ajax') or $this->getRequest()->api_request)
         {
             header('Content-Type: application/json');
             die(json_encode([

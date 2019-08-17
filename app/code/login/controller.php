@@ -55,11 +55,27 @@ class Login_Controller extends Core_Controller_Abstract
      */
     public static function redirect($path, $privilege="*")
     {
+        $request = self::getRequest();
+        $is_api = $request->api_request;
+        if ($is_api)
+        {
+            Login_Helper::login(
+                @$request->body['authentication']['username'],
+                @$request->body['authentication']['api_key'],
+                'api_key_hash'
+            );
+        }
+
         self::route();
         if (!Login_Helper::check($privilege))
         {
+            if ($is_api or $request->post('ajax') or $_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+            {
+                die(json_encode(['error' => 'Not Authorized']));
+            }
+
             self::getResponse()->redirect($path, array(
-                'redirect' => self::getRequest()->url
+                'redirect' => $request->url
             ));
         }
     }
