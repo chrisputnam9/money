@@ -133,7 +133,10 @@ class Transaction_Controller extends Core_Controller_Abstract
                 if ($image_or_file)
                 {
                     // Load from cache (ran on original image)
-                    $ocr = new OCR_Model($dir . $image, $dir . $file);
+                    $ocr = new OCR_Model(
+                        $image ? ($dir . $image) : false,
+                        $file ? ($dir . $file) : false
+                    );
                     $ocr_text = join(EOL, $ocr->getText());
                     $body_data['ocr-text'] = $ocr_text;
 
