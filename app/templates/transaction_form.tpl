@@ -2,6 +2,11 @@
 
     <input type='hidden' name='id' value='{{id}}'/>
 
+{{#app_window}}
+    <input type='hidden' name='app_window' value='1'/>
+{{/app_window}}
+
+
 <div class="row">
     <div class='col-sm-12'>  
         <h1>{{form_title}}</h1>
@@ -102,7 +107,7 @@
             {{#id}}<div class='col-xs-2 col-tight'>{{/id}}
             {{^id}}<div class='col-xs-3 col-tight'>{{/id}}
                     <p>
-                        <a href="/transaction/list" class="btn btn-warning btn-block">
+                        <a href="/transaction/list" class="btn btn-warning btn-block" {{#app_window}}onclick="var event = document.createEvent('Event');event.initEvent('close_window');document.dispatchEvent(event);return false;"{{/app_window}}>
                             <span class='hidden-xs hidden-sm'>Cancel</span>
                             <span class='glyphicon glyphicon-remove'></span>
                             <small class='visible-xs visible-sm'>Cancel</small>
@@ -112,7 +117,7 @@
             {{#id}}
                 <div class='col-xs-2 col-tight'>  
                     <p>
-                        <a href="/transaction/delete?id={{id}}" class="btn btn-danger btn-block" data-confirm="Are you sure you want to delete this item? {{#repeat.is_repeat_parent}}All recurrances will be deleted as well.{{/repeat.is_repeat_parent}}{{#repeat.is_repeat_child}}This recurrance may be re-created automatically based on the master transaction.{{/repeat.is_repeat_child}}">
+                        <a href="/transaction/delete?id={{id}}{{#app_window}}&app_window=1{{/app_window}}" class="btn btn-danger btn-block" data-confirm="Are you sure you want to delete this item? {{#repeat.is_repeat_parent}}All recurrances will be deleted as well.{{/repeat.is_repeat_parent}}{{#repeat.is_repeat_child}}This recurrance may be re-created automatically based on the master transaction.{{/repeat.is_repeat_child}}">
                             <span class='hidden-xs hidden-sm'>Delete</span>
                             <span class='glyphicon glyphicon-trash'></span>
                             <small class='visible-xs visible-sm'>Delete</small>

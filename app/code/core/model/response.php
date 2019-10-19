@@ -121,6 +121,25 @@ class Core_Model_Response extends Core_Model_Abstract
     }
 
     /**
+     * Close the window (with javascrip)
+     */
+    public function close_window($message="", $pause=1000)
+    {
+    ?>
+        <?php if (!empty($message)) echo "$message<br>" ?>
+        Closing window...
+        <script>
+            window.setTimeout(function () {
+                var event = document.createEvent('Event');
+                event.initEvent('close_window');
+                document.dispatchEvent(event);
+            }, <?php echo $pause ?>);
+        </script>
+    <?php
+        exit();
+    }
+
+    /**
      * Finalize - output and exit
      */
     public function finalize()

@@ -68,6 +68,11 @@ class Transaction_Controller extends Core_Controller_Abstract
 
                     $extra_data['notes'] = "Page:\n$page_title\n\n";
                     $extra_data['notes'].= "URL:\n$page_url";
+
+                    if (!empty($data['app_window']))
+                    {
+                        $extra_data['app_window'] = 1;
+                    }
                 }
 
                 if (!empty($text))
@@ -244,7 +249,11 @@ class Transaction_Controller extends Core_Controller_Abstract
                     Transaction_Model::delete($id);
                 }
 
-                // Back to index
+                // Back to index or close window
+                if ($request->get('app_window'))
+                {
+                    $response->close_window('Transaction Deleted');
+                }
                 $response->redirect('/transaction/list');
             }
 
@@ -373,6 +382,8 @@ class Transaction_Controller extends Core_Controller_Abstract
         //TODO add validation
         
         $success = true;
+        $app_window = !empty($_POST['app_window']);
+        unset($_POST['app_window']);
         
         // save a new account?
         if (empty($_POST['account_from']) and !empty($_POST['account_from_other']))
@@ -457,18 +468,28 @@ class Transaction_Controller extends Core_Controller_Abstract
             {
                 case 'apply':
                     // Redirect and load from id
-                    $response->redirect('/transaction/form', ['id' => $id]);
+                    $get = ['id' => $id];
+                    if ($app_window) $get['app_window'] = 1;
+                    $response->redirect('/transaction/form', $get);
                     break;
                 case 'save_new':
-                    $response->redirect('/transaction/form');
+                    $get = [];
+                    if ($app_window) $get['app_window'] = 1;
+                    $response->redirect('/transaction/form', $get);
                     break;
                 case 'save_close':
+                    if ($app_window)
+                    {
+                        $response->close_window('Transaction Saved');
+                    }
                     $response->redirect('/transaction/list');
                     break;
             }
         }
         else
         {
+            if ($app_window) $_GET['app_window'] = 1;
+
             // Redirect so POST doesn't mess with history
             $response->redirect('transaction/form', array_merge($_GET, $_POST));
         }
