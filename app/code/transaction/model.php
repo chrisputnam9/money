@@ -22,6 +22,44 @@ class Transaction_Model extends Core_Model_Dbo
         $this->category_id = $request->get('category', 'number_int');
     }
 
+    // Find possible duplicates
+    public static function findDuplicates($id, $data)
+    {
+        if (!is_array($data) or empty($data))
+        {
+            throw new Exception ('Bad data based to findDuplicates');
+        }
+
+        $account_to = empty($data['account_to']) ? false : $data['account_to'];
+        $account_from = empty($data['account_from']) ? false : $data['account_from'];
+        $amount = empty($data['amount']) ? false : $data['amount'];
+        $date_occurred = empty($data['date_occurred']) ? false : $data['date_occurred'];
+
+        if (
+            empty($account_to)
+            or empty($account_from)
+            or empty($amount)
+            or empty($date_occurred)
+        ) {
+            return false;
+        }
+
+        $table = self::cleanTable(self::$table);
+
+        $sql = <<<SQL
+            SELECT * FROM {$table}
+            WHERE id != {$id}
+            AND account_to = ?
+            AND account_from = ?
+            AND amount = ?
+            AND ABS(DATEDIFF(date_occurred, ?)) < 10
+SQL;
+
+        $data = [$account_to, $account_from, $amount, $date_occurred];
+
+        return self::get($sql, $data);
+    }    
+
     /**
      * Get category name
      */

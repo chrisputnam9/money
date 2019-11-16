@@ -455,6 +455,20 @@ class Transaction_Controller extends Core_Controller_Abstract
             }
             Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
 
+            $duplicates = Transaction_Model::findDuplicates($id, $_POST);
+
+            if (is_array($duplicates) and !empty($duplicates))
+            {
+                echo "<h1>Warning - possible duplicates to review</h1>";
+                echo "<a href='/transaction/form?id=".$id."' target='_blank'>New transaction (just saved) - $id</a><br>";
+                echo "<h2>Possible Duplicates:</h2>";
+                foreach ($duplicates as $d => $duplicate)
+                {
+                    $duplicate_id = $duplicate['id'];
+                    echo "<a href='/transaction/form?id=".$duplicate_id."' target='_blank'>Possible Duplicate - $duplicate_id</a><br>";
+                }
+                die;
+            }
         }
         else
         {
