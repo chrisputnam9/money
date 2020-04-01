@@ -123,13 +123,16 @@ class Core_Model_Response extends Core_Model_Abstract
     /**
      * Close the window (with javascrip)
      */
-    public function close_window($message="", $pause=1000)
+    public function close_window($message="", $pause=0)
     {
+        // Wait just a tick to make sure JS can load
+        if ($pause < 300) $pause = 300;
     ?>
         <?php if (!empty($message)) echo "$message<br>" ?>
         Closing window...
         <script>
             window.setTimeout(function () {
+                console.log('Firing close_window');
                 var event = document.createEvent('Event');
                 event.initEvent('close_window');
                 document.dispatchEvent(event);
