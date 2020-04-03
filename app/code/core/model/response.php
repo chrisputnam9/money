@@ -126,7 +126,7 @@ class Core_Model_Response extends Core_Model_Abstract
     public function close_window($message="", $pause=0)
     {
         // Wait just a tick to make sure JS can load
-        if ($pause < 300) $pause = 300;
+        if ($pause < 100) $pause = 100;
     ?>
         <?php if (!empty($message)) echo "$message<br>" ?>
         Closing window...

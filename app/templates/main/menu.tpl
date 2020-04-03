@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav class="navbar navbar-inverse navbar-fixed-top" {{#is_development}}style="background: #7d1414;"{{/is_development}}>
     <div class="container">
         <div class="col-sm-12">
             <div class="navbar-header">
@@ -9,22 +9,12 @@
                     <span class="icon-bar"></span>
                 </button>
 
-                {{#is_development}}
-                    <span class="hidden-xs">
-                        <ul class="nav navbar-nav">
-                            <li>
-                                <a class="bg-danger text-danger" href="/">
-                                    <b>DEV</b>
-                                </a>
-                            </li>
-                        </ul>
-                    </span>
-                {{/is_development}}
-                {{^is_development}}
-                    <a class="navbar-brand" href="/">
-                        <span class="glyphicon glyphicon glyphicon-credit-card" aria-hidden="true"></span>
+                
+                    <a class="navbar-brand" href="/" title ="
+API Key: ">
+                        <span class="glyphicon glyphicon glyphicon-credit-card {{#is_development}}text-danger{{/is_development}}"></span>
                     </a>
-                {{/is_development}}
+                
 
                 <span class="visible-xs">
                     {{#is_development}}
