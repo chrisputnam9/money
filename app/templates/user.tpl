@@ -15,7 +15,7 @@
                                 <td>{{name}}</td>
                             </tr>
                             <tr>
-                                <th>API_Key:</th>
+                                <th>API Key:</th>
                                 <td><input type='text' readonly='readonly' value='{{api_key}}' size='50' /></td>
                             </tr>
                         {{/user}}
