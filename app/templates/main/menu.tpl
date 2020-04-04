@@ -17,10 +17,6 @@ API Key: ">
                 
 
                 <span class="visible-xs">
-                    {{#is_development}}
-                        <a class="btn btn-danger navbar-btn" href="/">DEV</a>
-                    {{/is_development}}
-
 					{{> new_transaction_buttons }}
                 </span>
 

@@ -14,6 +14,11 @@ class Index_Controller extends Core_Controller_Abstract
 
         // Add menu items
         $response->menu =  [
+            'user' => [
+                'title' => 'User',
+                'url' => '/user',
+                'class' => '',
+            ],
             'budget' => [
                 'title' => 'Budgets',
                 'url' => '/budget/list',

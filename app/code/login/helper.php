@@ -21,7 +21,9 @@ class Login_Helper extends Core_Helper_Abstract
             {
                 if (self::verify($password, $user[$hash]))
                 {
-                    self::getSession(self::SESSION_KEY)->set('status', 'logged_in');
+                    $session = self::getSession(self::SESSION_KEY);
+                    $session->set('status', 'logged_in');
+                    $session->set('user', $username);
                     return true;
                 }
             }
@@ -42,6 +44,35 @@ class Login_Helper extends Core_Helper_Abstract
 
         if ($privilege == "*")
             return true;
+    }
+
+    /**
+     * Get current user info
+     */
+    public static function getCurrentUser()
+    {
+        $session = self::getSession(self::SESSION_KEY);
+
+        if (!$session->is('status', 'logged_in'))
+            return false;
+
+        $username = $session->get('user');
+        $api_key = "";
+
+        require_once DIR_CONFIG . 'users.php';
+        foreach ($_USERS as $id => $user)
+        {
+            if ($username == $user['name'])
+            {
+                $api_key = $user['api_key'];
+            }
+        }
+
+        return [
+            'name' => $username,
+            'api_key' => $api_key,
+        ];
+
     }
 
     public static function hash($password)
