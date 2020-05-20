@@ -75,7 +75,7 @@ class Core_Model_Request extends Core_Model_Abstract
             return (!empty($_GET));
 
         return empty($_GET[$key])
-            ? false
+            ? null
             : filter_var($_GET[$key], constant($sanitize))
         ;
     }
@@ -93,7 +93,7 @@ class Core_Model_Request extends Core_Model_Abstract
             return (!empty($_POST));
 
         return empty($_POST[$key])
-            ? false
+            ? null
             : filter_var($_POST[$key], constant($sanitize))
         ;
     }

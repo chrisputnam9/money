@@ -9,7 +9,7 @@ class Core_Controller extends Core_Controller_Abstract
 {
     static public function route()
     {
-        Login_Controller::redirect('/login');
+        Login_Controller::redirect();
 
         // Start with _index controller
         $file_path = DIR_CODE . DS . '_index' . DS . 'controller.php';

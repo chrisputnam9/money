@@ -1,6 +1,6 @@
 <div class='row'>
     <div class='col-sm-12'>
-        <div class="panel panel-default panel-tight hidden-xs hidden-sm">
+        <div class="panel panel-default panel-tight">
 
             <div class="panel-heading">
                 <b>Current User</b>
@@ -16,11 +16,16 @@
                             </tr>
                             <tr>
                                 <th>API Key:</th>
-                                <td><input type='text' readonly='readonly' value='{{api_key}}' size='50' /></td>
+                                <td><input type='text' readonly='readonly' value='{{api_key}}' size='25' /></td>
                             </tr>
                         {{/user}}
                     </table>
                 </div>
+
+                    <a class="btn btn-danger" href="/logout">
+                        <span class="glyphicon glyphicon-log-out"></span>
+                        <span>Log Out</span>
+                    </a>
             </div>
         </div>
     </div>
