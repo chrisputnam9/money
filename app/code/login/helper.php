@@ -51,7 +51,8 @@ class Login_Helper extends Core_Helper_Abstract
             */
             if ($expire - time() < 345600) // If expiring in less than 4 days, extend
             {
-                // todo remove current token and add new
+                // Remove current token and generate fresh one
+                self::saveUserSession($session_data['username'], $session_data, true, $token);
             }
         }
     }
@@ -177,7 +178,7 @@ class Login_Helper extends Core_Helper_Abstract
     /**
      * Save user session
      */
-    public static function saveUserSession($username, $new_data, $save_fresh_token=true)
+    public static function saveUserSession($username, $new_data, $save_fresh_token=true, $remove_token=false)
     {
         $user_session_data = self::getUserSessionData($username);
         $user_session_data = array_merge($user_session_data, $new_data);
@@ -188,22 +189,27 @@ class Login_Helper extends Core_Helper_Abstract
         $expire = $remember
             ? ($now + 432000) // 5 days in the future
             : ($now + 3600); // 1 Hour
+        $cookie_expire = $remember ? $expire : 0; // end of session of not set to remember
 
-        if ($save_fresh_token)
+        if ($save_fresh_token or ($remove_token !== false))
         {
             if (empty($username))
             {
                 throw new \Exception('Missing username, this is odd...');
             }
 
-            $new_login_token = password_hash($username . $now . random_bytes(20), PASSWORD_DEFAULT);
-
-
-            $cookie_expire = $remember ? $expire : 0; // end of session of not set to remember
-
             $user_sessions = $user_session_data['sessions'];
 
-            $user_sessions[$new_login_token] = $expire;
+            if ($save_fresh_token)
+            {
+                $new_login_token = password_hash($username . $now . random_bytes(20), PASSWORD_DEFAULT);
+                $user_sessions[$new_login_token] = $expire;
+            }
+
+            if ($remove_token !== false and isset($user_sessions[$remove_token]))
+            {
+                unset($user_sessions[$remove_token]);
+            }
 
             // Store login token in json
             $all_sessions = self::getAllSessionData();
