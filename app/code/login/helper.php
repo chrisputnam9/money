@@ -185,6 +185,12 @@ class Login_Helper extends Core_Helper_Abstract
 
         $remember = empty($user_session_data['remember']) ? "" : $user_session_data['remember'];
 
+        /*
+            5 Days:
+                60 * 60 * 24 * 5 = 432000
+            1 Hour:
+                60 * 60 = 3600
+         */
         $now = time();
         $expire = $remember
             ? ($now + 432000) // 5 days in the future
