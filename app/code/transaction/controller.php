@@ -149,7 +149,25 @@ class Transaction_Controller extends Core_Controller_Abstract
                     {
                         $dollars = $ocr->getDollars();
                         if (!empty($dollars))
-                            $body_data['amount'] = max($dollars);
+                        {
+                            $default_amount = max($dollars);
+                            $body_data['amount'] = $default_amount;
+
+                            $dollars = array_unique($dollars);
+                            $dollars = array_map($dollars, function ($amount) {
+                                return number_format((float) $amount, 2, '.', '');
+                            });
+                            rsort($dollars);
+
+                            $body_data['amount_options'] = [];
+                            foreach ($dollars as $amount)
+                            {
+                                $body_data['amount_options'][] = [
+                                    'value' => $amount,
+                                    'selected' => ($amount == $default_amount),
+                                ];
+                            }
+                        }
                     }
 
                     // Use the most recent valid date found (if any)
