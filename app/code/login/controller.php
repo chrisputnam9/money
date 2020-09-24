@@ -76,9 +76,10 @@ class Login_Controller extends Core_Controller_Abstract
     {
         $request = self::getRequest();
         $is_api = $request->api_request;
+        $authorized = false;
         if ($is_api)
         {
-            Login_Helper::login(
+            $authorized = Login_Helper::login(
                 @$request->body['authentication']['username'],
                 @$request->body['authentication']['api_key'],
                 'api_key_hash'
@@ -86,7 +87,7 @@ class Login_Controller extends Core_Controller_Abstract
         }
 
         self::route();
-        if (!Login_Helper::check($privilege))
+        if (!$authorized and !Login_Helper::check($privilege))
         {
             if ($is_api or $request->post('ajax') or $_SERVER['REQUEST_METHOD'] == 'OPTIONS')
             {
@@ -98,7 +99,10 @@ class Login_Controller extends Core_Controller_Abstract
             ));
         }
 
-        Login_Helper::freshenSession();
+        if (!$is_api)
+        {
+            Login_Helper::freshenSession();
+        }
     }
 
 }

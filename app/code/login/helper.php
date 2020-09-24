@@ -13,7 +13,7 @@ class Login_Helper extends Core_Helper_Abstract
     /**
      * Try to login with given username/password
      */
-    public static function login($username, $password, $hash='hash', $remember)
+    public static function login($username, $password, $hash='hash', $remember=false)
     {
         require_once DIR_CONFIG . 'users.php';
         foreach ($_USERS as $id => $user)
@@ -22,12 +22,17 @@ class Login_Helper extends Core_Helper_Abstract
             {
                 if (self::verify($password, $user[$hash]))
                 {
-                    self::saveUserSession(
-                        $username,
-                        [
-                            'remember' => $remember,
-                        ]
-                    );
+                    $request = self::getRequest();
+                    $is_api = $request->api_request;
+                    if (!$is_api)
+                    {
+                        self::saveUserSession(
+                            $username,
+                            [
+                                'remember' => $remember
+                            ]
+                        );
+                    }
                     return true;
                 }
             }
@@ -216,6 +221,8 @@ class Login_Helper extends Core_Helper_Abstract
             {
                 unset($user_sessions[$remove_token]);
             }
+
+            self::$user_session_data = $user_sessions;
 
             // Store login token in json
             $all_sessions = self::getAllSessionData();
