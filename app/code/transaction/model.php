@@ -176,15 +176,19 @@ SQL;
     // Get options for linked tables
     public function getOptions($data)
     {
+        var_dump($data['amount_options']);
+        var_dump($data['amount']);
+        var_dump(self::populateSelectedOptions(
+                $data['amount_options'],
+                $data['amount']
+        ));
+        die;
+
         $request = self::getRequest();
 
         $account_options = Account_Model::getGroupedAccounts();
 
         return [
-            'classification_options' => self::populateSelectedOptions(
-                self::getAll('transaction_classification'),
-                empty($data['classification']) ? false : $data['classification']
-            ),
             'account_from_options' => self::populateSelectedOptions(
                 $account_options,
                 empty($data['account_from']) ? false : $data['account_from']
@@ -193,9 +197,17 @@ SQL;
                 array_reverse($account_options),
                 empty($data['account_to']) ? false : $data['account_to']
             ),
+            'amount_options' => self::populateSelectedOptions(
+                $data['amount_options'],
+                $data['amount']
+            ),
             'category_options' => self::populateSelectedOptions(
                 self::getAll('transaction_category', 'title'),
                 empty($data['category']) ? false : $data['category']
+            ),
+            'classification_options' => self::populateSelectedOptions(
+                self::getAll('transaction_classification'),
+                empty($data['classification']) ? false : $data['classification']
             ),
         ];
     }

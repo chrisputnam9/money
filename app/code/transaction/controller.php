@@ -150,11 +150,10 @@ class Transaction_Controller extends Core_Controller_Abstract
                         $dollars = $ocr->getDollars();
                         if (!empty($dollars))
                         {
-                            $default_amount = max($dollars);
-                            $body_data['amount'] = $default_amount;
+                            $body_data['amount'] = number_format((float) max($dollars), 2, '.', '');
 
                             $dollars = array_unique($dollars);
-                            $dollars = array_map($dollars, function ($amount) {
+                            array_map($dollars, function ($amount) {
                                 return number_format((float) $amount, 2, '.', '');
                             });
                             rsort($dollars);
@@ -162,10 +161,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                             $body_data['amount_options'] = [];
                             foreach ($dollars as $amount)
                             {
-                                $body_data['amount_options'][] = [
-                                    'value' => $amount,
-                                    'selected' => ($amount == $default_amount),
-                                ];
+                                $body_data['amount_options'][$amount] = $amount;
                             }
                         }
                     }
@@ -240,12 +236,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                 // Prep the date for field
                 $date = empty($body_data['date_occurred']) ? time() : strtotime($body_data['date_occurred']);
                 $body_data['date_occurred'] = date('Y-m-d', $date);
-
-                // Prep the amount
-                if (!empty($body_data['amount']))
-                {
-                    $body_data['amount'] = number_format((float) $body_data['amount'], 2, '.', '');
-                }
 
                 $response->body_data = $body_data;
                 $response->body_template = 'transaction_form';
