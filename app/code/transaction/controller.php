@@ -221,10 +221,19 @@ class Transaction_Controller extends Core_Controller_Abstract
                         $lower_text = strtolower($ocr_text);
                         foreach($account_options[2]['options'] as $option)
                         {
-                            $name = strtolower($option['title']);
-                            if (strpos($lower_text, $name) !== false)
+                            $pattern = strtolower($option['title']);
+                            $pattern = preg_replace("/\s+/", ".*", $pattern);
+                            $pattern = "/\b$pattern\b/";
+                            if (preg_match($pattern, $lower_text))
                             {
                                 $body_data['account_to'] = $option['id'];
+                            }
+                            else
+                            {
+                                if ($option['title'] == "Paulus Orchards")
+                                {
+                                    die("<pre>".print_r($pattern,true)."</pre>");
+                                }
                             }
                         }
                     }
