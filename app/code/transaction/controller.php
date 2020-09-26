@@ -228,13 +228,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                             {
                                 $body_data['account_to'] = $option['id'];
                             }
-                            else
-                            {
-                                if ($option['title'] == "Paulus Orchards")
-                                {
-                                    die("<pre>".print_r($pattern,true)."</pre>");
-                                }
-                            }
                         }
                     }
                 }
