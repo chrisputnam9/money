@@ -176,14 +176,6 @@ SQL;
     // Get options for linked tables
     public function getOptions($data)
     {
-        var_dump($data['amount_options']);
-        var_dump($data['amount']);
-        var_dump(self::populateSelectedOptions(
-                $data['amount_options'],
-                $data['amount']
-        ));
-        die;
-
         $request = self::getRequest();
 
         $account_options = Account_Model::getGroupedAccounts();

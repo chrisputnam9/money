@@ -114,6 +114,15 @@ p.alert {
         padding: 20px;
     }
 
+.input-group {
+    width: 100%;
+}
+
+.input-group.input-prepend input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 .img-responsive {
     max-width: 100%;
 }

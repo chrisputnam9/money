@@ -161,7 +161,9 @@ class Transaction_Controller extends Core_Controller_Abstract
                             $body_data['amount_options'] = [];
                             foreach ($dollars as $amount)
                             {
-                                $body_data['amount_options'][$amount] = $amount;
+                                $body_data['amount_options'][$amount] = [
+                                    'amount' => $amount
+                                ];
                             }
                         }
                     }
