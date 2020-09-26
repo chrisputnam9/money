@@ -145,6 +145,8 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $ocr_text = join(EOL, $ocr->getText());
                     $body_data['ocr-text'] = $ocr_text;
 
+                    $body_data['amount_options'] = [];
+
                     if (empty($body_data['amount']))
                     {
                         $dollars = $ocr->getDollars();
@@ -158,7 +160,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                             });
                             rsort($dollars);
 
-                            $body_data['amount_options'] = [];
                             foreach ($dollars as $amount)
                             {
                                 $body_data['amount_options'][$amount] = [
@@ -166,6 +167,14 @@ class Transaction_Controller extends Core_Controller_Abstract
                                 ];
                             }
                         }
+                    }
+                    else
+                    {
+                        $amount = number_format((float) $body_data['amount'], 2, '.', '');
+                        $body_data['amount'] = $amount;
+                        $body_data['amount_options'][$amount] = [
+                            'amount' => $amount
+                        ];
                     }
 
                     // Use the most recent valid date found (if any)
@@ -397,6 +406,13 @@ class Transaction_Controller extends Core_Controller_Abstract
         $app_window = !empty($_POST['app_window']);
         unset($_POST['app_window']);
         
+        // Take care of custom amount
+        if (empty($_POST['amount']))
+        {
+            $_POST['amount'] = $_POST['amount_other'];
+        }
+        unset($_POST['amount_other']);
+
         // save a new account?
         if (empty($_POST['account_from']) and !empty($_POST['account_from_other']))
         {
