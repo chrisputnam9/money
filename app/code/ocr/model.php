@@ -1,6 +1,8 @@
 <?php
 namespace MCPI;
 
+use Exception;
+
 /**
  * OCR Model
  * - Recognize text from images
@@ -156,8 +158,8 @@ class OCR_Model extends Core_Model_Abstract
 
             if ($return != 0)
             {
-                self::log($output);
-                self::error('OCR Error', true);
+                // self::log($output);
+                throw new Exception('OCR Error: ' . implode("\n", $output));
             }
 
             $this->text = $output;

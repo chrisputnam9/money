@@ -1,6 +1,8 @@
 <?php
 namespace MCPI;
 
+use Exception;
+
 /**
  * Transaction Controller
  */
@@ -312,9 +314,13 @@ class Transaction_Controller extends Core_Controller_Abstract
         if (!$success)
             $response->fail('Failed to move uploaded file - check permissions');
 
-        // Run OCR and cache for later
-        $ocr = new OCR_Model($path);
-        $ocr->getText();
+        try {
+            // Run OCR and cache for later
+            $ocr = new OCR_Model($path);
+            $ocr->getText();
+        } catch (Exception $e) {
+            $response->fail("Issue processing image: " . $e->getMessage());
+        }
 
         $dest_filename = preg_replace('/\.\w+$/', '_resized.png', $filename);
         $destination = $dir . $dest_filename;
