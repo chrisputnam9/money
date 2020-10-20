@@ -123,20 +123,20 @@ class Core_Model_Response extends Core_Model_Abstract
     /**
      * Close the window (with javascrip)
      */
-    public function close_window($message="", $pause=0)
+    public function close_window($message="", $minimum_pause=0)
     {
-        // Wait just a tick to make sure JS can load
-        if ($pause < 100) $pause = 100;
     ?>
         <?php if (!empty($message)) echo "$message<br>" ?>
-        Closing window...
+        All set! You can close this window if it doesn't close on it's own.
         <script>
+        document.addEventListener('cmp.money.ready', function (event) {
             window.setTimeout(function () {
                 console.log('Firing close_window');
                 var event = document.createEvent('Event');
-                event.initEvent('close_window');
+                event.initEvent('cmp.money.close_window');
                 document.dispatchEvent(event);
-            }, <?php echo $pause ?>);
+            }, <?php echo $minimum_pause ?>);
+        });
         </script>
     <?php
         exit();
