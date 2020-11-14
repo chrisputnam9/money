@@ -107,7 +107,7 @@
             {{#id}}<div class='col-xs-2 col-tight'>{{/id}}
             {{^id}}<div class='col-xs-3 col-tight'>{{/id}}
                     <p>
-                        <a href="/transaction/list" class="btn btn-warning btn-block" {{#app_window}}onclick="var event = document.createEvent('Event');event.initEvent('close_window');document.dispatchEvent(event);return false;"{{/app_window}}>
+                        <a href="/transaction/list" class="btn btn-warning btn-block" {{#app_window}}onclick="var event = document.createEvent('Event');event.initEvent('cmp.money.close_window');document.dispatchEvent(event);return false;"{{/app_window}}>
                             <span class='hidden-xs hidden-sm'>Cancel</span>
                             <span class='glyphicon glyphicon-remove'></span>
                             <small class='visible-xs visible-sm'>Cancel</small>
