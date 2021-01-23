@@ -63,7 +63,7 @@
                 <tbody>
                 {{#unbudgeted}}
                     <tr>
-                        <td>{{category_value}}</td>
+                        <td><a href="{{transactions_url}}">{{category_value}}</a></td>
                         <td align="right">{{amount_formatted}}</td>
                     </tr>
                 {{/unbudgeted}}

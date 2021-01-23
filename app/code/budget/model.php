@@ -215,11 +215,14 @@ class Budget_Model extends Core_Model_Dbo
             $period = $this->date_filter->getPeriod();
             $budgets = $this->getBudgets();
             $spending = $this->getSpending($period);
+            $request = $this->getRequest();
             $this->_unbudgeted = [];
             foreach ($spending as $cat_id => $row)
             {
                 if (!empty($budgets[$cat_id])) continue;    
                 $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
+                $row['transactions_url'] = $request->url(['transaction','list'],['category' => $cat_id]);
+
                 $this->_unbudgeted[] = $row;
             }
         }
