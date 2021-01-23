@@ -137,6 +137,15 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $image_or_file = $image ? $image : $file;
                 $dir = $image ? self::DIR_UPLOAD : self::DIR_FILE;
 
+                $body_data['amount_options'] = [];
+                if (!empty($body_data['amount']))
+                {
+                    $amount = number_format((float) $body_data['amount'], 2, '.', '');
+                    $body_data['amount_options'][$amount]= [
+                        'amount' => $amount,
+                    ];
+                }
+
                 if ($image_or_file)
                 {
                     // Load from cache (ran on original image)
@@ -146,8 +155,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                     );
                     $ocr_text = join(EOL, $ocr->getText());
                     $body_data['ocr-text'] = $ocr_text;
-
-                    $body_data['amount_options'] = [];
 
                     if (empty($body_data['amount']))
                     {
@@ -251,6 +258,11 @@ class Transaction_Controller extends Core_Controller_Abstract
                 // Prep the date for field
                 $date = empty($body_data['date_occurred']) ? time() : strtotime($body_data['date_occurred']);
                 $body_data['date_occurred'] = date('Y-m-d', $date);
+
+                // Debug data behind the form
+                if (isset($_GET['debug'])){
+                    die("<pre>".print_r($body_data,true)."</pre>");
+                }
 
                 $response->body_data = $body_data;
                 $response->body_template = 'transaction_form';
@@ -358,7 +370,8 @@ class Transaction_Controller extends Core_Controller_Abstract
     }
 
     // Shrink an image
-    static function shrinkImage($source, $destination, $unlink_invalid=true) {
+    static function shrinkImage($source, $destination, $unlink_invalid=true)
+    {
 
         $info = getimagesize($source);
 
