@@ -56,6 +56,18 @@ body {
     margin-bottom: 0px;
 }
 
+.progress .progress-bar {
+	min-width: 55px;
+}
+.progress .progress-bar.progress-bar-danger {
+	min-width: 3px;
+}
+.progress .percent {
+    position: absolute;
+    left: 6px;
+    color: #00000082;
+}
+
 .panel-body.panel-heading * {
     font-weight: bold;
     text-decoration: underline; 
