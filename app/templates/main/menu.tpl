@@ -70,7 +70,7 @@ API Key: ">
 </div>
 
 <div id='image-upload-progress' class="container hidden">
-	<div class='col-sm-12'>
+	<div class='col-sm-12 col-bare'>
 		<div class="progress">
 			<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width:30px;">
 				<strong><span class='percent'>0%</span></strong>
