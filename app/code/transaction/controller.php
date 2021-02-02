@@ -89,10 +89,21 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
+                $duplicates = null;
+                $_POST['ignore_duplicates'] = true;
+
                 // posted data? try to save
                 if ($request->post())
                 {
-                    self::processForm($request, $response);
+                    if (is_null($duplicates) and empty($_POST['ignore_duplicates']))
+                    {
+                        $duplicates = Transaction_Model::findDuplicates(0, $_POST);
+                    }
+
+                    if (!empty($duplicates))
+                    {
+                        self::processForm($request, $response);
+                    }
                 }
 
                 // Start with defaults
