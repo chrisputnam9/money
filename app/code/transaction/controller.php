@@ -89,21 +89,10 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
-                $duplicates = null;
-                $_POST['ignore_duplicates'] = true;
-
                 // posted data? try to save
                 if ($request->post())
                 {
-                    if (is_null($duplicates) and empty($_POST['ignore_duplicates']))
-                    {
-                        $duplicates = Transaction_Model::findDuplicates(0, $_POST);
-                    }
-
-                    if (!empty($duplicates))
-                    {
-                        self::processForm($request, $response);
-                    }
+                    self::processForm($request, $response);
                 }
 
                 // Start with defaults
@@ -175,9 +164,9 @@ class Transaction_Controller extends Core_Controller_Abstract
                             $body_data['amount'] = number_format((float) max($dollars), 2, '.', '');
 
                             $dollars = array_unique($dollars);
-                            array_map($dollars, function ($amount) {
+                            array_map(function ($amount) {
                                 return number_format((float) $amount, 2, '.', '');
-                            });
+                            }, $dollars);
                             rsort($dollars);
 
                             foreach ($dollars as $amount)
@@ -251,7 +240,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                         foreach($account_options[2]['options'] as $option)
                         {
                             $pattern = strtolower($option['title']);
-                            $pattern = preg_replace("/\s+/", ".*", $pattern);
+                            $pattern = preg_replace("/[^\w]+/", "\b.*\b", $pattern);
                             $pattern = "/\b$pattern\b/";
                             if (preg_match($pattern, $lower_text))
                             {
@@ -502,6 +491,13 @@ class Transaction_Controller extends Core_Controller_Abstract
             unset($_POST['update_recurrances']);
         }
 
+        // Check for duplicates
+        if (empty($_POST['ignore_duplicates']))
+        {
+            $duplicates = Transaction_Model::findDuplicates($_POST);
+            die("<pre>".print_r($duplicates,true)."</pre>");
+        }
+
         if (Transaction_Model::save($_POST))
         {
             $id = empty($_POST['id']) ? Transaction_Model::lastInsertId() : $_POST['id'];
@@ -512,8 +508,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $repeat['date_start'] = $_POST['date_occurred'];
             }
             Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
-
-            $duplicates = Transaction_Model::findDuplicates($id, $_POST);
 
             if (is_array($duplicates) and !empty($duplicates))
             {

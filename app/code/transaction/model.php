@@ -23,7 +23,7 @@ class Transaction_Model extends Core_Model_Dbo
     }
 
     // Find possible duplicates
-    public static function findDuplicates($id, $data)
+    public static function findDuplicates($data)
     {
         if (!is_array($data) or empty($data))
         {
@@ -48,14 +48,21 @@ class Transaction_Model extends Core_Model_Dbo
 
         $sql = <<<SQL
             SELECT * FROM {$table}
-            WHERE id != {$id}
-            AND account_to = ?
-            AND account_from = ?
+            WHERE (
+                ( account_to = ? AND account_from = ? )
+                OR
+                ( account_from = ? AND account_to = ? )
+            )
             AND amount = ?
-            AND ABS(DATEDIFF(date_occurred, ?)) < 10
+            AND ABS(DATEDIFF(date_occurred, ?)) < 20
 SQL;
 
-        $data = [$account_to, $account_from, $amount, $date_occurred];
+        $data = [
+            $account_to, $account_from,
+            $account_to, $account_from,
+            $amount,
+            $date_occurred
+        ];
 
         return self::get($sql, $data);
     }    
