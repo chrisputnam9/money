@@ -34,35 +34,76 @@ class Transaction_Model extends Core_Model_Dbo
         $account_from = empty($data['account_from']) ? false : $data['account_from'];
         $amount = empty($data['amount']) ? false : $data['amount'];
         $date_occurred = empty($data['date_occurred']) ? false : $data['date_occurred'];
+        $id = empty($data['id']) ? false : $data['id'];
+
+        $file = empty($data['file']) ? false : $data['file'];
+        $image = empty($data['image']) ? false : $data['image'];
 
         if (
-            empty($account_to)
-            or empty($account_from)
-            or empty($amount)
-            or empty($date_occurred)
+            (
+                empty($account_to)
+                or empty($account_from)
+                or empty($amount)
+                or empty($date_occurred)
+            )
+            and empty($file)
+            and empty($image)
         ) {
             return false;
         }
+
+        $id_clause = empty($id) ? "" : "id != ? AND";
+        $file_clause = empty($file) ? "" : "OR file LIKE ?";
+        $image_clause = empty($image) ? "" : "OR image LIKE ?";
 
         $table = self::cleanTable(self::$table);
 
         $sql = <<<SQL
             SELECT * FROM {$table}
-            WHERE (
-                ( account_to = ? AND account_from = ? )
-                OR
-                ( account_from = ? AND account_to = ? )
+            WHERE 
+            {$id_clause}
+            (
+                (
+                    (
+                        ( account_to = ? AND account_from = ? )
+                        OR
+                        ( account_from = ? AND account_to = ? )
+                    )
+                    AND amount = ?
+                    AND ABS(DATEDIFF(date_occurred, ?)) < 20
+                )
+                {$file_clause}
+                {$image_clause}
             )
-            AND amount = ?
-            AND ABS(DATEDIFF(date_occurred, ?)) < 20
 SQL;
 
         $data = [
             $account_to, $account_from,
             $account_to, $account_from,
             $amount,
-            $date_occurred
+            $date_occurred,
         ];
+
+        if (!empty($id))
+        {
+            array_unshift($data, $id);
+        }
+
+        if (!empty($file))
+        {
+            $file = preg_replace('/^\d{8}-\d{6}_/', "%", $file);
+            $data[]= $file;
+        }
+
+        if (!empty($image))
+        {
+            $image = preg_replace('/^\d{8}-\d{6}_/', "%", $image);
+            $data[]= $image;
+        }
+
+        //echo("<pre>".print_r($sql,true)."</pre>");
+        //echo("<pre>".print_r($data,true)."</pre>");
+        //die;
 
         return self::get($sql, $data);
     }    

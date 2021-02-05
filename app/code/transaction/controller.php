@@ -89,10 +89,12 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
+                $duplicates = null;
+
                 // posted data? try to save
                 if ($request->post())
                 {
-                    self::processForm($request, $response);
+                    $duplicates = self::processForm($request, $response);
                 }
 
                 // Start with defaults
@@ -106,7 +108,11 @@ class Transaction_Controller extends Core_Controller_Abstract
                 if ($id)
                 {
                     $db_data = Transaction_Model::getById($id);
-                    if (!empty($db_data[$id]))
+                    if (empty($db_data[$id]))
+                    {
+                        $response->fail("Transaction id '$id' not found.", '404');
+                    }
+                    else
                     {
                         $body_data['form_title'] = 'Edit Transaction';
                         $body_data = array_merge($body_data, $db_data[$id]);
@@ -262,6 +268,22 @@ class Transaction_Controller extends Core_Controller_Abstract
                 // Debug data behind the form
                 if (isset($_GET['debug'])){
                     die("<pre>".print_r($body_data,true)."</pre>");
+                }
+
+                if (is_null($duplicates))
+                {
+                    $duplicates = Transaction_Model::findDuplicates($body_data);
+                }
+
+                if (is_array($duplicates) and !empty($duplicates))
+                {
+                    echo "<h1>Warning - possible duplicates</h1>";
+                    foreach ($duplicates as $d => $duplicate)
+                    {
+                        $duplicate_id = $duplicate['id'];
+                        echo "<a href='/transaction/form?id=".$duplicate_id."' target='_blank'>Possible Duplicate - $duplicate_id</a><br>";
+                    }
+                    die;
                 }
 
                 $response->body_data = $body_data;
@@ -495,7 +517,7 @@ class Transaction_Controller extends Core_Controller_Abstract
         if (empty($_POST['ignore_duplicates']))
         {
             $duplicates = Transaction_Model::findDuplicates($_POST);
-            die("<pre>".print_r($duplicates,true)."</pre>");
+            return $duplicates;
         }
 
         if (Transaction_Model::save($_POST))
@@ -508,19 +530,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $repeat['date_start'] = $_POST['date_occurred'];
             }
             Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
-
-            if (is_array($duplicates) and !empty($duplicates))
-            {
-                echo "<h1>Warning - possible duplicates to review</h1>";
-                echo "<a href='/transaction/form?id=".$id."' target='_blank'>New transaction (just saved) - $id</a><br>";
-                echo "<h2>Possible Duplicates:</h2>";
-                foreach ($duplicates as $d => $duplicate)
-                {
-                    $duplicate_id = $duplicate['id'];
-                    echo "<a href='/transaction/form?id=".$duplicate_id."' target='_blank'>Possible Duplicate - $duplicate_id</a><br>";
-                }
-                die;
-            }
         }
         else
         {
