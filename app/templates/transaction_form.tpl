@@ -6,6 +6,19 @@
     <input type='hidden' name='app_window' value='1'/>
 {{/app_window}}
 
+{{#are_duplicates}}
+    <input type='hidden' name='ignore_duplicates' value='1'/>
+
+    <div class='alert alert-block alert-danger'>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Possible Duplicates</strong> The following transactions look similar to this one:
+        <ul>
+        {{#duplicates}}
+            <li><a href='/transaction/form?id={{id}}' class='text-danger' target='_blank'><b>Possible Duplicate, ID {{id}}</b></a></li>
+        {{/duplicates}}
+        </ul>
+    </div>
+{{/are_duplicates}}
 
 <div class="row">
     <div class='col-sm-12'>  

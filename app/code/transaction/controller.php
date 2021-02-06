@@ -89,12 +89,12 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
-                $duplicates = null;
+                $body_data["are_duplicates"] = "";
 
                 // posted data? try to save
                 if ($request->post())
                 {
-                    $duplicates = self::processForm($request, $response);
+                    $body_data["duplicates"] = self::processForm($request, $response);
                 }
 
                 // Start with defaults
@@ -270,20 +270,16 @@ class Transaction_Controller extends Core_Controller_Abstract
                     die("<pre>".print_r($body_data,true)."</pre>");
                 }
 
-                if (is_null($duplicates))
+                if (!isset($body_data["duplicates"]))
                 {
-                    $duplicates = Transaction_Model::findDuplicates($body_data);
+                    $body_data["duplicates"] = Transaction_Model::findDuplicates($body_data);
                 }
 
-                if (is_array($duplicates) and !empty($duplicates))
+                // If warned about duplicates, then we'll ignore them next time and save anyway when requested
+                if (!empty($body_data["duplicates"]))
                 {
-                    echo "<h1>Warning - possible duplicates</h1>";
-                    foreach ($duplicates as $d => $duplicate)
-                    {
-                        $duplicate_id = $duplicate['id'];
-                        echo "<a href='/transaction/form?id=".$duplicate_id."' target='_blank'>Possible Duplicate - $duplicate_id</a><br>";
-                    }
-                    die;
+                    $body_data["duplicates"] = array_values($body_data["duplicates"]);
+                    $body_data["are_duplicates"] = 1;
                 }
 
                 $response->body_data = $body_data;
@@ -513,12 +509,8 @@ class Transaction_Controller extends Core_Controller_Abstract
             unset($_POST['update_recurrances']);
         }
 
-        // Check for duplicates
-        if (empty($_POST['ignore_duplicates']))
-        {
-            $duplicates = Transaction_Model::findDuplicates($_POST);
-            return $duplicates;
-        }
+        $duplicates = Transaction_Model::findDuplicates($_POST);
+        return $duplicates;
 
         if (Transaction_Model::save($_POST))
         {

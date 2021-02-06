@@ -30,6 +30,11 @@ class Transaction_Model extends Core_Model_Dbo
             throw new Exception ('Bad data based to findDuplicates');
         }
 
+        if (!empty($data['ignore_duplicates']))
+        {
+            return [];
+        }
+
         $account_to = empty($data['account_to']) ? false : $data['account_to'];
         $account_from = empty($data['account_from']) ? false : $data['account_from'];
         $amount = empty($data['amount']) ? false : $data['amount'];
@@ -239,7 +244,7 @@ SQL;
             ),
             'amount_options' => self::populateSelectedOptions(
                 $data['amount_options'],
-                $data['amount']
+                $data['amount'] ?? ""
             ),
             'category_options' => self::populateSelectedOptions(
                 self::getAll('transaction_category', 'title'),
