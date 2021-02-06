@@ -439,27 +439,29 @@ class Transaction_Controller extends Core_Controller_Abstract
     {
         //TODO add validation
         
+        $data_to_save = $_POST;
+
         $success = true;
-        $app_window = !empty($_POST['app_window']);
-        unset($_POST['app_window']);
+        $app_window = !empty($data_to_save['app_window']);
+        unset($data_to_save['app_window']);
         
         // Take care of custom amount
-        if (empty($_POST['amount']))
+        if (empty($data_to_save['amount']))
         {
-            $_POST['amount'] = $_POST['amount_other'];
+            $data_to_save['amount'] = $data_to_save['amount_other'];
         }
-        unset($_POST['amount_other']);
+        unset($data_to_save['amount_other']);
 
         // save a new account?
-        if (empty($_POST['account_from']) and !empty($_POST['account_from_other']))
+        if (empty($data_to_save['account_from']) and !empty($data_to_save['account_from_other']))
         {
             if (Account_Model::create([
-                'title' => $_POST['account_from_other'],
+                'title' => $data_to_save['account_from_other'],
                 'classification' => Account_Model::OTHER
             ]))
             {
-                $_POST['account_from'] = Account_Model::lastInsertId();
-                unset($_POST['account_from_other']);
+                $data_to_save['account_from'] = Account_Model::lastInsertId();
+                unset($data_to_save['account_from_other']);
             }
             else
             {
@@ -468,19 +470,19 @@ class Transaction_Controller extends Core_Controller_Abstract
         }
         else
         {
-            unset($_POST['account_from_other']);
+            unset($data_to_save['account_from_other']);
         }
 
         // save a new account?
-        if (empty($_POST['account_to']) and !empty($_POST['account_to_other']))
+        if (empty($data_to_save['account_to']) and !empty($data_to_save['account_to_other']))
         {
             if (Account_Model::create([
-                'title'=>$_POST['account_to_other'],
+                'title'=>$data_to_save['account_to_other'],
                 'classification' => Account_Model::OTHER
             ]))
             {
-                $_POST['account_to'] = Account_Model::lastInsertId();
-                unset($_POST['account_to_other']);
+                $data_to_save['account_to'] = Account_Model::lastInsertId();
+                unset($data_to_save['account_to_other']);
             }
             else
             {
@@ -489,37 +491,41 @@ class Transaction_Controller extends Core_Controller_Abstract
         }
         else
         {
-            unset($_POST['account_to_other']);
+            unset($data_to_save['account_to_other']);
         }
 
-        $submit = $_POST['submit'];
-        unset($_POST['submit']);
+        $submit = $data_to_save['submit'];
+        unset($data_to_save['submit']);
 
         $repeat = false;
-        if (isset($_POST['repeat']))
+        if (isset($data_to_save['repeat']))
         {
-            $repeat = $_POST['repeat'];
-            unset($_POST['repeat']);
+            $repeat = $data_to_save['repeat'];
+            unset($data_to_save['repeat']);
         }
          
         $update_children = false;
-        if (isset($_POST['update_recurrances']))
+        if (isset($data_to_save['update_recurrances']))
         {
-            $update_children = ($_POST['update_recurrances'] == 'yes');
-            unset($_POST['update_recurrances']);
+            $update_children = ($data_to_save['update_recurrances'] == 'yes');
+            unset($data_to_save['update_recurrances']);
         }
 
-        $duplicates = Transaction_Model::findDuplicates($_POST);
-        return $duplicates;
-
-        if (Transaction_Model::save($_POST))
+        $duplicates = Transaction_Model::findDuplicates($data_to_save);
+        if (!empty($duplicates))
         {
-            $id = empty($_POST['id']) ? Transaction_Model::lastInsertId() : $_POST['id'];
+            return $duplicates;
+        }
+        unset($data_to_save['ignore_duplicates']);
+
+        if (Transaction_Model::save($data_to_save))
+        {
+            $id = empty($data_to_save['id']) ? Transaction_Model::lastInsertId() : $data_to_save['id'];
 
             // Update recurrance
             if ($repeat)
             {
-                $repeat['date_start'] = $_POST['date_occurred'];
+                $repeat['date_start'] = $data_to_save['date_occurred'];
             }
             Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
         }
