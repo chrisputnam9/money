@@ -1,6 +1,8 @@
 <?php
 namespace MCPI;
 
+use Exception;
+
 /**
  * OCR Model
  * - Recognize text from images
@@ -150,14 +152,22 @@ class OCR_Model extends Core_Model_Abstract
                 return $this->text;
             }
 
-            $command = 'tesseract "' . $image . '" stdout 2>&1';
-
+            // Conver the image to make sure tesseract will support it
+            $command = 'convert "' . $image . '" -density 600 "' . $image . '" 2>&1';
             exec($command, $output, $return);
-
             if ($return != 0)
             {
-                self::log($output);
-                self::error('OCR Error', true);
+                // self::log($output);
+                throw new Exception('Image Conversion Error: ' . implode("\n", $output));
+            }
+
+            // Run OCR
+            $command = 'tesseract "' . $image . '" stdout 2>&1';
+            exec($command, $output, $return);
+            if ($return != 0)
+            {
+                // self::log($output);
+                throw new Exception('OCR Error: ' . implode("\n", $output));
             }
 
             $this->text = $output;

@@ -39,9 +39,16 @@
     <div class='col-sm-6'>  
         <div class="form-group">
             <label for="amount"><em>*</em> Amount</label>
-            <div class="input-group">
+            <div class="input-group input-prepend">
                 <span class="input-group-addon">$</span>
-                <input type="number" step="0.01" min="0.00" inputmode="numeric" autocomplete="off" class="form-control" name="amount" id="amount" value="{{amount}}" placeholder="0.00" required>
+                <select class="form-control" name="amount" id="amount_select">
+                    <optgroup label="Detected amount for this transaction">
+                    {{#amount_options}}
+                        <option value="{{amount}}" {{selected}} ">{{amount}}</option>
+                    {{/amount_options}}
+                    </optgroup>
+                </select>
+                <input type="number" step="0.01" min="0.00" inputmode="numeric" autocomplete="off" class="form-control" data-combobox="#amount_select" name="amount_other" id="amount" value="" placeholder="0.00" required autocomplete="off">
             </div>
         </div>
     </div>

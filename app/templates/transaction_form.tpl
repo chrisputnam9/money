@@ -6,6 +6,24 @@
     <input type='hidden' name='app_window' value='1'/>
 {{/app_window}}
 
+{{#are_duplicates}}
+    <input type='hidden' name='ignore_duplicates' value='1'/>
+
+    <div class='alert alert-block {{#id}}alert-warning{{/id}} {{^id}}alert-danger{{/id}}'>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+        <strong>Possible Duplicates</strong>
+        <br>The following transactions look similar to this one:
+
+        <ul>
+        {{#duplicates}}
+            <li><a href='/transaction/form?id={{id}}' class='text-danger' target='_blank'><b>Possible Duplicate, ID {{id}}</b></a></li>
+        {{/duplicates}}
+        </ul>
+
+        {{^id}}<em>This transaction has not been saved yet - click Apply or Save to ignore the duplicates and save anyway</em>{{/id}}
+    </div>
+{{/are_duplicates}}
 
 <div class="row">
     <div class='col-sm-12'>  
@@ -107,7 +125,7 @@
             {{#id}}<div class='col-xs-2 col-tight'>{{/id}}
             {{^id}}<div class='col-xs-3 col-tight'>{{/id}}
                     <p>
-                        <a href="/transaction/list" class="btn btn-warning btn-block" {{#app_window}}onclick="var event = document.createEvent('Event');event.initEvent('close_window');document.dispatchEvent(event);return false;"{{/app_window}}>
+                        <a href="/transaction/list" class="btn btn-warning btn-block" {{#app_window}}onclick="var event = document.createEvent('Event');event.initEvent('cmp.money.close_window');document.dispatchEvent(event);return false;"{{/app_window}}>
                             <span class='hidden-xs hidden-sm'>Cancel</span>
                             <span class='glyphicon glyphicon-remove'></span>
                             <small class='visible-xs visible-sm'>Cancel</small>

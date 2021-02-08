@@ -51,6 +51,7 @@ class Core_Model_Response extends Core_Model_Abstract
      */
     public function setCode($code)
     {
+        $code = (string) $code;
         if (!empty($this->codes_allowed[$code]))
         {
             $this->status = $this->codes_allowed[$code];
@@ -60,10 +61,13 @@ class Core_Model_Response extends Core_Model_Abstract
 
     /**
      * Give an error message
+     * @param $message - what to show
+     * @param $data - data to pass via json if applicable, or code if int or string
+     * @param $code - error code for status header
      */
     public function fail($message, $data=[], $code='500')
     {
-        if (!is_array($data))
+        if (is_int($data) or is_string($data))
         {
             $code = $data;
             $data = [];
@@ -123,20 +127,20 @@ class Core_Model_Response extends Core_Model_Abstract
     /**
      * Close the window (with javascrip)
      */
-    public function close_window($message="", $pause=0)
+    public function close_window($message="", $minimum_pause=0)
     {
-        // Wait just a tick to make sure JS can load
-        if ($pause < 100) $pause = 100;
     ?>
         <?php if (!empty($message)) echo "$message<br>" ?>
-        Closing window...
+        All set! You can close this window if it doesn't close on it's own.
         <script>
+        document.addEventListener('cmp.money.ready', function (event) {
             window.setTimeout(function () {
                 console.log('Firing close_window');
                 var event = document.createEvent('Event');
-                event.initEvent('close_window');
+                event.initEvent('cmp.money.close_window');
                 document.dispatchEvent(event);
-            }, <?php echo $pause ?>);
+            }, <?php echo $minimum_pause ?>);
+        });
         </script>
     <?php
         exit();
