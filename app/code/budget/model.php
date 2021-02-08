@@ -78,6 +78,7 @@ class Budget_Model extends Core_Model_Dbo
             $this->_budgeted = [];
             $total_budgeted = [
                 'limit' => 0,
+                'annual_limit' => 0,
                 'spending' => 0,
                 'remaining' => 0,
                 'year_spending' => 0,
@@ -104,6 +105,7 @@ class Budget_Model extends Core_Model_Dbo
                     'period' => $period,
                     'transactions_url' => $request->url(['transaction','list'],['category' => $_cat_id]),
                     'limit' => 0,
+                    'annual_limit' => 0,
                     'spending' => $spending[$period],
                     'remaining' => 0,
                     'remaining_percentage' => 0,
@@ -121,11 +123,46 @@ class Budget_Model extends Core_Model_Dbo
 
                 foreach ($budget_data['budget_list'] as $budget)
                 {
-                    $limit = $this->addToLimit($budgeted, $budget, $period);
-                    $limit = $this->addToLimit($total_budgeted, $budget, $period);
+                    $limit = $this->addToLimit($budgeted, $budget);
+                    $limit = $this->addToLimit($total_budgeted, $budget);
+                }
+
+                // Allow overflow from one month into remainder of year
+                // - start with year's spending, up to (but not including) current month
+                // - subtract result from yearly limit
+                // - divide that by months remaining in the year
+                if ($period == 'month')
+                {
+                    $budgeted['limit'] = (
+                        ($budgeted['annual_limit'] - $budgeted['year_to_month_spending'])
+                        /
+                        $budgeted['months_remaining']
+                    );
+                }
+                else
+                {
+                    $budgeted['limit'] = $budgeted['annual_limit'];
                 }
 
                 $this->_budgeted[$_cat_id]= $this->finalizeBudgeted($budgeted);
+            }
+
+
+            // Allow overflow from one month into remainder of year
+            // - start with year's spending, up to (but not including) current month
+            // - subtract result from yearly limit
+            // - divide that by months remaining in the year
+            if ($period == 'month')
+            {
+                $total_budgeted['limit'] = (
+                    ($total_budgeted['annual_limit'] - $total_budgeted['year_to_month_spending'])
+                    /
+                    $total_budgeted['months_remaining']
+                );
+            }
+            else
+            {
+                $total_budgeted['limit'] = $total_budgeted['annual_limit'];
             }
 
             $this->_total_budgeted = $this->finalizeBudgeted($total_budgeted);
@@ -145,7 +182,7 @@ class Budget_Model extends Core_Model_Dbo
          */
         protected function finalizeBudgeted($budgeted)
         {
-            $budgeted['remaining'] = max(0,$budgeted['limit'] - $budgeted['spending']);
+            $budgeted['remaining'] = ($budgeted['limit'] - $budgeted['spending']);
             if ($budgeted['limit'] > 0)
                 $budgeted['remaining_percentage'] = round(($budgeted['remaining'] / $budgeted['limit']) * 100);
 
@@ -177,32 +214,12 @@ class Budget_Model extends Core_Model_Dbo
         /**
          * Add budget limit for a given period
          */
-        protected function addToLimit(&$budgeted, $budget, $current_period)
+        protected function addToLimit(&$budgeted, $budget)
         {
             $budget_period = $budget['timespan'];
             $limit = $budget['amount'];
-
-            // Same period - simple
-            if ($budget_period == $current_period)
-                return $budgeted['limit']+= $limit;
-
-            // Monthly to yearly - multiply by 12 (months in year)
-            if ($budget_period == 'month' and $current_period == 'year')
-                return $budgeted['limit']+= ($limit * 12);
-
-            // Yearly to monthly - a bit trickier...
-            // - start with year's spending, up to (but not including) current month
-            // - subtract result from yearly limit
-            // - divide that by months remaining in the year
-            // - max - no less than 0
-            if ($budget_period == 'year' and $current_period == 'month')
-                return $budgeted['limit']+= max(0,
-                    ($limit - $budgeted['year_to_month_spending'])
-                        /
-                    $budgeted['months_remaining']
-                );
-
-            throw new Exception('Unexpected budget conversion situation');
+            $annual_limit = ($budget_period == 'month') ? $limit * 12 : $limit;
+            return $budgeted['annual_limit']+= $annual_limit;
         }
 
     /**
@@ -215,11 +232,14 @@ class Budget_Model extends Core_Model_Dbo
             $period = $this->date_filter->getPeriod();
             $budgets = $this->getBudgets();
             $spending = $this->getSpending($period);
+            $request = $this->getRequest();
             $this->_unbudgeted = [];
             foreach ($spending as $cat_id => $row)
             {
                 if (!empty($budgets[$cat_id])) continue;    
                 $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
+                $row['transactions_url'] = $request->url(['transaction','list'],['category' => $cat_id]);
+
                 $this->_unbudgeted[] = $row;
             }
         }

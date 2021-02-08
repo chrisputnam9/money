@@ -1,6 +1,8 @@
 <?php
 namespace MCPI;
 
+use Exception;
+
 /**
  * Transaction Controller
  */
@@ -68,6 +70,11 @@ class Transaction_Controller extends Core_Controller_Abstract
 
                     $extra_data['notes'] = "Page:\n$page_title\n\n";
                     $extra_data['notes'].= "URL:\n$page_url";
+
+                    if (!empty($data['app_window']))
+                    {
+                        $extra_data['app_window'] = 1;
+                    }
                 }
 
                 if (!empty($text))
@@ -82,10 +89,12 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
+                $body_data["are_duplicates"] = "";
+
                 // posted data? try to save
                 if ($request->post())
                 {
-                    self::processForm($request, $response);
+                    $body_data["duplicates"] = self::processForm($request, $response);
                 }
 
                 // Start with defaults
@@ -99,7 +108,11 @@ class Transaction_Controller extends Core_Controller_Abstract
                 if ($id)
                 {
                     $db_data = Transaction_Model::getById($id);
-                    if (!empty($db_data[$id]))
+                    if (empty($db_data[$id]))
+                    {
+                        $response->fail("Transaction id '$id' not found.", '404');
+                    }
+                    else
                     {
                         $body_data['form_title'] = 'Edit Transaction';
                         $body_data = array_merge($body_data, $db_data[$id]);
@@ -130,10 +143,22 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $image_or_file = $image ? $image : $file;
                 $dir = $image ? self::DIR_UPLOAD : self::DIR_FILE;
 
+                $body_data['amount_options'] = [];
+                if (!empty($body_data['amount']))
+                {
+                    $amount = number_format((float) $body_data['amount'], 2, '.', '');
+                    $body_data['amount_options'][$amount]= [
+                        'amount' => $amount,
+                    ];
+                }
+
                 if ($image_or_file)
                 {
                     // Load from cache (ran on original image)
-                    $ocr = new OCR_Model($dir . $image, $dir . $file);
+                    $ocr = new OCR_Model(
+                        $image ? ($dir . $image) : false,
+                        $file ? ($dir . $file) : false
+                    );
                     $ocr_text = join(EOL, $ocr->getText());
                     $body_data['ocr-text'] = $ocr_text;
 
@@ -141,7 +166,30 @@ class Transaction_Controller extends Core_Controller_Abstract
                     {
                         $dollars = $ocr->getDollars();
                         if (!empty($dollars))
-                            $body_data['amount'] = max($dollars);
+                        {
+                            $body_data['amount'] = number_format((float) max($dollars), 2, '.', '');
+
+                            $dollars = array_unique($dollars);
+                            array_map(function ($amount) {
+                                return number_format((float) $amount, 2, '.', '');
+                            }, $dollars);
+                            rsort($dollars);
+
+                            foreach ($dollars as $amount)
+                            {
+                                $body_data['amount_options'][$amount] = [
+                                    'amount' => $amount
+                                ];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $amount = number_format((float) $body_data['amount'], 2, '.', '');
+                        $body_data['amount'] = $amount;
+                        $body_data['amount_options'][$amount] = [
+                            'amount' => $amount
+                        ];
                     }
 
                     // Use the most recent valid date found (if any)
@@ -197,8 +245,10 @@ class Transaction_Controller extends Core_Controller_Abstract
                         $lower_text = strtolower($ocr_text);
                         foreach($account_options[2]['options'] as $option)
                         {
-                            $name = strtolower($option['title']);
-                            if (strpos($lower_text, $name) !== false)
+                            $pattern = strtolower($option['title']);
+                            $pattern = preg_replace("/[^\w]+/", "\b.*\b", $pattern);
+                            $pattern = "/\b$pattern\b/";
+                            if (preg_match($pattern, $lower_text))
                             {
                                 $body_data['account_to'] = $option['id'];
                             }
@@ -215,10 +265,21 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $date = empty($body_data['date_occurred']) ? time() : strtotime($body_data['date_occurred']);
                 $body_data['date_occurred'] = date('Y-m-d', $date);
 
-                // Prep the amount
-                if (!empty($body_data['amount']))
+                // Debug data behind the form
+                if (isset($_GET['debug'])){
+                    die("<pre>".print_r($body_data,true)."</pre>");
+                }
+
+                if (!isset($body_data["duplicates"]))
                 {
-                    $body_data['amount'] = number_format((float) $body_data['amount'], 2, '.', '');
+                    $body_data["duplicates"] = Transaction_Model::findDuplicates($body_data);
+                }
+
+                // If warned about duplicates, then we'll ignore them next time and save anyway when requested
+                if (!empty($body_data["duplicates"]))
+                {
+                    $body_data["duplicates"] = array_values($body_data["duplicates"]);
+                    $body_data["are_duplicates"] = 1;
                 }
 
                 $response->body_data = $body_data;
@@ -241,7 +302,11 @@ class Transaction_Controller extends Core_Controller_Abstract
                     Transaction_Model::delete($id);
                 }
 
-                // Back to index
+                // Back to index or close window
+                if ($request->get('app_window'))
+                {
+                    $response->close_window('Transaction Deleted');
+                }
                 $response->redirect('/transaction/list');
             }
 
@@ -279,9 +344,13 @@ class Transaction_Controller extends Core_Controller_Abstract
         if (!$success)
             $response->fail('Failed to move uploaded file - check permissions');
 
-        // Run OCR and cache for later
-        $ocr = new OCR_Model($path);
-        $ocr->getText();
+        try {
+            // Run OCR and cache for later
+            $ocr = new OCR_Model($path);
+            $ocr->getText();
+        } catch (Exception $e) {
+            $response->fail("Issue processing image: " . $e->getMessage());
+        }
 
         $dest_filename = preg_replace('/\.\w+$/', '_resized.png', $filename);
         $destination = $dir . $dest_filename;
@@ -319,7 +388,8 @@ class Transaction_Controller extends Core_Controller_Abstract
     }
 
     // Shrink an image
-    static function shrinkImage($source, $destination, $unlink_invalid=true) {
+    static function shrinkImage($source, $destination, $unlink_invalid=true)
+    {
 
         $info = getimagesize($source);
 
@@ -369,18 +439,29 @@ class Transaction_Controller extends Core_Controller_Abstract
     {
         //TODO add validation
         
+        $data_to_save = $_POST;
+
         $success = true;
+        $app_window = !empty($data_to_save['app_window']);
+        unset($data_to_save['app_window']);
         
+        // Take care of custom amount
+        if (empty($data_to_save['amount']))
+        {
+            $data_to_save['amount'] = $data_to_save['amount_other'];
+        }
+        unset($data_to_save['amount_other']);
+
         // save a new account?
-        if (empty($_POST['account_from']) and !empty($_POST['account_from_other']))
+        if (empty($data_to_save['account_from']) and !empty($data_to_save['account_from_other']))
         {
             if (Account_Model::create([
-                'title' => $_POST['account_from_other'],
+                'title' => $data_to_save['account_from_other'],
                 'classification' => Account_Model::OTHER
             ]))
             {
-                $_POST['account_from'] = Account_Model::lastInsertId();
-                unset($_POST['account_from_other']);
+                $data_to_save['account_from'] = Account_Model::lastInsertId();
+                unset($data_to_save['account_from_other']);
             }
             else
             {
@@ -389,19 +470,19 @@ class Transaction_Controller extends Core_Controller_Abstract
         }
         else
         {
-            unset($_POST['account_from_other']);
+            unset($data_to_save['account_from_other']);
         }
 
         // save a new account?
-        if (empty($_POST['account_to']) and !empty($_POST['account_to_other']))
+        if (empty($data_to_save['account_to']) and !empty($data_to_save['account_to_other']))
         {
             if (Account_Model::create([
-                'title'=>$_POST['account_to_other'],
+                'title'=>$data_to_save['account_to_other'],
                 'classification' => Account_Model::OTHER
             ]))
             {
-                $_POST['account_to'] = Account_Model::lastInsertId();
-                unset($_POST['account_to_other']);
+                $data_to_save['account_to'] = Account_Model::lastInsertId();
+                unset($data_to_save['account_to_other']);
             }
             else
             {
@@ -410,37 +491,43 @@ class Transaction_Controller extends Core_Controller_Abstract
         }
         else
         {
-            unset($_POST['account_to_other']);
+            unset($data_to_save['account_to_other']);
         }
 
-        $submit = $_POST['submit'];
-        unset($_POST['submit']);
+        $submit = $data_to_save['submit'];
+        unset($data_to_save['submit']);
 
         $repeat = false;
-        if (isset($_POST['repeat']))
+        if (isset($data_to_save['repeat']))
         {
-            $repeat = $_POST['repeat'];
-            unset($_POST['repeat']);
+            $repeat = $data_to_save['repeat'];
+            unset($data_to_save['repeat']);
         }
          
         $update_children = false;
-        if (isset($_POST['update_recurrances']))
+        if (isset($data_to_save['update_recurrances']))
         {
-            $update_children = ($_POST['update_recurrances'] == 'yes');
-            unset($_POST['update_recurrances']);
+            $update_children = ($data_to_save['update_recurrances'] == 'yes');
+            unset($data_to_save['update_recurrances']);
         }
 
-        if (Transaction_Model::save($_POST))
+        $duplicates = Transaction_Model::findDuplicates($data_to_save);
+        if (!empty($duplicates))
         {
-            $id = empty($_POST['id']) ? Transaction_Model::lastInsertId() : $_POST['id'];
+            return $duplicates;
+        }
+        unset($data_to_save['ignore_duplicates']);
+
+        if (Transaction_Model::save($data_to_save))
+        {
+            $id = empty($data_to_save['id']) ? Transaction_Model::lastInsertId() : $data_to_save['id'];
 
             // Update recurrance
             if ($repeat)
             {
-                $repeat['date_start'] = $_POST['date_occurred'];
+                $repeat['date_start'] = $data_to_save['date_occurred'];
             }
             Transaction_Recurrance_Controller::save($id, $repeat, $update_children);
-
         }
         else
         {
@@ -454,18 +541,28 @@ class Transaction_Controller extends Core_Controller_Abstract
             {
                 case 'apply':
                     // Redirect and load from id
-                    $response->redirect('/transaction/form', ['id' => $id]);
+                    $get = ['id' => $id];
+                    if ($app_window) $get['app_window'] = 1;
+                    $response->redirect('/transaction/form', $get);
                     break;
                 case 'save_new':
-                    $response->redirect('/transaction/form');
+                    $get = [];
+                    if ($app_window) $get['app_window'] = 1;
+                    $response->redirect('/transaction/form', $get);
                     break;
                 case 'save_close':
+                    if ($app_window)
+                    {
+                        $response->close_window('Transaction Saved');
+                    }
                     $response->redirect('/transaction/list');
                     break;
             }
         }
         else
         {
+            if ($app_window) $_GET['app_window'] = 1;
+
             // Redirect so POST doesn't mess with history
             $response->redirect('transaction/form', array_merge($_GET, $_POST));
         }

@@ -28,7 +28,7 @@
                     </div>
                     <div class="col-xs-12 col-md-6 col-bare">
                         <div class="progress">
-                            <div class="progress-bar progress-bar-{{status}}" role="progressbar" aria-valuenow="{{remaining_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{remaining_percentage}}%; min-width:30px;">
+                            <div class="progress-bar progress-bar-{{status}}" role="progressbar" aria-valuenow="{{remaining_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{remaining_percentage}}%;">
                                 <strong><span class='percent'>{{remaining_formatted}}</span></strong>
                             </div>
                         </div>
@@ -63,7 +63,7 @@
                 <tbody>
                 {{#unbudgeted}}
                     <tr>
-                        <td>{{category_value}}</td>
+                        <td><a href="{{transactions_url}}">{{category_value}}</a></td>
                         <td align="right">{{amount_formatted}}</td>
                     </tr>
                 {{/unbudgeted}}

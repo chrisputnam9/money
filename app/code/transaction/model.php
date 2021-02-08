@@ -22,6 +22,97 @@ class Transaction_Model extends Core_Model_Dbo
         $this->category_id = $request->get('category', 'number_int');
     }
 
+    // Find possible duplicates
+    public static function findDuplicates($data)
+    {
+        if (!is_array($data) or empty($data))
+        {
+            throw new Exception ('Bad data based to findDuplicates');
+        }
+
+        if (!empty($data['ignore_duplicates']))
+        {
+            return [];
+        }
+
+        $account_to = empty($data['account_to']) ? false : $data['account_to'];
+        $account_from = empty($data['account_from']) ? false : $data['account_from'];
+        $amount = empty($data['amount']) ? false : $data['amount'];
+        $date_occurred = empty($data['date_occurred']) ? false : $data['date_occurred'];
+        $id = empty($data['id']) ? false : $data['id'];
+
+        $file = empty($data['file']) ? false : $data['file'];
+        $image = empty($data['image']) ? false : $data['image'];
+
+        if (
+            (
+                empty($account_to)
+                or empty($account_from)
+                or empty($amount)
+                or empty($date_occurred)
+            )
+            and empty($file)
+            and empty($image)
+        ) {
+            return false;
+        }
+
+        $id_clause = empty($id) ? "" : "id != ? AND";
+        $file_clause = empty($file) ? "" : "OR file LIKE ?";
+        $image_clause = empty($image) ? "" : "OR image LIKE ?";
+
+        $table = self::cleanTable(self::$table);
+
+        $sql = <<<SQL
+            SELECT * FROM {$table}
+            WHERE 
+            {$id_clause}
+            (
+                (
+                    (
+                        ( account_to = ? AND account_from = ? )
+                        OR
+                        ( account_from = ? AND account_to = ? )
+                    )
+                    AND amount = ?
+                    AND ABS(DATEDIFF(date_occurred, ?)) < 20
+                )
+                {$file_clause}
+                {$image_clause}
+            )
+SQL;
+
+        $data = [
+            $account_to, $account_from,
+            $account_to, $account_from,
+            $amount,
+            $date_occurred,
+        ];
+
+        if (!empty($id))
+        {
+            array_unshift($data, $id);
+        }
+
+        if (!empty($file))
+        {
+            $file = preg_replace('/^\d{8}-\d{6}_/', "%", $file);
+            $data[]= $file;
+        }
+
+        if (!empty($image))
+        {
+            $image = preg_replace('/^\d{8}-\d{6}_/', "%", $image);
+            $data[]= $image;
+        }
+
+        //echo("<pre>".print_r($sql,true)."</pre>");
+        //echo("<pre>".print_r($data,true)."</pre>");
+        //die;
+
+        return self::get($sql, $data);
+    }    
+
     /**
      * Get category name
      */
@@ -143,10 +234,6 @@ class Transaction_Model extends Core_Model_Dbo
         $account_options = Account_Model::getGroupedAccounts();
 
         return [
-            'classification_options' => self::populateSelectedOptions(
-                self::getAll('transaction_classification'),
-                empty($data['classification']) ? false : $data['classification']
-            ),
             'account_from_options' => self::populateSelectedOptions(
                 $account_options,
                 empty($data['account_from']) ? false : $data['account_from']
@@ -155,9 +242,17 @@ class Transaction_Model extends Core_Model_Dbo
                 array_reverse($account_options),
                 empty($data['account_to']) ? false : $data['account_to']
             ),
+            'amount_options' => self::populateSelectedOptions(
+                $data['amount_options'],
+                $data['amount'] ?? ""
+            ),
             'category_options' => self::populateSelectedOptions(
                 self::getAll('transaction_category', 'title'),
                 empty($data['category']) ? false : $data['category']
+            ),
+            'classification_options' => self::populateSelectedOptions(
+                self::getAll('transaction_classification'),
+                empty($data['classification']) ? false : $data['classification']
             ),
         ];
     }
