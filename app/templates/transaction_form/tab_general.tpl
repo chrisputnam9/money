@@ -67,7 +67,14 @@
     <div class='col-sm-6'>  
         <div class="form-group">
             <label for="date_occurred"><em>*</em> Date</label>
-            <input type="date" class="form-control" name="date_occurred" id="date_occurred" value="{{date_occurred}}" required>
+            <div class="input-group">
+                <input type="date" class="form-control" name="date_occurred" id="date_occurred" value="{{date_occurred}}" required>
+                <span class="input-group-btn">
+					<button class="js-clear btn btn-default" data-target="#date_occurred" type="button">
+                        <span class="glyphicon glyphicon-remove"></span>
+					</button>
+                </span>
+			</div>
         </div>
         <div class="form-group">
             <label for="classification"><em>*</em> Classification</label>

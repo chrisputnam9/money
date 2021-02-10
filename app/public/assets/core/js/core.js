@@ -119,11 +119,15 @@ CPI = (function($) {
                 $dropdown = $('<div class="dropdown">'),
                 $input_group = $('<div class="input-group">'),
                 $button_span = $('<span class="input-group-btn">'),
-                $button = $('<button class="js-dropdown-toggle btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">')
+                $button = $('<button class="js-dropdown-toggle btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">')
                     .attr('id', dropdown_id),
-                $button_caret = $('<span class="caret">'),
+                $button_caret = $('<span class="glyphicon glyphicon-menu-down">'),
                 $dropdown_menu = $('<ul class="dropdown-menu dropdown-menu-right full-width" >')
                     .attr('aria-labelledby', dropdown_id);
+
+                $clear_button = $('<button class="js-clear btn btn-default" type="button">')
+                    .attr('data-target', '#' + input_id),
+                $clear_button_icon = $('<span class="glyphicon glyphicon-remove">'),
 
             // Throw it in the DOM!
             $dropdown.insertAfter($input);
@@ -131,7 +135,9 @@ CPI = (function($) {
                 $input.prop('required', true).detach();
                 $input_group.append($input, $button_span);
                     $button_span.append($button);
-                    $button.append($button_caret);
+                        $button.append($button_caret);
+                    $button_span.append($clear_button);
+                        $clear_button.append($clear_button_icon);
 
             // Add the options
             $optgroups.each( function () {
@@ -495,6 +501,18 @@ CPI = (function($) {
 			.addClass('hidden')
 			.removeClass('js-hide');
         $('.js-show').removeClass('js-show');
+
+        $('.js-clear').on('click', function () {
+            const $btn = $(this);
+            const target = $btn.data('target');
+            const $targets = $(target);
+            $targets.each(function () {
+                const $target = $(this);
+                if ($target.is('input')) {
+                    $target.val("");
+                }
+            })
+        });
 
     });
 
