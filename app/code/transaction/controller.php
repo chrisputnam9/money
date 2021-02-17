@@ -262,8 +262,11 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $body_data = array_merge($body_data, $options);
 
                 // Prep the date for field
-                $date = empty($body_data['date_occurred']) ? time() : strtotime($body_data['date_occurred']);
-                $body_data['date_occurred'] = date('Y-m-d', $date);
+                $date = empty($body_data['date_occurred']) ? false : strtotime($body_data['date_occurred']);
+                $body_data['date_occurred'] = $date ? date('Y-m-d', $date) : "";
+
+                $body_data['today_datestamp'] = date('Y-m-d');
+                $body_data['yesterday_datestamp'] = date('Y-m-d', strtotime('yesterday'));
 
                 // Debug data behind the form
                 if (isset($_GET['debug'])){
@@ -281,9 +284,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $body_data["duplicates"] = array_values($body_data["duplicates"]);
                     $body_data["are_duplicates"] = 1;
                 }
-
-                $body_data['today_datestamp'] = date('Y-m-d');
-                $body_data['yesterday_datestamp'] = date('Y-m-d', strtotime('yesterday'));
 
                 $response->body_data = $body_data;
                 $response->body_template = 'transaction_form';
