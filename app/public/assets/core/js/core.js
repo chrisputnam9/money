@@ -514,6 +514,19 @@ CPI = (function($) {
             })
         });
 
+        $('.js-setvalue').on('click', function () {
+            const $btn = $(this);
+            const target = $btn.data('target');
+            const value = $btn.data('value');
+
+            $(target).each(function () {
+                const $target = $(this);
+                if ($target.is('input')) {
+                    $target.val(value);
+                }
+            })
+        });
+
     });
 
     return CPI;

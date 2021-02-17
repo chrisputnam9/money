@@ -282,6 +282,9 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $body_data["are_duplicates"] = 1;
                 }
 
+                $body_data['today_datestamp'] = date('Y-m-d');
+                $body_data['yesterday_datestamp'] = date('Y-m-d', strtotime('yesterday'));
+
                 $response->body_data = $body_data;
                 $response->body_template = 'transaction_form';
 

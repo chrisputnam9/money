@@ -70,6 +70,12 @@
             <div class="input-group">
                 <input type="date" class="form-control" name="date_occurred" id="date_occurred" value="{{date_occurred}}" required>
                 <span class="input-group-btn">
+					<button title='Today' class="js-setvalue btn btn-default" data-target="#date_occurred" data-value="{{today_datestamp}}" type="button">
+                        <b>Tdy</b>
+					</button>
+					<button title='Yesterday' class="js-setvalue btn btn-default" data-target="#date_occurred" data-value="{{yesterday_datestamp}}" type="button">
+                        <b>Yst</b>
+					</button>
 					<button class="js-clear btn btn-default" data-target="#date_occurred" type="button">
                         <span class="glyphicon glyphicon-remove"></span>
 					</button>
