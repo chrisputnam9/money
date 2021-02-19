@@ -34,6 +34,7 @@ CPI = (function($) {
                         data_select+= (i + 1);
                     }
 
+                    // Only change blank items, and items whose values were set by this functionality
                     if ($target.val() != '' && ! $target.hasClass('js-autochanged')){
                         return;
                     }
@@ -108,22 +109,31 @@ CPI = (function($) {
     // Combo Box Functionality
     $.fn.combobox = function () {
         return this.each(function () {
+            var instance = this;
+
+            instance.initialized = false;
+            instance.open = false;
+
+                // Existing elements
             var $input = $(this),
-                initialized = false,
                 select = $input.data('combobox'),
                 $select = $(select),
                 $optgroups = $select.find('optgroup'),
                 $options = $select.find('option'),
                 input_id = $input.attr('id'),
+
+                // New elements
                 dropdown_id = input_id + '__dropdown',
                 $dropdown = $('<div class="dropdown">'),
+                $dropdown_menu = $('<ul class="dropdown-menu dropdown-menu-right full-width" >')
+                    .attr('aria-labelledby', dropdown_id);
+
                 $input_group = $('<div class="input-group">'),
                 $button_span = $('<span class="input-group-btn">'),
+
                 $button = $('<button class="js-dropdown-toggle btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">')
                     .attr('id', dropdown_id),
                 $button_caret = $('<span class="glyphicon glyphicon-menu-down">'),
-                $dropdown_menu = $('<ul class="dropdown-menu dropdown-menu-right full-width" >')
-                    .attr('aria-labelledby', dropdown_id);
 
                 $clear_button = $('<button class="js-clear btn btn-default" type="button">')
                     .attr('data-target', '#' + input_id),
@@ -139,7 +149,10 @@ CPI = (function($) {
                     $button_span.append($clear_button);
                         $clear_button.append($clear_button_icon);
 
-            // Add the options
+            // Hide the original select input
+            $select.addClass('hidden');
+
+            // Add the options by group
             $optgroups.each( function () {
                 var $group = $(this),
                     group = $group.attr('label');
@@ -166,9 +179,8 @@ CPI = (function($) {
                     // fill input when link is clicked
                     $link.click(function(event) {
                         event.preventDefault();
-                        $input.val(text).trigger('input');
-                        $dropdown.removeClass('open');
-                        $button.removeClass('open');
+                        $input.val(text);
+                        $input.trigger('input-from-combobox');
                     });
 
                 });
@@ -177,63 +189,79 @@ CPI = (function($) {
 
             });
 
-            // I feel like bootstrap should already work this way... boo!
-            $dropdown.on('show.bs.dropdown hide.bs.dropdown', function() {
-                $dropdown.toggleClass('open');
-                /*
-                if ($dropdown.hasClass('open')) {
-                    $dropdown.addClass('open');
-                    $button.addClass('open');
-                } else {
-                    $dropdown.removeClass('open');
-                    $button.removeClass('open');
+            // Set up functions
+            instance.toggleDropdown = function (open) {
+                if (open === true) {
+                    instance.open = true;
+                } else if ( open === false ) {
+                    instance.open = false;
                 }
-                */
-            });
+                else {
+                    instance.open = ( ! instance.open );
+                }
 
-            $select.addClass('hidden');
+                $dropdown.toggleClass('open', instance.open);
+            }
+            instance.showDropdown = function () {
+                instance.toggleDropdown(true);
+            }
+            instance.hideDropdown = function () {
+                instance.toggleDropdown(false);
+            }
 
-            // When input changes, select value, style
-            $input.on('input', function () {
-                var value = $input.val(),
+            instance.filterOptions = function (event) {
+                var input_value = $input.val(),
                     selected = "",
                     groups = [],
-                    $dropdown_options = $dropdown_menu.find('li>a');
+                    $dropdown_options = $dropdown_menu.find('li>a')
+                    $filtered_options = $();
 
-                if (value == "" || !initialized) {
+                if (input_value == "" || ! this.initialized) {
                     $input.css({ 'font-weight':'', 'font-style':'' });
                     $dropdown_options.removeClass('hidden');
                 } else {
-                    var $filtered = $dropdown_options.filter('[data-search*="'+value.toLowerCase()+'"]');
+                    $filtered_options = $dropdown_options.filter('[data-search*="'+input_value.toLowerCase()+'"]');
                     $input.css({ 'font-weight':'', 'font-style':'italic' });
-                    if ($filtered.length > 0) {
-                        $dropdown.addClass('open');
-                        $button.addClass('open');
 
-                        $dropdown_options.addClass('hidden')
-                        $filtered.removeClass('hidden');
-                    } else {
-                        $dropdown.removeClass('open');
-                        $button.removeClass('open');
-
-                        $dropdown_options.removeClass('hidden')
+                    // For filtering triggered by human input, update dropdwon:
+                    if (event.type == 'keyup') {
+                        if ($filtered_options.length > 0) {
+                            $dropdown_options.addClass('hidden');
+                            $filtered_options.removeClass('hidden');
+                            $dropdown.trigger('show.bs.dropdown');
+                        } else {
+                            /* Show all and hide dropdown - no matches */
+                            $dropdown_options.removeClass('hidden');
+                            $dropdown.trigger('hide.bs.dropdown');
+                        }
                     }
                 }
 
                 $options.each(function () {
                     var $option = $(this);
-                    if ($option.text() == value) {
+                    if ($option.text() == input_value) {
                         $input.css({ 'font-weight':'bold', 'font-style':'' });
                         selected = $option.val();
 
-                        $dropdown.removeClass('open');
-                        $button.removeClass('open');
+                        // Exact match, no need to show dropdown
+                        $dropdown.trigger('hide.bs.dropdown');
+                        $dropdown_options.removeClass('hidden');
 
-                        $dropdown_options.removeClass('hidden')
+                        // Quit once we have a match
+                        return false;
                     }
                 });
 
                 $select.val(selected).trigger('combobox-change');
+            }
+
+            // Listen for bootstrap events
+            $dropdown.on('show.bs.dropdown', instance.showDropdown);
+            $dropdown.on('hide.bs.dropdown', instance.hideDropdown);
+
+            // When input changes, select value, style
+            $input.on('keyup input input-from-combobox input-clear', function (event) {
+                instance.filterOptions(event);
             });
 
             // Update input based on select value
@@ -249,10 +277,11 @@ CPI = (function($) {
             }
 
             updateInput();
+            instance.filterOptions();
 
             $select.on('change click autoselect-change', updateInput);
 
-            initialized = true;
+            this.initialized = true;
 
         });
     };
@@ -509,7 +538,8 @@ CPI = (function($) {
             $targets.each(function () {
                 const $target = $(this);
                 if ($target.is('input')) {
-                    $target.val("");
+                    $target.val("")
+                        .trigger("input-clear");
                 }
             })
         });
