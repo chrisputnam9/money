@@ -34,6 +34,7 @@ CPI = (function($) {
                         data_select+= (i + 1);
                     }
 
+                    // Only change blank items, and items whose values were set by this functionality
                     if ($target.val() != '' && ! $target.hasClass('js-autochanged')){
                         return;
                     }
@@ -202,31 +203,38 @@ CPI = (function($) {
                 $dropdown.toggleClass('open', instance.open);
             }
             instance.showDropdown = function () {
-                console.log('showDropdown');
                 instance.toggleDropdown(true);
             }
             instance.hideDropdown = function () {
-                console.log('hideDropdown');
                 instance.toggleDropdown(false);
             }
 
-            instance.filterOptions = function () {
+            instance.filterOptions = function (event) {
                 var input_value = $input.val(),
                     selected = "",
                     groups = [],
-                    $dropdown_options = $dropdown_menu.find('li>a');
-
-                $dropdown_options.addClass('hidden');
+                    $dropdown_options = $dropdown_menu.find('li>a')
+                    $filtered_options = $();
 
                 if (input_value == "" || ! this.initialized) {
-                    console.log("initializing");
                     $input.css({ 'font-weight':'', 'font-style':'' });
                     $dropdown_options.removeClass('hidden');
                 } else {
-                    console.log('filtering');
-                    $dropdown_options.filter('[data-search*="'+input_value.toLowerCase()+'"]')
-                        .removeClass('hidden');
+                    $filtered_options = $dropdown_options.filter('[data-search*="'+input_value.toLowerCase()+'"]');
                     $input.css({ 'font-weight':'', 'font-style':'italic' });
+
+                    // For filtering triggered by human input, update dropdwon:
+                    if (event.type == 'keyup') {
+                        if ($filtered_options.length > 0) {
+                            $dropdown_options.addClass('hidden');
+                            $filtered_options.removeClass('hidden');
+                            $dropdown.trigger('show.bs.dropdown');
+                        } else {
+                            /* Show all and hide dropdown - no matches */
+                            $dropdown_options.removeClass('hidden');
+                            $dropdown.trigger('hide.bs.dropdown');
+                        }
+                    }
                 }
 
                 $options.each(function () {
@@ -234,6 +242,10 @@ CPI = (function($) {
                     if ($option.text() == input_value) {
                         $input.css({ 'font-weight':'bold', 'font-style':'' });
                         selected = $option.val();
+
+                        // Exact match, no need to show dropdown
+                        $dropdown.trigger('hide.bs.dropdown');
+                        $dropdown_options.removeClass('hidden');
 
                         // Quit once we have a match
                         return false;
@@ -248,8 +260,8 @@ CPI = (function($) {
             $dropdown.on('hide.bs.dropdown', instance.hideDropdown);
 
             // When input changes, select value, style
-            $input.on('input input-from-combobox input-clear', function (event) {
-                instance.filterOptions();
+            $input.on('keyup input input-from-combobox input-clear', function (event) {
+                instance.filterOptions(event);
             });
 
             // Update input based on select value
@@ -265,6 +277,7 @@ CPI = (function($) {
             }
 
             updateInput();
+            instance.filterOptions();
 
             $select.on('change click autoselect-change', updateInput);
 
