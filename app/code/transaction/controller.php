@@ -459,7 +459,7 @@ class Transaction_Controller extends Core_Controller_Abstract
         if (empty($data_to_save['account_from']) and !empty($data_to_save['account_from_other']))
         {
             if (Account_Model::create([
-                'title' => $data_to_save['account_from_other'],
+                'title' => trim($data_to_save['account_from_other']),
                 'classification' => Account_Model::OTHER
             ]))
             {
@@ -480,7 +480,7 @@ class Transaction_Controller extends Core_Controller_Abstract
         if (empty($data_to_save['account_to']) and !empty($data_to_save['account_to_other']))
         {
             if (Account_Model::create([
-                'title'=>$data_to_save['account_to_other'],
+                'title' => trim($data_to_save['account_to_other']),
                 'classification' => Account_Model::OTHER
             ]))
             {
