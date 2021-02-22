@@ -41,8 +41,9 @@ class Transaction_Model extends Core_Model_Dbo
         $date_occurred = empty($data['date_occurred']) ? false : $data['date_occurred'];
         $id = empty($data['id']) ? false : $data['id'];
 
-        $file = empty($data['file']) ? false : $data['file'];
-        $image = empty($data['image']) ? false : $data['image'];
+        // Check file or image name - but only for new transactions (no id)
+        $file = (empty($data['file']) or !empty($id)) ? false : $data['file'];
+        $image = (empty($data['image']) or !empty($id)) ? false : $data['image'];
 
         if (
             (
@@ -173,7 +174,7 @@ SQL;
 
                 $row['category_url'] = $request->url(null, ['category' => $row['category']]);
                 $row['amount_formatted'] = '$' . number_format($row['amount'], 2);
-                $row['date_occurred_formatted'] = date('m/d/y', strtotime($row['date_occurred']));
+                $row['date_occurred_formatted'] = date('m/d', strtotime($row['date_occurred']));
             }
 
         }

@@ -281,7 +281,14 @@ class Transaction_Controller extends Core_Controller_Abstract
                 // If warned about duplicates, then we'll ignore them next time and save anyway when requested
                 if (!empty($body_data["duplicates"]))
                 {
-                    $body_data["duplicates"] = array_values($body_data["duplicates"]);
+                    $duplicates = $body_data["duplicates"];
+                    $body_data["duplicates"] = [];
+                    foreach ($duplicates as $duplicate)
+                    {
+                        $duplicate['date_formatted'] = date('m/d/y', strtotime($duplicate['date_occurred']));
+                        $duplicate['amount_formatted'] = '$' . number_format($duplicate['amount'], 2);
+                        $body_data["duplicates"][]= $duplicate;
+                    }
                     $body_data["are_duplicates"] = 1;
                 }
 

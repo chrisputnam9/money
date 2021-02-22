@@ -17,7 +17,7 @@
 
         <ul>
         {{#duplicates}}
-            <li><a href='/transaction/form?id={{id}}' class='text-danger' target='_blank'><b><span class="glyphicon glyphicon-new-window"></span> Possible Duplicate, ID {{id}}</b></a></li>
+            <li><a href='/transaction/form?id={{id}}' class='text-danger' target='_blank'><b><span class="glyphicon glyphicon-new-window"></span> On {{date_formatted}} - {{amount_formatted}}</b></a></li>
         {{/duplicates}}
         </ul>
 
