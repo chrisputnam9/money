@@ -338,7 +338,7 @@ class Transaction_Controller extends Core_Controller_Abstract
             $response->fail('Failed to upload image. May be too large. Limit is ' . ini_get('upload_max_filesize') . '.');
         }
 
-        $filename = preg_replace('/[^\w-_.]+/', '-', $filename);
+        $filename = preg_replace('/[^\w\-_.]+/', '-', $filename);
         $filename = date('Ymd-His_') . $filename;
 
         $dir = self::DIR_UPLOAD;
