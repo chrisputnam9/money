@@ -8,7 +8,6 @@ abstract class Core_Shell_Abstract extends Core_Abstract
      */
     public function __construct($args)
     {
-        // TODO parse cli args here later
         $this->args = $args;
     }
 

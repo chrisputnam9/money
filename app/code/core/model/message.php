@@ -73,7 +73,6 @@ class Core_Model_Message extends Core_Abstract
         $this->$log_method($output);
     }
         // HTML
-        // TODO have this use response?
         protected function log_html($output)
         {
             echo "<pre>";
@@ -87,7 +86,6 @@ class Core_Model_Message extends Core_Abstract
         }
 
     // Error action
-    // TODO have this use response and output correct error code
     function _error($error, $die=true)
     {
         if (!$error instanceof Exception)

@@ -7,9 +7,6 @@ use Exception;
  * OCR Model
  * - Recognize text from images
  */
-// TODO
-// - Use account names, numbers as training data
-// - date patterns, others?
 class OCR_Model extends Core_Model_Abstract
 {
     const DIR_CACHE = DIR_TMP . 'ocr' . DS;
@@ -77,7 +74,6 @@ class OCR_Model extends Core_Model_Abstract
     {
         if (!is_file($image))
             return false;
-        //TODO log('Invalid image file: ' . $image);
 
         $this->image = $image;
 

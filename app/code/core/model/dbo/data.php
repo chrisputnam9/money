@@ -18,8 +18,6 @@ class Core_Model_Dbo_Data extends Core_Model_Abstract
     protected $values;
     protected $placeholders;
 
-    //TODO make iterable? could be nice
-
     /**
      * Consructor, sets raw data
      *  @param raw_data is expected to be hash, fields=>values

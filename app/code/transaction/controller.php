@@ -132,8 +132,6 @@ class Transaction_Controller extends Core_Controller_Abstract
                     $body_data = array_merge($body_data, $_POST);
                 }
 
-                // TODO refactor so this query doesn't have to happen twice:
-                //   eg. pass through below or cache on account model
                 $account_options = Account_Model::getGroupedAccounts();
 
                 // OCR if applicable
@@ -196,23 +194,24 @@ class Transaction_Controller extends Core_Controller_Abstract
                     if (empty($body_data['date_occurred']))
                     {
                         $dates = $ocr->getDates();
-                        $most_recent = 0;
+                        $latest_time = 0;
                         $now = time();
                         if (!empty($dates))
                         {
                             foreach ($dates as $date)
                             {
                                 $time = strtotime($date);
-                                // Going for most recent time, but can't be future (TODO configurable?)
-                                if (false !== $time and $time > $most_recent and $time <= $now)
+
+                                // Going for latest time found
+                                if (false !== $time and $time > $latest_time /*and $time <= $now*/)
                                 {
-                                    $most_recent = $time;
+                                    $latest_time = $time;
                                 }
                             }
                         }
-                        if ($most_recent)
+                        if ($latest_time)
                         {
-                            $body_data['date_occurred'] = date('Y-m-d', $most_recent);
+                            $body_data['date_occurred'] = date('Y-m-d', $latest_time);
                         }
                     }
 
@@ -328,7 +327,6 @@ class Transaction_Controller extends Core_Controller_Abstract
     static public function processImage($image, $response)
     {
 
-        // TODO Make extensions configurable
         $filename = strtolower($image['name']);
         if (!preg_match('/\.(png|jpe?g|gif)$/', $filename))
             $response->fail('Image must be png, jpg or gif.');
@@ -447,8 +445,6 @@ class Transaction_Controller extends Core_Controller_Abstract
     // Process main form submission
     static public function processForm($request, $response)
     {
-        //TODO add validation
-        
         $data_to_save = $_POST;
 
         $success = true;
