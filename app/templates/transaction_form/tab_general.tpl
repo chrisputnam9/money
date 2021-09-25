@@ -68,7 +68,7 @@
         <div class="form-group">
             <label for="date_occurred"><em>*</em> Date</label>
             <div class="input-group">
-                <input type="date" class="form-control" name="date_occurred" id="date_occurred" value="{{date_occurred}}" required>
+                <input type="date" class="form-control js-date-warn" data-warn-output=".date_occurred_warning" name="date_occurred" id="date_occurred" value="{{date_occurred}}" required>
                 <span class="input-group-btn">
 					<button title='Today' class="js-setvalue btn btn-default" data-target="#date_occurred" data-value="{{today_datestamp}}" type="button">
                         <b>Tdy</b>
@@ -81,6 +81,7 @@
 					</button>
                 </span>
 			</div>
+            <strong>&nbsp;<small class="date_occurred_warning text-danger"></small></strong>
         </div>
         <div class="form-group">
             <label for="classification"><em>*</em> Classification</label>

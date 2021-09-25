@@ -509,8 +509,6 @@ CPI = (function($) {
     // On Load
     $(function () {
 
-        // Bootstrap functionality
-
         // Custom Functionality
         $('.js-file-upload').fileupload();
         $('.js-tabify').tabify();
@@ -531,6 +529,7 @@ CPI = (function($) {
 			.removeClass('js-hide');
         $('.js-show').removeClass('js-show');
 
+        // Clear an input target from a click
         $('.js-clear').on('click', function () {
             const $btn = $(this);
             const target = $btn.data('target');
@@ -540,10 +539,12 @@ CPI = (function($) {
                 if ($target.is('input')) {
                     $target.val("")
                         .trigger("input-clear");
+                    $target.trigger('change');
                 }
             })
         });
 
+        // Set an input value from a click
         $('.js-setvalue').on('click', function () {
             const $btn = $(this);
             const target = $btn.data('target');
@@ -553,8 +554,29 @@ CPI = (function($) {
                 const $target = $(this);
                 if ($target.is('input')) {
                     $target.val(value);
+                    $target.trigger('change');
                 }
             })
+        });
+
+        // Check date input and warn if it is more than 10 days in past or future
+        $('.js-date-warn').on('change', function () {
+            const $input = $(this);
+            const value = $input.val();
+            const target = $input.data('warn-output');
+            const $warning_element = $(target);
+            let warning = "";
+            if (value) {
+                const date_selected = new Date(value);
+                const date_now = new Date();
+                const days = ( (date_selected - date_now) / 86400000 ); // 1 day in milliseconds
+                if (days > 0) {
+                    warning = 'This is a future date';
+                } else if (days < -10) {
+                    warning = 'This is more than 10 days ago';
+                }
+            }
+            $warning_element.text(warning);
         });
 
     });
