@@ -506,8 +506,34 @@ CPI = (function($) {
         });
     };
 
+	// Check date input and warn if it is more than 10 days in past or future
+	$.fn.checkInputDate = function () {
+		const $input = $(this);
+		const value = $input.val();
+		const target = $input.data('warn-output');
+		const $warning_element = $(target);
+		let warning = "";
+		if (value) {
+			const date_selected = new Date(value);
+			const date_now = new Date();
+			const days = ( (date_selected - date_now) / 86400000 ); // 1 day in milliseconds
+			if (days > 0) {
+				warning = 'This is a future date';
+			} else if (days < -10) {
+				warning = 'This is more than 10 days ago';
+			}
+		}
+		$input.closest('.form-group').toggleClass('bg-warning', (warning !== ""));
+		$warning_element.text(warning);
+	};
+
     // On Load
     $(function () {
+
+		const $transaction_id = $('#transaction_id');
+		const transaction_id = $transaction_id.length > 0 ? $transaction_id.val() : false;
+		const is_transaction = (transaction_id !== false);
+		const is_new_transaction = (transaction_id === "");
 
         // Custom Functionality
         $('.js-file-upload').fileupload();
@@ -560,24 +586,17 @@ CPI = (function($) {
         });
 
         // Check date input and warn if it is more than 10 days in past or future
-        $('.js-date-warn').on('change', function () {
-            const $input = $(this);
-            const value = $input.val();
-            const target = $input.data('warn-output');
-            const $warning_element = $(target);
-            let warning = "";
-            if (value) {
-                const date_selected = new Date(value);
-                const date_now = new Date();
-                const days = ( (date_selected - date_now) / 86400000 ); // 1 day in milliseconds
-                if (days > 0) {
-                    warning = 'This is a future date';
-                } else if (days < -10) {
-                    warning = 'This is more than 10 days ago';
-                }
-            }
-            $warning_element.text(warning);
-        });
+		const $js_date_warn = $('.js-date-warn');
+		if ($js_date_warn.length > 0) {
+			$js_date_warn.on('change', function () {
+				$(this).checkInputDate();
+			});
+
+			// Check date on load - IF this is a brand new transaction (eg. date has been read in from text, photo, etc)
+			if (is_new_transaction) {
+				$js_date_warn.checkInputDate();
+			}
+		}
 
     });
 

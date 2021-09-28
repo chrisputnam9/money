@@ -1,6 +1,6 @@
 <form action="" method="post" enctype="multipart/form-data">
 
-    <input type='hidden' name='id' value='{{id}}'/>
+    <input type='hidden' name='id' id='transaction_id' value='{{id}}'/>
 
 {{#app_window}}
     <input type='hidden' name='app_window' value='1'/>

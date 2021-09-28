@@ -3,5 +3,3 @@
 /local.dev/database/data*.sql
 /local.dev/database/project.sql
 /source
-composer.lock
-composer.phar
