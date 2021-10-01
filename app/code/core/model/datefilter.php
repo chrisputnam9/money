@@ -18,6 +18,11 @@ class Core_Model_Datefilter extends Core_Model_Abstract
     protected  $_period_start;
     protected  $_period_end;
 
+	protected $_time_data;
+
+	/* Misc. Data */
+	public $now;
+
     /* Date ranges */
     public $month_start;
     public $month_end;
@@ -57,6 +62,8 @@ class Core_Model_Datefilter extends Core_Model_Abstract
         $offset = $this->getOffset();
         $period = $this->getPeriod();
         $timestring = ($offset > 0 ? "+" . $offset : $offset) . " ".$period."s";
+
+		$this->now = new DateTime();
 
         $this->month_start = new DateTime("first day of this month 00:00:00");
         $this->month_start->modify($timestring);
@@ -151,5 +158,40 @@ class Core_Model_Datefilter extends Core_Model_Abstract
         }
         return $this->_period_end;
     }
+
+	/**
+	 * Get Time Data
+	 */
+	public function getTimeData()
+	{
+		if (is_null($this->_time_data))
+		{
+			$start = $this->getPeriodStart()->getTimestamp();
+			$end = $this->getPeriodEnd()->getTimestamp();
+			$now = $this->now->getTimestamp();
+
+			// Make "now" no later than end
+			if ($now > $end) $now = $end;
+			// Make "now" no earlier than start
+			if ($now < $start) $now = $start;
+
+
+			// Will round up/down based on current time of day
+			$days_spent = round(($now - $start) / 86400);
+			// Should be exact, but we'll round to make sure
+			$total_days = round(($end - $start) / 86400);
+			$remaining_days = $total_days - $days_spent;
+			$remaining_percentage = round(($remaining_days / $total_days) * 100, 2);
+
+			$this->_time_data = [
+				'days_spent' => number_format($days_spent),
+				'total_days' => number_format($total_days),
+				'remaining_percentage' => number_format($remaining_percentage, 2),
+				'remaining_formatted' => number_format($remaining_days) . " day" . ($remaining_days == 1 ? "" : "s"),
+				'low' => ($remaining_percentage < 5),
+			];
+		}
+		return $this->_time_data;
+	}
 
 }

@@ -8,6 +8,20 @@
                 <div class="col-xs-6 col-md-3 col-bare pad-left">Spent</div>
                 <div class="col-xs-12 col-md-6 col-bare">Remaining</div>
             </div>
+
+		{{#time}}
+            <div class="panel-body" style="padding: 5px 8px;background: #eee;border-color: #000;">
+                <div class="col-xs-6 col-md-3 col-bare"><b>Time</b></div>
+                <div class="col-xs-6 col-md-3 col-bare pad-left"><small>{{days_spent}} of {{total_days}} days</small></div>
+                <div class="col-xs-12 col-md-6 col-bare">
+					<div class="progress">
+						<div class="progress-bar progress-bar-primary {{#low}}progress-bar-low{{/low}}" role="progressbar" aria-valuenow="{{remaining_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{remaining_percentage}}%;">
+							<strong><span class='percent'>{{remaining_formatted}}</span></strong>
+						</div>
+					</div>
+				</div>
+            </div>
+		{{/time}}
         </div>
 
     {{#budgeted}}

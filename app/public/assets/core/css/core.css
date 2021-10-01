@@ -59,7 +59,9 @@ body {
 .progress .progress-bar {
 	min-width: 55px;
 }
-.progress .progress-bar.progress-bar-danger {
+.progress .progress-bar.progress-bar-danger,
+.progress .progress-bar.progress-bar-low
+{
 	min-width: 3px;
 }
 .progress .percent {

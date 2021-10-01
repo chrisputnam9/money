@@ -22,7 +22,9 @@ class Budget_Controller extends Core_Controller_Abstract
                 $response->main_data['show_menu'] = true;
                 $response->main_data['show_transaction_buttons'] = true;
 
-                self::getDateFilter()->enable();
+                $date_filter = self::getDateFilter();
+				$date_filter->enable();
+				$time_data = $date_filter->getTimeData();
                 self::getBudgetMenu()->enable();
 
                 $budget = Budget_Model::instance();
@@ -33,6 +35,7 @@ class Budget_Controller extends Core_Controller_Abstract
                 $unbudgeted = array_values($budget->getUnbudgeted());
 
                 $response->body_data = [
+					'time' => $time_data,
                     'budgeted' => $budgeted,
                     'unbudgeted' => $unbudgeted,
                     'budgeted_length' => count($budgeted),
