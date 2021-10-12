@@ -239,21 +239,147 @@ class Transaction_Controller extends Core_Controller_Abstract
 
                     // Check for valid account names which could indicate
                     //  the transaction recipient
+					$account_to_matches = [];
                     if (empty($body_data['account_to']))
                     {
                         $lower_text = strtolower($ocr_text);
+
+						// 0 - group => Bank Account
+						// 1 - group => Credit Card
+						// 2 - group => Other
                         foreach($account_options[2]['options'] as $option)
                         {
-                            $pattern = strtolower($option['title']);
-                            $pattern = preg_replace("/[^\w]+/", "\b.*\b", $pattern);
+							$exact_matches = 0;
+							$lower_title = strtolower($option['title']);
+
+							// Look for an exact match (loosely - based on word characters)
+                            $pattern = $lower_title;
+                            $pattern = preg_replace("/[^\w]+/", "\b[^\w]*\b", $pattern);
                             $pattern = "/\b$pattern\b/";
-                            if (preg_match($pattern, $lower_text))
+                            if (preg_match_all($pattern, $lower_text, $matches))
                             {
-                                $body_data['account_to'] = $option['id'];
+								$exact_matches = count($matches[0]);
                             }
-                        }
-                    }
-                }
+
+							// Split account title over spaces and punctuation
+							$words = preg_split("/[^0-9a-z]/", $lower_title);
+
+							// Note number & percentage of words matched
+							$matched_words = [];
+							$unmatched_words = [];
+							$matched_words_count = 0;
+							$matchable_words_count = 0;
+
+							// Note number & percentage of characters matched
+							$matched_chars_count = 0;
+							$matchable_chars_count = 0;
+
+							foreach ($words as $word)
+							{
+								// Skip empty strings
+								if (strlen($word) < 1) {
+									continue;
+								}
+
+								$chars = strlen($word);
+
+								$matchable_words_count++;
+								$matchable_chars_count+= $chars;
+
+								// Check if we already know it's a match
+								if (in_array($word, $matched_words) or $exact_matches > 0) {
+									$matched_words_count++;
+									$matched_chars_count+= $chars;
+									continue;
+								}
+
+								if (in_array($word, $unmatched_words)) {
+									continue;
+								}
+
+								if (preg_match("/\b".$word."\b/", $lower_text)) {
+									$matched_words[]= $word;
+									$matched_words_count++;
+									$matched_chars_count+= $chars;
+									continue;
+								}
+
+								$unmatched_words[]= $word;
+							} // end looping through all words
+
+							$matched_words_percent = empty($matchable_words_count) ? 0 : $matched_words_count / ($matchable_words_count ?? 1);
+							$matched_chars_percent = empty($matchable_chars_count) ? 0 : $matched_chars_count / ($matchable_chars_count ?? 1);
+
+							if ($matched_words_count > 0) {
+								$account_to_matches[]= [
+									'exact_matches' => $exact_matches,
+									'matched_words' => $matched_words,
+									'matched_words_count' => $matched_words_count,
+									'matched_chars_count' => $matched_chars_count,
+									'matched_words_percent' => $matched_words_percent,
+									'matched_chars_percent' => $matched_chars_percent,
+									'option_id' => $option['id'],
+									'option' => $option,
+								];
+							}
+
+                        } // endforeach - looping through all "other" accounts
+
+						if (!empty($account_to_matches)) {
+
+							// Sort by best matches
+							usort($account_to_matches, function ($a, $b) {
+								if ($a['exact_matches'] !== $b['exact_matches']) {
+									return $b['exact_matches'] <=> $a['exact_matches'];
+								}
+								if ($a['matched_words_count'] !== $b['matched_words_count']) {
+									return $b['matched_words_count'] <=> $a['matched_words_count'];
+								}
+								if ($a['matched_chars_count'] !== $b['matched_chars_count']) {
+									return $b['matched_chars_count'] <=> $a['matched_chars_count'];
+								}
+								if ($a['matched_words_percent'] !== $b['matched_words_percent']) {
+									return $b['matched_words_percent'] <=> $a['matched_words_percent'];
+								}
+								if ($a['matched_chars_percent'] !== $b['matched_chars_percent']) {
+									return $b['matched_chars_percent'] <=> $a['matched_chars_percent'];
+								}
+							});
+
+							if ( false !== strpos($lower_text, '__debug_account_matching__') ) {
+								// Show a table output to test out sorting
+								echo "<table class='table'><tr>";
+									echo "<th>Option</th>";
+									echo "<th>Exact Match</th>";
+									echo "<th>Matched Words</th>";
+									echo "<th>Word # Match</th>";
+									echo "<th>Word % Match</th>";
+									echo "<th>Char # Match</th>";
+									echo "<th>Char % Match</th>";
+								echo "</tr>";
+								foreach ($account_to_matches as $row) {
+									echo "<tr>";
+										echo "<td>" . $row['option']['title'] . " (". $row['option_id'] .")</td>";
+										echo "<td>" . $row['exact_matches'] . "</td>";
+										echo "<td>" . implode(",", $row['matched_words']) . "</td>";
+										echo "<td>" . $row['matched_words_count'] . "</td>";
+										echo "<td>" . $row['matched_words_percent'] . "</td>";
+										echo "<td>" . $row['matched_chars_count'] . "</td>";
+										echo "<td>" . $row['matched_chars_percent'] . "</td>";
+									echo "</tr>";
+								}
+								echo "</table>";
+							}
+
+							// todo set to first one - best match
+							$body_data['account_to'] = $account_to_matches[0]['option_id'];
+							$body_data['account_to_matches'] = array_column($account_to_matches, 'option_id', 'option_id');
+
+						}
+
+                    } // End if - auto-detecting account_to
+
+                } // End if - processing image or file
 
                 // Options always needed for template
                 $options = $transaction_model->getOptions($body_data);

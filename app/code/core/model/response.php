@@ -135,7 +135,6 @@ class Core_Model_Response extends Core_Model_Abstract
         <script>
         document.addEventListener('cmp.money.ready', function (event) {
             window.setTimeout(function () {
-                console.log('Firing close_window');
                 var event = document.createEvent('Event');
                 event.initEvent('cmp.money.close_window');
                 document.dispatchEvent(event);
