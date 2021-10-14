@@ -227,11 +227,20 @@ class OCR_Model extends Core_Model_Abstract
     function getDates()
     {
         return $this->getPattern(array(
-            '\d{1,2}([-/])\d{1,2}\1\d{2}',
-            '\d{1,2}([-/])\d{1,2}\1\d{4}',
-            '\d{4}([/-])\d{2}\1\d{2}',
-            '('.implode('|', self::$months_short) .')\s*\d{1,2}(,?\s*\d{4})?',
-            '('.implode('|', self::$months_long) .')\s*\d{1,2}(,?\s*\d{4})?',
+			// 1-1-00 or 01-01-00
+            '\b\d{1,2}([-/])\d{1,2}\1\d{2}\b',
+			// 1-1-2000 or 01-01-2000
+            '\b\d{1,2}([-/])\d{1,2}\1\d{4}\b',
+			// 2000-01-01
+            '\b\d{4}([/-])\d{2}\1\d{2}\b',
+			// January 1 or January 01
+			// or January 1 2000 or January 01 2000
+			// or January 1, 2000 or January 01, 2000
+            '\b('.implode('|', self::$months_short) .')\s*(\d{1,2})?(,?\s*\d{4})?\b',
+			// Jan 1 or Jan 01
+			// or Jan 1 2000 or Jan 01 2000
+			// or Jan 1, 2000 or Jan 01, 2000
+            '\b('.implode('|', self::$months_long) .')\s*(\d{1,2})?(,?\s*\d{4})?\b',
         ));
     }
 }
