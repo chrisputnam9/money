@@ -228,11 +228,20 @@ SQL;
     }
 
     // Get options for linked tables
-    public function getOptions($data)
+    public function getOptions($data, $sort_callbacks=[])
     {
         $request = self::getRequest();
 
         $account_options = Account_Model::getGroupedAccounts();
+
+		$account_to_options = $account_options;
+		if (isset($sort_callbacks['account_to'])) {
+			foreach ($account_to_options as $type_index => $options) {
+				if (isset($sort_callbacks['account_to'][$type_index])) {
+					uasort($account_to_options[$type_index]['options'], $sort_callbacks['account_to'][$type_index]);
+				}
+			}
+		}
 
         return [
             'account_from_options' => self::populateSelectedOptions(
@@ -240,7 +249,7 @@ SQL;
                 empty($data['account_from']) ? false : $data['account_from']
             ),
             'account_to_options' => self::populateSelectedOptions(
-                array_reverse($account_options),
+                array_reverse($account_to_options),
                 empty($data['account_to']) ? false : $data['account_to']
             ),
             'amount_options' => self::populateSelectedOptions(

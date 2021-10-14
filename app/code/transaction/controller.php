@@ -150,6 +150,8 @@ class Transaction_Controller extends Core_Controller_Abstract
                     ];
                 }
 
+				$option_sort_callbacks = [];
+
                 if ($image_or_file)
                 {
                     // Load from cache (ran on original image)
@@ -371,10 +373,37 @@ class Transaction_Controller extends Core_Controller_Abstract
 								echo "</table>";
 							}
 
-							// todo set to first one - best match
+							// Set best match and other matches for ordering
 							$body_data['account_to'] = $account_to_matches[0]['option_id'];
-							$body_data['account_to_matches'] = array_column($account_to_matches, 'option_id', 'option_id');
+							$sorted_option_ids = array_column($account_to_matches, 'option_id');
+							$sorted_option_ids = array_flip($sorted_option_ids);
 
+							// Sort "Other" accounts 
+							$option_sort_callbacks['account_to'][2] = function ($a, $b) use ($sorted_option_ids) {
+								$a_id = $a['id'];
+								$a_order = isset($sorted_option_ids[$a_id]) ? $sorted_option_ids[$a_id] : null;
+								$b_id = $b['id'];
+								$b_order = isset($sorted_option_ids[$b_id]) ? $sorted_option_ids[$b_id] : null;
+
+								// Same order index? then sort by name
+								if ($a_order === $b_order) {
+									return strnatcmp($a['title'], $b['title']);
+								}
+
+								// a is a match and b is not
+								if ( !is_null($a_order) and is_null($b_order)) {
+									return -1;
+								}
+
+								// b is a match and a is not
+								if ( !is_null($b_order) and is_null($a_order)) {
+									return 1;
+								}
+
+								// Sort by their order
+								return $a_order <=> $b_order;
+
+							};
 						}
 
                     } // End if - auto-detecting account_to
@@ -382,7 +411,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                 } // End if - processing image or file
 
                 // Options always needed for template
-                $options = $transaction_model->getOptions($body_data);
+				$options = $transaction_model->getOptions($body_data, $option_sort_callbacks);
 
                 $body_data = array_merge($body_data, $options);
 
@@ -394,7 +423,7 @@ class Transaction_Controller extends Core_Controller_Abstract
                 $body_data['yesterday_datestamp'] = date('Y-m-d', strtotime('yesterday'));
 
                 // Debug data behind the form
-                if (isset($_GET['debug'])){
+                if (isset($_GET['debug_body_data'])){
                     die("<pre>".print_r($body_data,true)."</pre>");
                 }
 
