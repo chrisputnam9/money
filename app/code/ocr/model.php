@@ -148,7 +148,10 @@ class OCR_Model extends Core_Model_Abstract
                 return $this->text;
             }
 
-            // Conver the image to make sure tesseract will support it
+            // Convert the image to make sure tesseract will support it
+			// May no longer be needed with pre-save to rotated PNG...
+			// Testing out that theory:
+			/*
             $command = 'convert "' . $image . '" -density 600 "' . $image . '" 2>&1';
             exec($command, $output, $return);
             if ($return != 0)
@@ -156,6 +159,7 @@ class OCR_Model extends Core_Model_Abstract
                 // self::log($output);
                 throw new Exception('Image Conversion Error: ' . implode("\n", $output));
             }
+			 */
 
             // Run OCR
             $command = 'tesseract "' . $image . '" stdout 2>&1';

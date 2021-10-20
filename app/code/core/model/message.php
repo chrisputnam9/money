@@ -84,6 +84,11 @@ class Core_Model_Message extends Core_Abstract
         {
             echo $output;
         }
+		// JSON - log to file
+        protected function log_json($output)
+        {
+            file_put_contents(DIR_TMP . DS . 'log' . DS . 'message.log', $output, FILE_APPEND);
+        }
 
     // Error action
     function _error($error, $die=true)

@@ -482,8 +482,8 @@ class Transaction_Controller extends Core_Controller_Abstract
     static public function processImage($image, $response)
     {
 
-        $filename = strtolower($image['name']);
-        if (!preg_match('/\.(png|jpe?g|gif)$/', $filename))
+        $image_filename = strtolower($image['name']);
+        if (!preg_match('/\.(png|jpe?g|gif)$/', $image_filename))
             $response->fail('Image must be png, jpg or gif.');
 
         if (
@@ -493,36 +493,41 @@ class Transaction_Controller extends Core_Controller_Abstract
             $response->fail('Failed to upload image. May be too large. Limit is ' . ini_get('upload_max_filesize') . '.');
         }
 
-        $filename = preg_replace('/[^\w\-_.]+/', '-', $filename);
-        $filename = date('Ymd-His_') . $filename;
+        $image_filename = preg_replace('/[^\w\-_.]+/', '-', $image_filename);
+        $image_filename = date('Ymd-His_') . $image_filename;
 
         $dir = self::DIR_UPLOAD;
         if (!is_dir($dir))
             mkdir($dir);
 
-        $path = $dir . $filename;
+        $original_filepath = $dir . $image_filename;
 
-        $success = move_uploaded_file( $image['tmp_name'], $path );
+        $success = move_uploaded_file( $image['tmp_name'], $original_filepath );
 
         if (!$success)
             $response->fail('Failed to move uploaded file - check permissions');
 
+        $rotated_filename = preg_replace('/\.\w+$/', '_rotated.png', $image_filename);
+		$rotated_filepath = $dir . $rotated_filename;
+
+        $resized_filename = preg_replace('/\.\w+$/', '_resized.png', $image_filename);
+		$resized_filepath = $dir . $resized_filename;
+
+		self::autoOrientImage($original_filepath, $rotated_filepath);
+        unlink($original_filepath);
+
         try {
             // Run OCR and cache for later
-            $ocr = new OCR_Model($path);
+            $ocr = new OCR_Model($rotated_filepath);
             $ocr->getText();
         } catch (Exception $e) {
             $response->fail("Issue processing image: " . $e->getMessage());
         }
 
-        $dest_filename = preg_replace('/\.\w+$/', '_resized.png', $filename);
-        $destination = $dir . $dest_filename;
+        self::shrinkImage($rotated_filepath, $resized_filepath);
+        unlink($rotated_filepath);
 
-        self::shrinkImage($path, $destination);
-
-        unlink($path);
-
-        $response->redirect('/transaction/form', ['image'=>$dest_filename]);
+        $response->redirect('/transaction/form', ['image'=>$resized_filename]);
     }
 
 	// Process text submission
@@ -550,28 +555,47 @@ class Transaction_Controller extends Core_Controller_Abstract
         $response->redirect('/transaction/form', array_merge($extra_data, ['file'=>$filename]));
     }
 
+	// Auto-orient an image as needed and save to destination
+	static function autoOrientImage($source, $destination, $unlink_invalid=true)
+	{
+		list($image, $info) = self::getImageFromSource($source, $unlink_invalid);
+
+		// Auto-orient the image as needed
+		$exif = exif_read_data($source);
+		if($exif && isset($exif['Orientation']))
+		{
+			$orientation = $exif['Orientation'];
+			// if there is some rotation necessary
+			if($orientation != 1)
+			{
+				$deg = 0;
+				switch ($orientation)
+				{
+					case 3:
+						$deg = 180;
+						break;
+					case 6:
+						$deg = 270;
+						break;
+					case 8:
+						$deg = 90;
+						break;
+				}
+				if ($deg)
+				{
+					$image = imagerotate($image, $deg, 0);        
+				}
+			}
+		}
+
+		// Will save the image either way, as the new filename is expected
+		self::writeImageToFile($image, $destination);
+	}
+
     // Shrink an image
     static function shrinkImage($source, $destination, $unlink_invalid=true)
     {
-
-        $info = getimagesize($source);
-
-        if ($info['mime'] == 'image/jpeg')
-            $image = \imagecreatefromjpeg($source);
-        elseif ($info['mime'] == 'image/gif')
-            $image = \imagecreatefromgif($source);
-        elseif ($info['mime'] == 'image/png')
-            $image = \imagecreatefrompng($source);
-        else
-        {
-            if ($unlink_invalid)
-            {
-                unlink($source);
-                die('Image must be png, jpg or gif.  Go back and try again.');
-            }
-            else
-                return false;
-        }
+		list($image, $info) = self::getImageFromSource($source, $unlink_invalid);
 
         // Size to width 500px
         $width = $info[0];
@@ -593,9 +617,48 @@ class Transaction_Controller extends Core_Controller_Abstract
             $image = $new_image;
         }
 
-        // Convert to png
-        \imagepng($image, $destination, 9);
+		return self::writeImageToFile($image, $destination);
     }
+
+	/**
+	 * Get an image object from file source
+	 *  - check against valid types
+	 *  - optionally delete invalid type of file
+	 *
+	 * @return [GdImage, $info]
+	 */
+	static function getImageFromSource($source, $unlink_invalid=true)
+	{
+        $info = getimagesize($source);
+
+        if ($info['mime'] == 'image/jpeg')
+            $image = \imagecreatefromjpeg($source);
+        elseif ($info['mime'] == 'image/gif')
+            $image = \imagecreatefromgif($source);
+        elseif ($info['mime'] == 'image/png')
+            $image = \imagecreatefrompng($source);
+        else
+        {
+            if ($unlink_invalid)
+            {
+                unlink($source);
+                die('Image must be png, jpg or gif.  Go back and try again.');
+            }
+            else
+                return false;
+        }
+
+		return [$image, $info];
+	}
+
+	/**
+	 * Write an image out to a file destination
+	 */
+	static function writeImageToFile($image, $destination)
+	{
+        // Convert to png
+        \imagepng($image, $destination, 1);
+	}
 
     // Process main form submission
     static public function processForm($request, $response)
