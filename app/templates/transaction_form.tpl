@@ -12,16 +12,18 @@
     <div class='alert alert-block {{#id}}alert-warning{{/id}} {{^id}}alert-danger{{/id}}'>
         <button type="button" class="close" data-dismiss="alert">&times;</button>
 
-        <strong>Possible Duplicates</strong>
-        <br>The following transactions look similar to this one:
+		<details>
+			<summary><strong>Possible Duplicates</strong> <span class="glyphicon glyphicon-collapse-down"></span><br><small>click to toggle details</small></summary>
+			The following transactions look similar to this one:
 
-        <ul>
-        {{#duplicates}}
-            <li><a href='/transaction/form?id={{id}}' class='text-danger' target='_blank'><b><span class="glyphicon glyphicon-new-window"></span> On {{date_formatted}} - {{amount_formatted}}</b></a></li>
-        {{/duplicates}}
-        </ul>
+			<ul>
+			{{#duplicates}}
+				<li><a href='/transaction/form?id={{id}}' class='text-danger' target='_blank'><b><span class="glyphicon glyphicon-new-window"></span> On {{date_formatted}} - {{amount_formatted}}</b></a></li>
+			{{/duplicates}}
+			</ul>
+		</details>
 
-        {{^id}}<em>This transaction has not been saved yet - click Apply or Save to ignore the duplicates and save anyway</em>{{/id}}
+        {{^id}}<br><em>This transaction has not been saved yet - click Apply or Save to ignore the duplicates and save anyway</em>{{/id}}
     </div>
 {{/are_duplicates}}
 

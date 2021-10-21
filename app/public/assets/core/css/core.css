@@ -145,6 +145,10 @@ p.alert {
     width: 100%;
 }
 
+details summary {
+	cursor: pointer;
+}
+
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: 992px) {
     .panel.panel-tight {

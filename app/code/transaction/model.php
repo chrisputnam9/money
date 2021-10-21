@@ -81,6 +81,7 @@ class Transaction_Model extends Core_Model_Dbo
                 {$file_clause}
                 {$image_clause}
             )
+			ORDER BY date_occurred DESC
 SQL;
 
         $data = [
@@ -111,7 +112,8 @@ SQL;
         //echo("<pre>".print_r($data,true)."</pre>");
         //die;
 
-        return self::get($sql, $data);
+        $results = self::get($sql, $data);
+		return $results;
     }    
 
     /**
