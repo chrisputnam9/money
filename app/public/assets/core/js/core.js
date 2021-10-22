@@ -585,6 +585,37 @@ CPI = (function($) {
             })
         });
 
+        // Swap values on click
+        $('.js-swap-values').on('click', function () {
+            const $btn = $(this);
+            const target1 = $btn.data('target1');
+            const target2 = $btn.data('target2');
+			const $target1 = $(target1);
+			const $target2 = $(target2);
+
+			if ($target1.length !== 1) {
+				throw new Error('Unexpected number of targets ('+$target1.length+') for target1: ' + target1);
+			}
+
+			if ($target2.length !== 1) {
+				throw new Error('Unexpected number of targets ('+$target2.length+') for target2: ' + target2);
+			}
+
+			let value1, value2;
+
+			// Only use case so far
+			if ($target1.is('select') && $target2.is('select')) {
+				value1 = $target1.val();
+				value2 = $target2.val();
+
+				$target1.val(value2);
+				$target1.trigger('change');
+
+				$target2.val(value1);
+				$target2.trigger('change');
+			}
+        });
+
         // Check date input and warn if it is more than 10 days in past or future
 		const $js_date_warn = $('.js-date-warn');
 		if ($js_date_warn.length > 0) {

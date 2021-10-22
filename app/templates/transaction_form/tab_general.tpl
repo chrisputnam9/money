@@ -1,6 +1,6 @@
 <div id='tab_general'>
 
-    <div class='col-sm-6'>  
+    <div class='col-sm-5'>  
         <div class="form-group">
             <label for="account_to"><em>*</em> Payee - Account/Party To</label>
             <select class="form-control" name="account_to" id="account_to" data-select="#category,#account_from">
@@ -17,7 +17,16 @@
         </div>
     </div>
 
-    <div class='col-sm-6'>  
+    <div class='col-sm-2'>  
+        <div class="form-group">
+            <label>Swap Accounts</label>
+			<button title='Swap account to and account from' class="js-swap-values btn btn-block btn-default" data-target1="#account_to" data-target2="#account_from" type="button">
+				<b><span class="glyphicon glyphicon-chevron-left"></span> Swap <span class="glyphicon glyphicon-chevron-right"></span></b>
+			</button>
+		</div>
+    </div>
+
+    <div class='col-sm-5'>  
         <div class="form-group">
             <label for="account_from"><em>*</em> Payer - Account/Party From</label>
             <select class="form-control" name="account_from" id="account_from">
