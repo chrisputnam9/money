@@ -70,4 +70,35 @@ class Core_Abstract
     {
         return Core_Model_Session::instance($key);
     }
+
+	/**
+	 * Get a new curl handle with pre-set defaults
+	 */
+	static function getCurl($url)
+	{
+		$curl = curl_init();
+		curl_setopt_array($curl, [
+			CURLOPT_URL => $url,
+			CURLOPT_HEADER => false,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_CONNECTTIMEOUT => 0,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_FOLLOWLOCATION => true,
+		]);
+		return $curl;
+	}
+
+	/**
+	 * Post data as JSON to an endpoint
+	 */
+	static function postJSON($url, $data) {
+		$curl = self::getCurl($url);
+		$payload = json_encode($data);
+		curl_setopt( $curl, CURLOPT_POSTFIELDS, $payload );
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+		$response = curl_exec($curl);
+		curl_close($curl);
+
+		return json_decode($response, true);
+	}
 }

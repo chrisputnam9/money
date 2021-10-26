@@ -257,17 +257,21 @@ class Login_Helper extends Core_Helper_Abstract
         }
 
         $api_key = "";
+		$user_id = 0;
 
         require_once DIR_CONFIG . 'users.php';
         foreach ($_USERS as $id => $user)
         {
             if ($username == $user['name'])
             {
+				$user_id = $id;
                 $api_key = $user['api_key'];
+				break;
             }
         }
 
         $data = [
+			'id' => $user_id,
             'name' => $username,
             'api_key' => $api_key,
         ];
