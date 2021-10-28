@@ -24,18 +24,37 @@ class Report_Controller extends Core_Controller_Abstract
 			if ($request->index(1,'add_account'))
 			{
 				// Good for 30 minutes
-				$public_token = $request->post('public_token');
-				$metadata = $request->post('metadata');
+				//$public_token = $request->post('public_token');
+				//$metadata_json = $request->post('metadata');
+
+				//todo debug this - string works, post doesn't - utf8 issue? escape issue? try vardumping...
+				//https://money-dev.chrisputnam.info/report/add_account
+				$public_token = "public-sandbox-474f365a-982a-4ff8-9606-8f64a0d1ac53";
+				$metadata_json = '{"institution":{"name":"Wells Fargo","institution_id":"ins_4"},"account":{"id":null,"name":null,"type":null,"subtype":null,"mask":null},"account_id":null,"accounts":[{"id":"LDB4LkRrymh5WVL741RRtRRGEm1V1MfPZ8grd","name":"Plaid Checking","mask":"0000","type":"depository","subtype":"checking"},{"id":"pnxP1BJypqUzylR56x99tBBlX3616zcLPg91m","name":"Plaid Saving","mask":"1111","type":"depository","subtype":"savings"}],"link_session_id":"a2e4fb46-7f7a-4e47-a41b-98f7cd782cca","public_token":"public-sandbox-474f365a-982a-4ff8-9606-8f64a0d1ac53"}';
 
 				if (empty($public_token)) {
 					die('Missing public_token');
 				}
 
-				if (empty($metadata)) {
+				if (empty($metadata_json)) {
 					die('Missing metadata');
 				}
 
-				die("Public token: " . $public_token);
+				echo "<pre>";
+
+				echo("public_token: " . $public_token);
+				echo "\n";
+
+				$metadata = json_decode($metadata_json, true);
+				if (empty($metadata)) {
+					echo('Invalid metadata:<br>' . $metadata_json);
+					die('JSON Error: ' . json_last_error_msg());
+				}
+
+				echo("\nmetadata: ");
+				print_r($metadata);
+				echo "</pre>";
+				die;
 
 				// TODO
 				// Exchange public_token for access_token
@@ -80,11 +99,9 @@ class Report_Controller extends Core_Controller_Abstract
 			const handler = Plaid.create({
 				token: '<?php echo $link_token ?>',
 				onSuccess: function(public_token, metadata) {
-					// TODO
-					console.log("public_token", public_token);
-					console.log("metadata", metadata);
-
-					document.getElementById('')
+					document.getElementById('public_token').value = public_token;
+					document.getElementById('metadata').value = JSON.stringify(metadata);
+					document.getElementById('add_account_form').submit();
 				},
 				onExit: function(err, metadata) {
 					// The user exited the Link flow.
