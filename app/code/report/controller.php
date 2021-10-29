@@ -24,13 +24,8 @@ class Report_Controller extends Core_Controller_Abstract
 			if ($request->index(1,'add_account'))
 			{
 				// Good for 30 minutes
-				//$public_token = $request->post('public_token');
-				//$metadata_json = $request->post('metadata');
-
-				//todo debug this - string works, post doesn't - utf8 issue? escape issue? try vardumping...
-				//https://money-dev.chrisputnam.info/report/add_account
-				$public_token = "public-sandbox-474f365a-982a-4ff8-9606-8f64a0d1ac53";
-				$metadata_json = '{"institution":{"name":"Wells Fargo","institution_id":"ins_4"},"account":{"id":null,"name":null,"type":null,"subtype":null,"mask":null},"account_id":null,"accounts":[{"id":"LDB4LkRrymh5WVL741RRtRRGEm1V1MfPZ8grd","name":"Plaid Checking","mask":"0000","type":"depository","subtype":"checking"},{"id":"pnxP1BJypqUzylR56x99tBBlX3616zcLPg91m","name":"Plaid Saving","mask":"1111","type":"depository","subtype":"savings"}],"link_session_id":"a2e4fb46-7f7a-4e47-a41b-98f7cd782cca","public_token":"public-sandbox-474f365a-982a-4ff8-9606-8f64a0d1ac53"}';
+				$public_token = $request->post('public_token');
+				$metadata_json = htmlspecialchars_decode($request->post('metadata'));
 
 				if (empty($public_token)) {
 					die('Missing public_token');
@@ -39,6 +34,7 @@ class Report_Controller extends Core_Controller_Abstract
 				if (empty($metadata_json)) {
 					die('Missing metadata');
 				}
+
 
 				echo "<pre>";
 
@@ -53,12 +49,33 @@ class Report_Controller extends Core_Controller_Abstract
 
 				echo("\nmetadata: ");
 				print_r($metadata);
-				echo "</pre>";
-				die;
+
+				// Exchange public_token for access_token
+				// https://plaid.com/docs/api/tokens/#itempublic_tokenexchange
+				$response = self::postJSON(PLAID_API_URL . "/item/public_token/exchange", [
+					'client_id' => PLAID_API_CLIENT_ID,
+					'secret' => PLAID_API_SECRET,
+					'public_token' => $public_token
+				]);
+				echo("\nexchange response: ");
+				print_r($response);
+
+				$access_token = $response['access_token'];
+
+				// Example request - get accounts with this item
+				// https://plaid.com/docs/api/accounts/#accountsget
+				$response = self::postJSON(PLAID_API_URL . "/accounts/get", [
+					'client_id' => PLAID_API_CLIENT_ID,
+					'secret' => PLAID_API_SECRET,
+					'access_token' => $access_token
+				]);
+				echo("\naccounts response: ");
+				print_r($response);
 
 				// TODO
-				// Exchange public_token for access_token
+				// Save access_token, item_id, exchange request_id and metadata_json into database - plaid_items
 
+				echo "</pre>";
 			}
 			else
 			{
