@@ -50,6 +50,9 @@ class Report_Controller extends Core_Controller_Abstract
 				echo("\nmetadata: ");
 				print_r($metadata);
 
+				$institution_name = $metadata['institution']['name'];
+				$institution_id = $metadata['institution']['institution_id'];
+
 				// Exchange public_token for access_token
 				// https://plaid.com/docs/api/tokens/#itempublic_tokenexchange
 				$response = self::postJSON(PLAID_API_URL . "/item/public_token/exchange", [
@@ -60,20 +63,19 @@ class Report_Controller extends Core_Controller_Abstract
 				echo("\nexchange response: ");
 				print_r($response);
 
+				$item_id = $response['item_id'];
 				$access_token = $response['access_token'];
-
-				// Example request - get accounts with this item
-				// https://plaid.com/docs/api/accounts/#accountsget
-				$response = self::postJSON(PLAID_API_URL . "/accounts/get", [
-					'client_id' => PLAID_API_CLIENT_ID,
-					'secret' => PLAID_API_SECRET,
-					'access_token' => $access_token
-				]);
-				echo("\naccounts response: ");
-				print_r($response);
+				$access_token_request_id = $response['request_id'];
 
 				// TODO
 				// Save access_token, item_id, exchange request_id and metadata_json into database - plaid_items
+				External_Model::save([
+					'item_id' => $item_id,
+					'institution_name' => $institution_name,
+					'institution_id' => $institution_id,
+					'access_token' => $access_token,
+					'access_token_request_id' => $access_token_request_id,
+				]);
 
 				echo "</pre>";
 			}
@@ -96,8 +98,21 @@ class Report_Controller extends Core_Controller_Abstract
 				self::renderLink($response['link_token']);
 			}
 
-			// TODO
-			// Get accounts
+			$external_items = External_Model::getAll();
+
+			foreach ($external_items as $item)
+			{
+				// Get accounts for the item
+				// https://plaid.com/docs/api/accounts/#accountsget
+				$response = self::postJSON(PLAID_API_URL . "/accounts/get", [
+					'client_id' => PLAID_API_CLIENT_ID,
+					'secret' => PLAID_API_SECRET,
+					'access_token' => $item['access_token'],
+				]);
+				self::renderItem($item, $response['accounts']);
+			}
+
+			// TODO Other API Requests
 			// https://plaid.com/docs/quickstart/#making-api-requests
 
         }
@@ -137,6 +152,29 @@ class Report_Controller extends Core_Controller_Abstract
 				handler.open();
 			});
 		</script>
+		<?php
+	}
+
+	static function renderItem($item, $accounts)
+	{
+		?>
+		<h2><?php echo $item['institution_name']; ?></h2>
+		<?php foreach ($accounts as $account): ?>
+			<h3><?php echo $account['name']; ?></h3>
+			<ul>
+				<li>Current Balance: <?php echo $account['balances']['current']; ?></li>
+				<li>Available Balance: <?php echo $account['balances']['available']; ?></li>
+			</ul>
+		<?php endforeach; ?>
+		<details>
+			<summary>Full item details</summary>
+			<pre>
+				Item Details:
+				<?php print_r($item); ?>
+				Accounts:
+				<?php print_r($accounts); ?>
+			</pre>
+		</details>
 		<?php
 	}
 
