@@ -89,15 +89,59 @@ class Core_Abstract
 	}
 
 	/**
-	 * Post data as JSON to an endpoint
+	 * GET JSON data from an endpoint
 	 */
-	static function postJSON($url, $data) {
+	static function getJSON($url, $data, $headers=[]) {
+
+		if (!empty($data)) { 
+			$url .= "?" . http_build_query($data);
+		}
+
 		$curl = self::getCurl($url);
 		$payload = json_encode($data);
-		curl_setopt( $curl, CURLOPT_POSTFIELDS, $payload );
-		curl_setopt( $curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+		curl_setopt( $curl, CURLOPT_POST, false );
+		curl_setopt( $curl, CURLOPT_HTTPHEADER,
+			array_merge(
+				[
+					'Accept: application/json',
+				],
+				$headers
+			)
+		);
 		$response = curl_exec($curl);
 		curl_close($curl);
+
+		if ( empty( $response ) ) {
+			die("Curl failed - empty response");
+		}
+
+		return json_decode($response, true);
+	}
+
+	/**
+	 * Post data as JSON to an endpoint
+	 */
+	static function postJSON($url, $data, $headers=[]) {
+
+		$curl = self::getCurl($url);
+		$payload = json_encode($data);
+		curl_setopt( $curl, CURLOPT_POST, true );
+		curl_setopt( $curl, CURLOPT_POSTFIELDS, $payload );
+		curl_setopt( $curl, CURLOPT_HTTPHEADER,
+			array_merge(
+				[
+					'Content-Type:application/json',
+					'Accept: application/json',
+				],
+				$headers
+			)
+		);
+		$response = curl_exec($curl);
+		curl_close($curl);
+
+		if ( empty( $response ) ) {
+			die("Curl failed - empty response");
+		}
 
 		return json_decode($response, true);
 	}
