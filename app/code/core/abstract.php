@@ -100,6 +100,7 @@ class Core_Abstract
 		$curl = self::getCurl($url);
 		$payload = json_encode($data);
 		curl_setopt( $curl, CURLOPT_POST, false );
+		curl_setopt( $curl, CURLOPT_HEADER, true );
 		curl_setopt( $curl, CURLOPT_HTTPHEADER,
 			array_merge(
 				[
@@ -109,13 +110,19 @@ class Core_Abstract
 			)
 		);
 		$response = curl_exec($curl);
+		$header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
 		curl_close($curl);
 
-		if ( empty( $response ) ) {
+		$header = substr($response, 0, $header_size);
+		$body = substr($response, $header_size);
+		$body = json_decode($body, true);
+
+		if ( empty( $body ) ) {
+			echo("<pre>".print_r($header,true)."</pre>");
 			die("Curl failed - empty response");
 		}
 
-		return json_decode($response, true);
+		return $body;
 	}
 
 	/**
@@ -127,6 +134,7 @@ class Core_Abstract
 		$payload = json_encode($data);
 		curl_setopt( $curl, CURLOPT_POST, true );
 		curl_setopt( $curl, CURLOPT_POSTFIELDS, $payload );
+		curl_setopt( $curl, CURLOPT_HEADER, true );
 		curl_setopt( $curl, CURLOPT_HTTPHEADER,
 			array_merge(
 				[
@@ -137,12 +145,18 @@ class Core_Abstract
 			)
 		);
 		$response = curl_exec($curl);
+		$header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
 		curl_close($curl);
 
-		if ( empty( $response ) ) {
+		$header = substr($response, 0, $header_size);
+		$body = substr($response, $header_size);
+		$body = json_decode($body, true);
+
+		if ( empty( $body ) ) {
+			echo("<pre>".print_r($header,true)."</pre>");
 			die("Curl failed - empty response");
 		}
 
-		return json_decode($response, true);
+		return $body;
 	}
 }
