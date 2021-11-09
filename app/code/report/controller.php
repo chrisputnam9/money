@@ -82,13 +82,26 @@ class Report_Controller extends Core_Controller_Abstract
 			);
 			echo("<pre>".print_r($response,true)."</pre>");
 			 */
-
 			$customer_id = 5017068539;
 
+			/*
 			// Get Institutions - search
 			// https://api-reference.finicity.com/#/rest/api-endpoints/institutions/get-institutions
-			// todo
-
+			echo "Institutions:";
+			$response = self::getJSON(
+					FINICITY_API_URL . "/institution/v2/institutions",
+					[
+						'search' => 'pnc'
+					],
+					[
+						'Finicity-App-Token: ' . $token,
+						'Finicity-App-Key: ' . FINICITY_API_APP_KEY,
+					]
+			);
+			echo("<pre>".print_r($response,true)."</pre>");
+			 */
+			$pnc_bank = 2866;
+			
 			// Try Connect lite with specific institution
 			// todo
 
@@ -98,6 +111,7 @@ class Report_Controller extends Core_Controller_Abstract
 					[
 						'partnerId' => FINICITY_API_PARTNER_ID,
 						'customerId' => $customer_id,
+						'institutionId' => $pnc_bank,
 						'redirectUri' => 'https://money-dev.chrisputnam.info/report/add_account',
 
 					],
