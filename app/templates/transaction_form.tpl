@@ -13,7 +13,7 @@
         <button type="button" class="close" data-dismiss="alert">&times;</button>
 
 		<details>
-			<summary><strong>Possible Duplicates</strong> <span class="glyphicon glyphicon-collapse-down"></span><br><small>click to toggle details</small></summary>
+			<summary><strong>ERROR: Possible Duplicates</strong> <span class="glyphicon glyphicon-collapse-down"></span><br><small>click to toggle details</small></summary>
 			The following transactions look similar to this one:
 
 			<ul>
@@ -24,6 +24,7 @@
 		</details>
 
         {{^id}}<br><em>This transaction has not been saved yet - click Apply or Save to ignore the duplicates and save anyway</em>{{/id}}
+        {{#id}}<br><em>If you just modified the transaction, your change will not have applied - re-save your change to ignore the duplicates. This message will not go away.</em>{{/id}}
     </div>
 {{/are_duplicates}}
 
