@@ -89,19 +89,19 @@ class Transaction_Controller extends Core_Controller_Abstract
             if ($request->index(1,'form'))
             {
 
-                $body_data["are_duplicates"] = "";
+
+                // Start with defaults
+                $body_data = [
+                    // Will change if editing
+                    'form_title' => 'New Transaction',
+					'are_duplicates' => '',
+                ];
 
                 // posted data? try to save
                 if ($request->post())
                 {
                     $body_data["duplicates"] = self::processForm($request, $response);
                 }
-
-                // Start with defaults
-                $body_data = [
-                    // Will change if editing
-                    'form_title' => 'New Transaction',
-                ];
 
                 // Load from DB if applicable
                 $id = $request->get('id');
