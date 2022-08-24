@@ -23,9 +23,9 @@ class User_Controller extends Core_Controller_Abstract
             $response->body_data = [
                 'user' => Login_Helper::getCurrentUser(),
             ];
-        }
 
-        $response->finalize();
+			$response->finalize();
+        }
     }
 
 }

@@ -12,7 +12,7 @@ class Core_Controller extends Core_Controller_Abstract
         Login_Controller::redirect();
 
         // Start with _index controller
-        $file_path = DIR_CODE . DS . '_index' . DS . 'controller.php';
+        $file_path = DIR_CODE . '_index' . DS . 'controller.php';
         if (is_file($file_path))
         {
             require_once($file_path);
@@ -22,7 +22,7 @@ class Core_Controller extends Core_Controller_Abstract
         while ($dir = readdir($code_dir))
         {
             if (in_array($dir, ['.','..','_index']) or !is_dir(DIR_CODE . DS . $dir)) continue;
-            $file_path = DIR_CODE . DS . $dir . DS . 'controller.php';
+            $file_path = DIR_CODE . $dir . DS . 'controller.php';
             if (is_file($file_path))
             {
                 require_once($file_path);

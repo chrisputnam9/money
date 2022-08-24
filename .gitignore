@@ -1,5 +1,6 @@
 .DS_Store
 .vagrant
+/local.dev/database/_*.sql
 /local.dev/database/data*.sql
 /local.dev/database/project.sql
 /source
