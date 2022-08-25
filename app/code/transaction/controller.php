@@ -79,7 +79,7 @@ class Transaction_Controller extends Core_Controller_Abstract
 
                 if (!empty($text))
                 {
-                    self::processText($text, $extra_data, $response);
+                    self::processText($text, $response, $extra_data);
                 }
 
                 $response->body_template = 'transaction_text';
@@ -531,7 +531,7 @@ class Transaction_Controller extends Core_Controller_Abstract
     }
 
 	// Process text submission
-	static public function processText($text, $extra_data=[], $response)
+	static public function processText($text, $response, $extra_data=[])
     {
         // Build unique filename based on
         //  - first 10 alphanumeric characters of text
