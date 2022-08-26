@@ -561,7 +561,8 @@ class Transaction_Controller extends Core_Controller_Abstract
 		list($image, $info) = self::getImageFromSource($source, $unlink_invalid);
 
 		// Auto-orient the image as needed
-		$exif = exif_read_data($source);
+		// Suppress warning - some files are just not readable
+		$exif = @exif_read_data($source);
 		if($exif && isset($exif['Orientation']))
 		{
 			$orientation = $exif['Orientation'];

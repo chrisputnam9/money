@@ -65,7 +65,7 @@ class Core_Model_Request extends Core_Model_Abstract
     /**
      * Get GET value
      */
-    public function get($key=false, $sanitize='string')
+    public function get($key=false, $sanitize='special_chars')
     {
         $sanitize = 'FILTER_SANITIZE_' . strtoupper($sanitize);
         if (!defined($sanitize))
@@ -83,7 +83,7 @@ class Core_Model_Request extends Core_Model_Abstract
     /**
      * Get POST value
      */
-    public function post($key=false, $sanitize='string')
+    public function post($key=false, $sanitize='special_chars')
     {
         $sanitize = 'FILTER_SANITIZE_' . strtoupper($sanitize);
         if (!defined($sanitize))
