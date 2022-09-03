@@ -43,7 +43,9 @@ class Core_Model_Dbo_Data extends Core_Model_Abstract
                 continue;
 
             // Convert to ASCII for MySQL Latin charset
-            $value = iconv('UTF-8', 'ASCII//IGNORE',  $value);
+			if ( !empty($value) ) {
+				$value = iconv('UTF-8', 'ASCII//IGNORE',  $value);
+			}
             
             if (is_numeric($raw_field))
                 $raw_field = "f" . $raw_field;
