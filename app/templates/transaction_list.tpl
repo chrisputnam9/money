@@ -35,8 +35,8 @@
                         {{date_occurred_formatted}}
                     </div>
                     <div class="col-xs-5 col-sm-9 col-md-1 col-bare">
-                        <div class="visible-sm-block"><b>{{amount_formatted}}</b></div>
-                        <div class="hidden-sm hidden-sm text-right"><b>{{amount_formatted}}</b></div>
+                        <div class="visible-sm-block classification-{{classification_value}}"><b>{{amount_formatted}}</b></div>
+                        <div class="hidden-sm hidden-sm text-right classification-{{classification_value}}"><b>{{amount_formatted}}</b></div>
                     </div>
                     <div class="col-xs-12 col-sm-3 col-md-3 col-md-offset-1 col-bare">
                         <a href='{{category_url}}'>{{category_value}}</a>
