@@ -24,6 +24,9 @@ class Core_Cron_Abstract extends Core_Abstract
      *  - It could run less often theoretically
      */
     public function run() {
+
+		// echo "Running cron at " . $this->now->format('Y-m-d H:i:s') . "\n";
+
         // On the hour
         if ($this->timediff->m == 0)
         {
@@ -31,14 +34,17 @@ class Core_Cron_Abstract extends Core_Abstract
             if ($this->timediff->h == 0)
             {
                 // Daily Job
+				// echo " - Running daily jobs\n";
                 if (is_callable([$this, 'day'])) $this->day();
             }
 
             // Hourly job
+			// echo " - Running hourly jobs\n";
             if (is_callable([$this, 'hour'])) $this->hour();
         }
 
         // Minutely job
+		// echo " - Running minutely jobs\n";
         if (is_callable([$this, 'minute'])) $this->minute();
 
     }

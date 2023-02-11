@@ -145,6 +145,8 @@ class Transaction_Recurrance_Model extends Core_Model_Dbo
             'main_transaction_id' => $this->_transaction_id,
             'recurrance_type' => static::$type,
             'recurrance_data' => $config,
+			'date_start' => null,
+			'date_end' => null,
         ];
 
         if (!empty($config['date_start']))
