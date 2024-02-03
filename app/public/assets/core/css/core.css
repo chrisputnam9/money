@@ -149,6 +149,20 @@ details summary {
 	cursor: pointer;
 }
 
+/**
+ * Transaction Classifications
+ */
+.classification-Payment {
+	color: maroon;
+}
+.classification-Credit,
+.classification-Income {
+	color: #46a754;
+}
+.classification-Transfer {
+	color: #337ab7;
+}
+
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: 992px) {
     .panel.panel-tight {
