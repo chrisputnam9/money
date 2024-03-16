@@ -1,7 +1,10 @@
 <div class='row'>
         {{#category}}
             <h2 class='text-center'>{{category}}</h2>
-            <p class='text-center'><a href='{{show_all_url}}'>Show All</a></p>
+            <p class='text-center'>
+				<a href='{{show_all_url}}'>Show All</a>
+				| <a href='{{csv_url}}'>Download CSV</a>
+			</p>
             <br>
         {{/category}}
     <div class='col-sm-12'>

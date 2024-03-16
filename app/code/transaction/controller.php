@@ -31,11 +31,31 @@ class Transaction_Controller extends Core_Controller_Abstract
                 self::getDateFilter()->enable();
                 self::getBudgetMenu()->enable();
 
+				$transactions = array_values($transaction_model->getListing());
+
+				// CSV Download
+				if ($request->get('type') === 'csv') {
+					header('Content-Type: text/csv; utf-8');
+					header("Content-Disposition: attachment; filename=transactions.csv");
+					header("Pragma: no-cache");
+					header("Expires: 0");
+					$out = fopen('php://output', 'w');
+					$csv = ob_get_clean();
+					fputcsv($out, array_keys($transactions[0]));
+					foreach ($transactions as $transaction) {
+						fputcsv($out, $transaction);
+					}
+					fclose($out);
+					die;
+				}
+
+				// HTML Output
                 $response->body_template = 'transaction_list';
                 $response->body_data = [
                     'category' => $transaction_model->getCategory(),
                     'show_all_url' => $request->url(null, ['category' => null]),
-                    'transactions' => array_values($transaction_model->getListing()),
+                    'csv_url' => $request->url(null, ['type' => 'csv']),
+                    'transactions' => $transactions,
                 ];
             }
 
