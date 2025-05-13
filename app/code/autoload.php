@@ -10,6 +10,11 @@ require_once DIR_CONFIG . "general.php";
 // Composer Autoloader
 require_once DIR_ROOT . DS . "vendor" . DS . "autoload.php";
 
+// Initialize Sentry ASAP
+\Sentry\init([
+  'dsn' => 'https://f363a85d560d8c40187d851ee7844459@o4509315849519104.ingest.us.sentry.io/4509315850764288',
+]);
+
 /**
  * Main autoloader
  */

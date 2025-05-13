@@ -1,6 +1,7 @@
 {
     "require": {
         "mustache/mustache": "^2.9",
-        "thiagoalessio/tesseract_ocr": "^0.2.1"
+        "thiagoalessio/tesseract_ocr": "^0.2.1",
+        "sentry/sentry": "^4.11"
     }
 }
