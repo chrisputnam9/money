@@ -12,7 +12,9 @@ require_once DIR_ROOT . DS . "vendor" . DS . "autoload.php";
 
 // Initialize Sentry ASAP
 \Sentry\init([
-  'dsn' => 'https://f363a85d560d8c40187d851ee7844459@o4509315849519104.ingest.us.sentry.io/4509315850764288',
+  'dsn' => SENTRY_DSN_PHP,
+  'environment' => IS_DEVELOPMENT ? 'development' : 'production',
+  'traces_sample_rate' => 1.0, // for performance monitoring
 ]);
 
 /**

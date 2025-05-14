@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>{{ title }}</title>
     <script
-    src="https://js.sentry-cdn.com/9a76d5a2f452ac747dc3333535c4f92e.min.js"
+    src="{{ sentry_script_js }}"
     crossorigin="anonymous"
     ></script>
     {{> favicons }}

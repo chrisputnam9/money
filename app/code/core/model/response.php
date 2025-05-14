@@ -155,6 +155,7 @@ class Core_Model_Response extends Core_Model_Abstract
         {
             $view = new $view_class(array(
                 'title' => $this->title,
+                'sentry_script_js' => SENTRY_SCRIPT_JS,
                 'menu' => $this->menu,
                 'main_data' => $this->main_data,
                 'body' => $this->body,
