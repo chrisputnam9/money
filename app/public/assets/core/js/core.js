@@ -364,7 +364,16 @@ CPI = (function ($) {
             };
 
             var uploadComplete = function (evt) {
-                var responseJson = JSON.parse(evt.target.responseText);
+                try {
+                    var responseJson = JSON.parse(evt.target.responseText);
+                } catch (e) {
+                    var error = "Error with file - please try again";
+                    $progress_bar.removeClass("progress-bar-success");
+                    $progress_bar.addClass("progress-bar-danger");
+                    $percents.html("ERROR: " + error);
+                    console.err("Error with file upload: " + e, "Event:", evt);
+                    return;
+                }
                 $input.val("");
 
                 $progress_bar.css("width", "95%");
