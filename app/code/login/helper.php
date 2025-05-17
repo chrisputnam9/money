@@ -213,12 +213,9 @@ class Login_Helper extends Core_Helper_Abstract
 
             if ($save_fresh_token)
             {
-                $random_bytes = "";
-                do {
-                    $random_bytes = random_bytes(20);
-                } while (str_contains($random_bytes, "\0"));
-
-                $new_login_token = password_hash($username . $now . $random_bytes, PASSWORD_DEFAULT);
+                // Random 20-digit int
+                $random_int = mt_rand(10000000000000000000, 99999999999999999999);
+                $new_login_token = password_hash($username . $now . $random_int, PASSWORD_DEFAULT);
                 $user_sessions[$new_login_token] = $expire;
             }
 
