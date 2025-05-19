@@ -68,6 +68,7 @@ class Login_Helper extends Core_Helper_Abstract
     public static function logout()
     {
         $session_data = self::getUserSessionData();
+        $username = $session_data['username'];
         $token = $session_data['login_token'];
 
         setcookie('money_token', "", 1, '/', COOKIE_DOMAIN, true);
