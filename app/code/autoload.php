@@ -14,7 +14,7 @@ require_once DIR_ROOT . DS . "vendor" . DS . "autoload.php";
 \Sentry\init([
   'dsn' => SENTRY_DSN_PHP,
   'environment' => IS_DEVELOPMENT ? 'development' : 'production',
-  'traces_sample_rate' => 1.0, // for performance monitoring
+  'traces_sample_rate' => .1, // for performance monitoring
 ]);
 
 /**
